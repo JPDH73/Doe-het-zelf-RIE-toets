@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RI&E Pre-toets Tabel 1</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Prototype op basis van Staatscourant 2024, 39674</p>
+          <h1>Toets alvast je eigen RI&amp;E.</h1>
+          <p class="intro">
+            Deze app gebruikt de vragen uit tabel 1, onderdelen 1 en 2, uit het
+            certificatieschema voor arbokerndeskundigen. De uitkomst is een
+            pre-toets en geen juridisch vervangende RI&amp;E of formele toets. De
+            app kijkt daarnaast ook naar de invulling van de nadere
+            RI&amp;E-verplichtingen.
+          </p>
+        </div>
+
+        <aside class="hero-card">
+          <p class="hero-label">Wat deze MVP doet</p>
+          <ul class="hero-list">
+            <li>Bedrijfsprofiel vastleggen</li>
+            <li>RI&E en plan van aanpak toetsen</li>
+            <li>Voorlopige score en urgenties tonen</li>
+            <li>Samenvatting voor uzelf en de arbo-kerndeskundige genereren</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="layout">
+        <form class="survey" id="survey">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-kicker">Stap 1</p>
+                <h2>Bedrijfsprofiel</h2>
+              </div>
+              <p class="section-note">Gebruik dit om de beoordeling te duiden.</p>
+            </div>
+
+            <div class="grid two">
+              <label class="field">
+                <span>Bedrijfsnaam</span>
+                <input id="companyName" name="companyName" type="text" placeholder="Bijv. Van Dijk Metaal" />
+              </label>
+
+              <label class="field">
+                <span>Contactpersoon</span>
+                <input id="contactName" name="contactName" type="text" placeholder="Naam van invuller" />
+              </label>
+
+              <label class="field">
+                <span>Branche</span>
+                <input id="industry" name="industry" type="text" placeholder="Bijv. metaal, zorg, logistiek of kantoor" />
+              </label>
+
+              <label class="field">
+                <span>Aantal medewerkers</span>
+                <select id="employees" name="employees">
+                  <option value="1-5">1-5</option>
+                  <option value="6-25">6-25</option>
+                  <option value="26-100">26-100</option>
+                  <option value="100+">100+</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Datum van invullen</span>
+                <input id="assessmentDate" name="assessmentDate" type="date" />
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-kicker">Stap 2</p>
+                <h2>Toetsing van de RI&amp;E en het plan van aanpak</h2>
+              </div>
+              <p class="section-note">Beantwoord alleen de onderdelen 1 en 2 uit de taakbeschrijving.</p>
+            </div>
+
+            <div class="risk-table-legend">
+              <strong>Uitwerking vraag 1.1</strong>
+              <p>
+                Hoofd-risico's zijn inklapbaar. Per deelrisico vul je de toetskolommen in en kun je
+                bewijs, notities of toelichting toevoegen.
+              </p>
+            </div>
+
+            <div id="questionGroups" class="question-groups"></div>
+          </section>
+        </form>
+
+        <aside class="results">
+          <section class="panel sticky">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-kicker">Live resultaat</p>
+                <h2>Voorlopige beoordeling</h2>
+              </div>
+              <span id="statusBadge" class="badge badge-warn">Let op</span>
+            </div>
+
+            <div class="score-ring">
+              <div class="score-ring-inner">
+                <strong id="scoreValue">0%</strong>
+                <span>score</span>
+              </div>
+            </div>
+
+            <div class="score-grid">
+              <article class="metric">
+                <span class="metric-label">Invulgraad</span>
+                <strong id="progressValue">0%</strong>
+              </article>
+              <article class="metric">
+                <span class="metric-label">Status pre-toets</span>
+                <strong id="riskLevel">Nog onvolledig</strong>
+              </article>
+              <article class="metric">
+                <span class="metric-label">Kritieke punten</span>
+                <strong id="criticalCount">0</strong>
+              </article>
+            </div>
+
+            <section class="summary">
+              <h3>Samenvatting</h3>
+              <p id="summaryText" class="summary-text">
+                Vul de vragen in om een voorlopige inschatting te krijgen.
+              </p>
+            </section>
+
+            <section class="summary">
+              <div class="summary-head">
+                <h3>Rapporttekst</h3>
+                <button id="copyReport" class="secondary-button" type="button">
+                  Kopieer
+                </button>
+              </div>
+              <textarea id="reportOutput" class="report-output" readonly></textarea>
+            </section>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <template id="questionTemplate">
+      <article class="question-card">
+        <div class="question-copy">
+          <p class="question-category"></p>
+          <h3 class="question-title"></h3>
+          <p class="question-help"></p>
+        </div>
+        <div class="question-options" role="radiogroup"></div>
+      </article>
+    </template>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
