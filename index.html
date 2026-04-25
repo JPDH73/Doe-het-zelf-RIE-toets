@@ -10,24 +10,38 @@
     <main class="page">
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Prototype op basis van Staatscourant 2024, 39674</p>
-          <h1>Toets alvast je eigen RI&amp;E.</h1>
+          <p class="eyebrow">Deze app is bedoeld voor gebruik op de computer en minder geschikt voor invullen op de telefoon.</p>
+          <h1>Toets alvast uw eigen RI&amp;E</h1>
           <p class="intro">
-            Deze app gebruikt de vragen uit tabel 1, onderdelen 1 en 2, uit het
-            certificatieschema voor arbokerndeskundigen. De uitkomst is een
-            pre-toets en geen juridisch vervangende RI&amp;E of formele toets. De
-            app kijkt daarnaast ook naar de invulling van de nadere
-            RI&amp;E-verplichtingen.
+            Met deze app kunt u alvast een groot deel van uw eigen RI&amp;E
+            beoordelen, waarbij het certificatieschema voor
+            arbeidsdeskundigen het uitgangspunt is. U voert hiermee de
+            systeemtoets uit, waarbij u toetst in hoeverre de RI&amp;E, inclusief
+            het plan van aanpak, voldoet aan de wettelijke bepalingen
+            (de verplichte inhoud), aan aanvullende vereisten (aspecten die
+            bijzondere aandacht vragen), en of alle risico's zijn
+            geinventariseerd. Binnen het wettelijke kader ligt het
+            zwaartepunt van de systeemtoets op volledigheid en actualiteit van
+            de RI&amp;E. Tegelijkertijd levert deze toets input op voor de
+            scope-toets, waarin dieper wordt ingegaan op de inhoud van de
+            risico's die zich voordoen. Daarbij ligt de nadruk veel meer op de
+            betrouwbaarheid van bevindingen en de mate waarin de RI&amp;E aansluit
+            bij actuele inzichten. De uitkomst is een doe-het-zelftoets en
+            geen juridisch vervangende formele toets.
           </p>
+          <div class="intro-meta">
+            <p id="draftStatus" class="draft-status">Concept wordt lokaal opgeslagen in deze browser.</p>
+          </div>
         </div>
 
         <aside class="hero-card">
-          <p class="hero-label">Wat deze MVP doet</p>
+          <p class="hero-label">Wat deze app doet</p>
           <ul class="hero-list">
             <li>Bedrijfsprofiel vastleggen</li>
-            <li>RI&E en plan van aanpak toetsen</li>
-            <li>Voorlopige score en urgenties tonen</li>
-            <li>Samenvatting voor uzelf en de arbo-kerndeskundige genereren</li>
+            <li>De afbakening, uitvoering en documentgegevens van de RI&amp;E vastleggen</li>
+            <li>De RI&amp;E en het plan van aanpak beoordelen</li>
+            <li>Een voorlopige beoordeling tonen</li>
+            <li>Samenvatting voor uzelf en de arbokerndeskundige genereren</li>
           </ul>
         </aside>
       </section>
@@ -40,33 +54,67 @@
                 <p class="section-kicker">Stap 1</p>
                 <h2>Bedrijfsprofiel</h2>
               </div>
-              <p class="section-note">Gebruik dit om de beoordeling te duiden.</p>
             </div>
 
             <div class="grid two">
               <label class="field">
                 <span>Bedrijfsnaam</span>
-                <input id="companyName" name="companyName" type="text" placeholder="Bijv. Van Dijk Metaal" />
+                <input
+                  id="companyName"
+                  name="companyName"
+                  type="text"
+                  placeholder="Vul de naam van het bedrijf waarvoor de RI&amp;E is uitgevoerd in"
+                />
               </label>
 
               <label class="field">
                 <span>Contactpersoon</span>
-                <input id="contactName" name="contactName" type="text" placeholder="Naam van invuller" />
+                <input
+                  id="contactName"
+                  name="contactName"
+                  type="text"
+                  placeholder="Vul de naam van de invuller van deze app in"
+                />
+              </label>
+
+              <label class="field">
+                <span>Contactpersoon ondernemingsraad</span>
+                <input
+                  id="worksCouncilContact"
+                  name="worksCouncilContact"
+                  type="text"
+                  placeholder="Vul de naam van de contactpersoon van de ondernemingsraad in"
+                />
+              </label>
+
+              <label class="field">
+                <span>Arbodienst / Bedrijfsarts</span>
+                <input
+                  id="occupationalService"
+                  name="occupationalService"
+                  type="text"
+                  placeholder="Geef de naam van de arbodienst of de bedrijfsarts waarmee het basiscontract is afgesloten"
+                />
               </label>
 
               <label class="field">
                 <span>Branche</span>
-                <input id="industry" name="industry" type="text" placeholder="Bijv. metaal, zorg, logistiek of kantoor" />
+                <input
+                  id="industry"
+                  name="industry"
+                  type="text"
+                  placeholder="Geef de naam van de branche waarbij de organisatie of het bedrijf is aangesloten"
+                />
               </label>
 
               <label class="field">
                 <span>Aantal medewerkers</span>
-                <select id="employees" name="employees">
-                  <option value="1-5">1-5</option>
-                  <option value="6-25">6-25</option>
-                  <option value="26-100">26-100</option>
-                  <option value="100+">100+</option>
-                </select>
+                <input
+                  id="employees"
+                  name="employees"
+                  type="text"
+                  placeholder="Vul hier het aantal medewerkers in"
+                />
               </label>
 
               <label class="field">
@@ -80,16 +128,95 @@
             <div class="panel-head">
               <div>
                 <p class="section-kicker">Stap 2</p>
+                <h2>Afbakening en documentgegevens van de RI&amp;E</h2>
+              </div>
+            </div>
+
+            <div class="grid two">
+              <label class="field">
+                <span>Naam of omschrijving van de RI&amp;E</span>
+                <input
+                  id="rieName"
+                  name="rieName"
+                  type="text"
+                  placeholder="Geef hier de naam van de RI&amp;E en een korte omschrijving."
+                />
+              </label>
+
+              <label class="field">
+                <span>Reikwijdte van de RI&amp;E</span>
+                <details class="question-help-toggle">
+                  <summary>Toelichting</summary>
+                  <p>
+                    Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties,
+                    functies, processen en risicothema's de RI&amp;E betrekking heeft.
+                  </p>
+                </details>
+                <textarea
+                  id="scopeDescription"
+                  name="scopeDescription"
+                  rows="6"
+                  placeholder="Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties, functies, processen en risicothema's de RI&amp;E betrekking heeft."
+                ></textarea>
+              </label>
+
+              <label class="field">
+                <span>Uitvoering van de RI&amp;E</span>
+                <details class="question-help-toggle">
+                  <summary>Toelichting</summary>
+                  <p>
+                    Geef een beschrijving van alle personen en functies van degenen die hebben
+                    meegewerkt aan de RI&amp;E en welke methodiek is gebruikt.
+                  </p>
+                </details>
+                <textarea
+                  id="executionDescription"
+                  name="executionDescription"
+                  rows="6"
+                  placeholder="Geef een beschrijving van alle personen en functies van degenen die hebben meegewerkt aan de RI&amp;E en welke methodiek is gebruikt."
+                ></textarea>
+              </label>
+
+              <label class="field">
+                <span>Datum van de RI&amp;E</span>
+                <input id="rieDate" name="rieDate" type="date" />
+              </label>
+
+              <label class="field">
+                <span>Documenten die behoren tot de te toetsen RI&amp;E</span>
+                <details class="question-help-toggle">
+                  <summary>Toelichting</summary>
+                  <p>
+                    Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende
+                    stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen.
+                  </p>
+                </details>
+                <textarea
+                  id="rieDocuments"
+                  name="rieDocuments"
+                  rows="6"
+                  placeholder="Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen."
+                ></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-kicker">Stap 3</p>
                 <h2>Toetsing van de RI&amp;E en het plan van aanpak</h2>
               </div>
-              <p class="section-note">Beantwoord alleen de onderdelen 1 en 2 uit de taakbeschrijving.</p>
+              <button id="toggleAllSections" class="secondary-button" type="button">
+                Klap alles open
+              </button>
             </div>
 
             <div class="risk-table-legend">
-              <strong>Uitwerking vraag 1.1</strong>
+              <strong>Toelichting vraag 1.1.1</strong>
               <p>
-                Hoofd-risico's zijn inklapbaar. Per deelrisico vul je de toetskolommen in en kun je
-                bewijs, notities of toelichting toevoegen.
+                De hoofdrisico’s zijn uitklapbaar en opgebouwd uit deelrisico’s. Per deelrisico
+                beantwoordt u de vragen en kunt u bewijsnotities of een toelichting toevoegen.
               </p>
             </div>
 
@@ -102,15 +229,7 @@
             <div class="panel-head compact">
               <div>
                 <p class="section-kicker">Live resultaat</p>
-                <h2>Voorlopige beoordeling</h2>
-              </div>
-              <span id="statusBadge" class="badge badge-warn">Let op</span>
-            </div>
-
-            <div class="score-ring">
-              <div class="score-ring-inner">
-                <strong id="scoreValue">0%</strong>
-                <span>score</span>
+                <h2>Samenvatting uitkomst</h2>
               </div>
             </div>
 
@@ -119,46 +238,86 @@
                 <span class="metric-label">Invulgraad</span>
                 <strong id="progressValue">0%</strong>
               </article>
-              <article class="metric">
-                <span class="metric-label">Status pre-toets</span>
-                <strong id="riskLevel">Nog onvolledig</strong>
-              </article>
-              <article class="metric">
-                <span class="metric-label">Kritieke punten</span>
-                <strong id="criticalCount">0</strong>
-              </article>
             </div>
 
             <section class="summary">
-              <h3>Samenvatting</h3>
-              <p id="summaryText" class="summary-text">
-                Vul de vragen in om een voorlopige inschatting te krijgen.
-              </p>
+              <h3>Uitkomst vraag 1.1.1</h3>
+              <div class="result-list-block">
+                <strong>Van toepassing</strong>
+                <ul id="applicableItems" class="result-list"></ul>
+              </div>
+              <div class="result-list-block">
+                <strong>Van toepassing en beschreven</strong>
+                <ul id="describedApplicableItems" class="result-list"></ul>
+              </div>
+              <div class="result-list-block">
+                <strong>Van toepassing maar niet beschreven</strong>
+                <ul id="notDescribedApplicableItems" class="result-list"></ul>
+              </div>
+              <div class="result-list-block">
+                <strong>Niet van toepassing</strong>
+                <ul id="notApplicableItems" class="result-list"></ul>
+              </div>
+              <div class="result-list-block">
+                <strong>Nadere voorschriften met ja beantwoord</strong>
+                <ul id="supplementedApplicableItems" class="result-list"></ul>
+              </div>
+            </section>
+
+            <section class="summary">
+              <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+              <div id="questionStatusMatrix" class="status-matrix"></div>
+            </section>
+
+            <section class="summary">
+              <h3>Uitkomsten vragen 2.1 t/m 2.9</h3>
+              <div id="planStatusMatrix" class="status-matrix"></div>
             </section>
 
             <section class="summary">
               <div class="summary-head">
                 <h3>Rapporttekst</h3>
-                <button id="copyReport" class="secondary-button" type="button">
-                  Kopieer
-                </button>
+                <div class="button-row">
+                  <button id="generatePdf" class="secondary-button" type="button">
+                    Genereer PDF
+                  </button>
+                  <button id="generateWord" class="secondary-button" type="button">
+                    Genereer Word
+                  </button>
+                  <button id="copyReport" class="secondary-button" type="button">
+                    Kopieer
+                  </button>
+                </div>
               </div>
-              <textarea id="reportOutput" class="report-output" readonly></textarea>
+              <div id="reportOutput" class="report-output report-output-rich"></div>
             </section>
+
+            <footer class="app-meta">
+              <p>Ontwikkeld door: Support at Work</p>
+              <p>Op basis van: Staatscourant 2024-39674</p>
+              <p>Versiedatum: 26 april 2026</p>
+            </footer>
           </section>
         </aside>
       </section>
     </main>
 
     <template id="questionTemplate">
-      <article class="question-card">
-        <div class="question-copy">
-          <p class="question-category"></p>
-          <h3 class="question-title"></h3>
-          <p class="question-help"></p>
+      <details class="question-card">
+        <summary class="question-card-toggle">
+          <div class="question-summary-copy">
+            <p class="question-category"></p>
+            <h3 class="question-title"></h3>
+          </div>
+          <span class="question-card-chevron">⌄</span>
+        </summary>
+        <div class="question-body">
+          <div class="question-copy">
+            <p class="question-help"></p>
+          </div>
+          <div class="question-options" role="radiogroup"></div>
         </div>
-        <div class="question-options" role="radiogroup"></div>
-      </article>
+      </details>
     </template>
 
     <script src="./script.js"></script>
