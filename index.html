@@ -8,222 +8,223 @@
   </head>
   <body>
     <main class="page">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Deze app is bedoeld voor gebruik op de computer en minder geschikt voor invullen op de telefoon.</p>
-          <h1>Toets alvast uw eigen RI&amp;E</h1>
-          <p class="intro">
-            Met deze app kunt u alvast een groot deel van uw eigen RI&amp;E
-            beoordelen, waarbij het certificatieschema voor
-            arbeidsdeskundigen het uitgangspunt is. U voert hiermee de
-            systeemtoets uit, waarbij u toetst in hoeverre de RI&amp;E, inclusief
-            het plan van aanpak, voldoet aan de wettelijke bepalingen
-            (de verplichte inhoud), aan aanvullende vereisten (aspecten die
-            bijzondere aandacht vragen), en of alle risico's zijn
-            geinventariseerd. Binnen het wettelijke kader ligt het
-            zwaartepunt van de systeemtoets op volledigheid en actualiteit van
-            de RI&amp;E. Tegelijkertijd levert deze toets input op voor de
-            scope-toets, waarin dieper wordt ingegaan op de inhoud van de
-            risico's die zich voordoen. Daarbij ligt de nadruk veel meer op de
-            betrouwbaarheid van bevindingen en de mate waarin de RI&amp;E aansluit
-            bij actuele inzichten. De uitkomst is een doe-het-zelftoets en
-            geen juridisch vervangende formele toets.
-          </p>
-          <div class="intro-meta">
-            <p id="draftStatus" class="draft-status">Concept wordt lokaal opgeslagen in deze browser.</p>
-          </div>
-        </div>
-
-        <aside class="hero-card">
-          <p class="hero-label">Wat deze app doet</p>
-          <ul class="hero-list">
-            <li>Bedrijfsprofiel vastleggen</li>
-            <li>De afbakening, uitvoering en documentgegevens van de RI&amp;E vastleggen</li>
-            <li>De RI&amp;E en het plan van aanpak beoordelen</li>
-            <li>Een voorlopige beoordeling tonen</li>
-            <li>Samenvatting voor uzelf en de arbokerndeskundige genereren</li>
-          </ul>
-        </aside>
-      </section>
-
-      <section class="layout">
-        <form class="survey" id="survey">
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="section-kicker">Stap 1</p>
-                <h2>Bedrijfsprofiel</h2>
-              </div>
-            </div>
-
-            <div class="grid two">
-              <label class="field">
-                <span>Bedrijfsnaam</span>
-                <input
-                  id="companyName"
-                  name="companyName"
-                  type="text"
-                  placeholder="Vul de naam van het bedrijf waarvoor de RI&amp;E is uitgevoerd in"
-                />
-              </label>
-
-              <label class="field">
-                <span>Contactpersoon</span>
-                <input
-                  id="contactName"
-                  name="contactName"
-                  type="text"
-                  placeholder="Vul de naam van de invuller van deze app in"
-                />
-              </label>
-
-              <label class="field">
-                <span>Contactpersoon ondernemingsraad</span>
-                <input
-                  id="worksCouncilContact"
-                  name="worksCouncilContact"
-                  type="text"
-                  placeholder="Vul de naam van de contactpersoon van de ondernemingsraad in"
-                />
-              </label>
-
-              <label class="field">
-                <span>Arbodienst / Bedrijfsarts</span>
-                <input
-                  id="occupationalService"
-                  name="occupationalService"
-                  type="text"
-                  placeholder="Geef de naam van de arbodienst of de bedrijfsarts waarmee het basiscontract is afgesloten"
-                />
-              </label>
-
-              <label class="field">
-                <span>Branche</span>
-                <input
-                  id="industry"
-                  name="industry"
-                  type="text"
-                  placeholder="Geef de naam van de branche waarbij de organisatie of het bedrijf is aangesloten"
-                />
-              </label>
-
-              <label class="field">
-                <span>Aantal medewerkers</span>
-                <input
-                  id="employees"
-                  name="employees"
-                  type="text"
-                  placeholder="Vul hier het aantal medewerkers in"
-                />
-              </label>
-
-              <label class="field">
-                <span>Datum van invullen</span>
-                <input id="assessmentDate" name="assessmentDate" type="date" />
-              </label>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="section-kicker">Stap 2</p>
-                <h2>Afbakening en documentgegevens van de RI&amp;E</h2>
-              </div>
-            </div>
-
-            <div class="grid two">
-              <label class="field">
-                <span>Naam of omschrijving van de RI&amp;E</span>
-                <input
-                  id="rieName"
-                  name="rieName"
-                  type="text"
-                  placeholder="Geef hier de naam van de RI&amp;E en een korte omschrijving."
-                />
-              </label>
-
-              <label class="field">
-                <span>Reikwijdte van de RI&amp;E</span>
-                <details class="question-help-toggle">
-                  <summary>Toelichting</summary>
-                  <p>
-                    Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties,
-                    functies, processen en risicothema's de RI&amp;E betrekking heeft.
-                  </p>
-                </details>
-                <textarea
-                  id="scopeDescription"
-                  name="scopeDescription"
-                  rows="6"
-                  placeholder="Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties, functies, processen en risicothema's de RI&amp;E betrekking heeft."
-                ></textarea>
-              </label>
-
-              <label class="field">
-                <span>Uitvoering van de RI&amp;E</span>
-                <details class="question-help-toggle">
-                  <summary>Toelichting</summary>
-                  <p>
-                    Geef een beschrijving van alle personen en functies van degenen die hebben
-                    meegewerkt aan de RI&amp;E en welke methodiek is gebruikt.
-                  </p>
-                </details>
-                <textarea
-                  id="executionDescription"
-                  name="executionDescription"
-                  rows="6"
-                  placeholder="Geef een beschrijving van alle personen en functies van degenen die hebben meegewerkt aan de RI&amp;E en welke methodiek is gebruikt."
-                ></textarea>
-              </label>
-
-              <label class="field">
-                <span>Datum van de RI&amp;E</span>
-                <input id="rieDate" name="rieDate" type="date" />
-              </label>
-
-              <label class="field">
-                <span>Documenten die behoren tot de te toetsen RI&amp;E</span>
-                <details class="question-help-toggle">
-                  <summary>Toelichting</summary>
-                  <p>
-                    Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende
-                    stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen.
-                  </p>
-                </details>
-                <textarea
-                  id="rieDocuments"
-                  name="rieDocuments"
-                  rows="6"
-                  placeholder="Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen."
-                ></textarea>
-              </label>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="section-kicker">Stap 3</p>
-                <h2>Toetsing van de RI&amp;E en het plan van aanpak</h2>
-              </div>
-              <button id="toggleAllSections" class="secondary-button" type="button">
-                Klap alles open
-              </button>
-            </div>
-
-            <div class="risk-table-legend">
-              <strong>Toelichting vraag 1.1.1</strong>
-              <p>
-                De hoofdrisico’s zijn uitklapbaar en opgebouwd uit deelrisico’s. Per deelrisico
-                beantwoordt u de vragen en kunt u bewijsnotities of een toelichting toevoegen.
+      <section class="workspace">
+        <div class="content-column">
+          <section class="hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Deze app is bedoeld voor gebruik op de computer en minder geschikt voor invullen op de telefoon.</p>
+              <h1>Toets alvast uw eigen RI&amp;E</h1>
+              <p class="intro">
+                Met deze app kunt u alvast een groot deel van uw eigen RI&amp;E
+                beoordelen, waarbij het certificatieschema voor
+                arbeidsdeskundigen het uitgangspunt is. U voert hiermee de
+                systeemtoets uit, waarbij u toetst in hoeverre de RI&amp;E, inclusief
+                het plan van aanpak, voldoet aan de wettelijke bepalingen
+                (de verplichte inhoud), aan aanvullende vereisten (aspecten die
+                bijzondere aandacht vragen), en of alle risico's zijn
+                geinventariseerd. Binnen het wettelijke kader ligt het
+                zwaartepunt van de systeemtoets op volledigheid en actualiteit van
+                de RI&amp;E. Tegelijkertijd levert deze toets input op voor de
+                scope-toets, waarin dieper wordt ingegaan op de inhoud van de
+                risico's die zich voordoen. Daarbij ligt de nadruk veel meer op de
+                betrouwbaarheid van bevindingen en de mate waarin de RI&amp;E aansluit
+                bij actuele inzichten. De uitkomst is een doe-het-zelftoets en
+                geen juridisch vervangende formele toets.
               </p>
+              <div class="intro-meta">
+                <p id="draftStatus" class="draft-status">Concept wordt lokaal opgeslagen in deze browser.</p>
+              </div>
             </div>
 
-            <div id="questionGroups" class="question-groups"></div>
+            <aside class="hero-card">
+              <p class="hero-label">Wat deze app doet</p>
+              <ul class="hero-list">
+                <li>Bedrijfsprofiel vastleggen</li>
+                <li>De afbakening, uitvoering en documentgegevens van de RI&amp;E vastleggen</li>
+                <li>De RI&amp;E en het plan van aanpak beoordelen</li>
+                <li>Een voorlopige beoordeling tonen</li>
+                <li>Samenvatting voor uzelf en de arbokerndeskundige genereren</li>
+              </ul>
+            </aside>
           </section>
-        </form>
 
+          <form class="survey" id="survey">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 1</p>
+                  <h2>Bedrijfsprofiel</h2>
+                </div>
+              </div>
+
+              <div class="grid two">
+                <label class="field">
+                  <span>Bedrijfsnaam</span>
+                  <input
+                    id="companyName"
+                    name="companyName"
+                    type="text"
+                    placeholder="Vul de naam van het bedrijf waarvoor de RI&amp;E is uitgevoerd in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Contactpersoon</span>
+                  <input
+                    id="contactName"
+                    name="contactName"
+                    type="text"
+                    placeholder="Vul de naam van de invuller van deze app in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Contactpersoon ondernemingsraad</span>
+                  <input
+                    id="worksCouncilContact"
+                    name="worksCouncilContact"
+                    type="text"
+                    placeholder="Vul de naam van de contactpersoon van de ondernemingsraad in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Arbodienst / Bedrijfsarts</span>
+                  <input
+                    id="occupationalService"
+                    name="occupationalService"
+                    type="text"
+                    placeholder="Geef de naam van de arbodienst of de bedrijfsarts waarmee het basiscontract is afgesloten"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Branche</span>
+                  <input
+                    id="industry"
+                    name="industry"
+                    type="text"
+                    placeholder="Geef de naam van de branche waarbij de organisatie of het bedrijf is aangesloten"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Aantal medewerkers</span>
+                  <input
+                    id="employees"
+                    name="employees"
+                    type="text"
+                    placeholder="Vul hier het aantal medewerkers in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Datum van invullen</span>
+                  <input id="assessmentDate" name="assessmentDate" type="date" />
+                </label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 2</p>
+                  <h2>Afbakening en documentgegevens van de RI&amp;E</h2>
+                </div>
+              </div>
+
+              <div class="document-grid">
+                <label class="field">
+                  <span>Naam of omschrijving van de RI&amp;E</span>
+                  <input
+                    id="rieName"
+                    name="rieName"
+                    type="text"
+                    placeholder="Geef hier de naam van de RI&amp;E en een korte omschrijving."
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Reikwijdte van de RI&amp;E</span>
+                  <details class="question-help-toggle">
+                    <summary>Toelichting</summary>
+                    <p>
+                      Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties,
+                      functies, processen en risicothema's de RI&amp;E betrekking heeft.
+                    </p>
+                  </details>
+                  <textarea
+                    id="scopeDescription"
+                    name="scopeDescription"
+                    rows="6"
+                    placeholder="Beschrijf hier op welke organisatieonderdelen, werkzaamheden, locaties, functies, processen en risicothema's de RI&amp;E betrekking heeft."
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Uitvoering van de RI&amp;E</span>
+                  <details class="question-help-toggle">
+                    <summary>Toelichting</summary>
+                    <p>
+                      Geef een beschrijving van alle personen en functies van degenen die hebben
+                      meegewerkt aan de RI&amp;E en welke methodiek is gebruikt.
+                    </p>
+                  </details>
+                  <textarea
+                    id="executionDescription"
+                    name="executionDescription"
+                    rows="6"
+                    placeholder="Geef een beschrijving van alle personen en functies van degenen die hebben meegewerkt aan de RI&amp;E en welke methodiek is gebruikt."
+                  ></textarea>
+                </label>
+
+                <label class="field field-compact">
+                  <span>Datum van de RI&amp;E</span>
+                  <input id="rieDate" name="rieDate" type="date" />
+                </label>
+
+                <label class="field">
+                  <span>Documenten die behoren tot de te toetsen RI&amp;E</span>
+                  <details class="question-help-toggle">
+                    <summary>Toelichting</summary>
+                    <p>
+                      Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende
+                      stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen.
+                    </p>
+                  </details>
+                  <textarea
+                    id="rieDocuments"
+                    name="rieDocuments"
+                    rows="6"
+                    placeholder="Omschrijf hier welke documenten, bijlagen, rapportages of onderliggende stukken behoren tot de RI&amp;E en in deze toetsing moeten worden meegenomen."
+                  ></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 3</p>
+                  <h2>Toetsing van de RI&amp;E en het plan van aanpak</h2>
+                </div>
+                <button id="toggleAllSections" class="secondary-button" type="button">
+                  Klap alles open
+                </button>
+              </div>
+
+              <div class="risk-table-legend">
+                <strong>Toelichting vraag 1.1.1</strong>
+                <p>
+                  De hoofdrisico’s zijn uitklapbaar en opgebouwd uit deelrisico’s. Per deelrisico
+                  beantwoordt u de vragen en kunt u bewijsnotities of een toelichting toevoegen.
+                </p>
+              </div>
+
+              <div id="questionGroups" class="question-groups"></div>
+            </section>
+          </form>
+        </div>
         <aside class="results">
           <section class="panel sticky">
             <div class="panel-head compact">

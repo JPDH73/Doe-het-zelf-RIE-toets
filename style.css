@@ -45,12 +45,22 @@ textarea {
   margin: 20px auto 48px;
 }
 
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(420px, 0.95fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.content-column {
+  display: grid;
+  gap: 20px;
+}
+
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(360px, 0.9fr);
-  gap: 20px;
-  align-items: stretch;
-  margin-bottom: 22px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 .hero-copy,
@@ -64,12 +74,15 @@ textarea {
 }
 
 .hero-copy {
-  padding: 34px;
+  padding: 34px 36px;
+  background:
+    linear-gradient(135deg, rgba(255, 251, 245, 0.96), rgba(245, 237, 224, 0.88)),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.1), transparent 34%);
 }
 
 .hero-card {
-  padding: 26px;
-  background: linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(246, 238, 226, 0.9));
+  padding: 24px 28px;
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(242, 233, 217, 0.94));
 }
 
 .eyebrow,
@@ -108,10 +121,10 @@ h1 {
 }
 
 .intro {
-  max-width: 58ch;
+  max-width: none;
   color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
+  font-size: 1.06rem;
+  line-height: 1.72;
 }
 
 .intro-meta {
@@ -122,13 +135,7 @@ h1 {
   margin: 0;
   padding-left: 20px;
   color: var(--muted);
-  line-height: 1.9;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(420px, 0.92fr);
-  gap: 20px;
+  line-height: 1.8;
 }
 
 .survey {
@@ -138,6 +145,13 @@ h1 {
 
 .panel {
   padding: 26px;
+}
+
+.results .panel {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 236, 223, 0.94)),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.08), transparent 30%);
+  border-color: rgba(15, 118, 110, 0.14);
 }
 
 .sticky {
@@ -176,11 +190,23 @@ h1 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
+}
+
+.document-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
 }
 
 .field {
   display: grid;
   gap: 8px;
+  align-content: start;
+}
+
+.field-compact {
+  max-width: 320px;
 }
 
 .field span {
@@ -229,6 +255,18 @@ h1 {
 .question-groups {
   display: grid;
   gap: 18px;
+}
+
+.results .summary {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(31, 29, 26, 0.1);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.results .summary h3 {
+  margin-bottom: 10px;
 }
 
 .risk-table-legend {
@@ -600,7 +638,7 @@ h1 {
 
 .score-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -802,8 +840,8 @@ h1 {
 }
 
 @media (max-width: 980px) {
+  .workspace,
   .hero,
-  .layout,
   .question-body {
     grid-template-columns: 1fr;
   }
@@ -839,7 +877,7 @@ h1 {
 
 @media (min-width: 1200px) {
   .hero-copy {
-    padding: 40px;
+    padding: 40px 42px;
   }
 
   .hero-card,
@@ -848,7 +886,7 @@ h1 {
   }
 
   .field textarea {
-    min-height: 190px;
+    min-height: 170px;
   }
 
   .report-output {
