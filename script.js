@@ -403,6 +403,7 @@ const scoreRing = document.querySelector(".score-ring");
 const copyReport = document.querySelector("#copyReport");
 const generatePdf = document.querySelector("#generatePdf");
 const generateWord = document.querySelector("#generateWord");
+const generateSummaryWord = document.querySelector("#generateSummaryWord");
 const resetApp = document.querySelector("#resetApp");
 const resetModal = document.querySelector("#resetModal");
 const cancelReset = document.querySelector("#cancelReset");
@@ -2297,13 +2298,13 @@ function getGeneralFieldsReportHtml() {
 
   return `
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 14pt;">Bedrijfsprofiel</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">Bedrijfsprofiel</h2>
       <div class="report-block">
         ${renderRows(profileRows)}
       </div>
     </section>
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 14pt;">Afbakening en documentgegevens van de RI&E</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">Afbakening en documentgegevens van de RI&E</h2>
       <div class="report-block">
         ${renderRows(rieRows)}
       </div>
@@ -2334,7 +2335,7 @@ function getRegularQuestionReportSection(title, items) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 10pt;">${escapeHtml(title)}</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
@@ -2395,7 +2396,7 @@ function getSummaryOutcomeReportHtml(assessment) {
 
       return `
         <div class="report-subsection">
-          <h3 style="margin: 10px 0 6px; font-size: 10pt;">${escapeHtml(group.title)}</h3>
+          <h3 style="margin: 10px 0 6px; font-size: 9pt;">${escapeHtml(group.title)}</h3>
           ${rows}
         </div>
       `;
@@ -2417,9 +2418,9 @@ function getSummaryOutcomeReportHtml(assessment) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 10pt;">Samenvatting uitkomst</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">Samenvatting uitkomst</h2>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomst vraag 1.1.1</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst vraag 1.1.1</h3>
         <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing</strong></p>
         <ul class="report-list">${renderList(
           applicable,
@@ -2447,11 +2448,11 @@ function getSummaryOutcomeReportHtml(assessment) {
         )}</ul>
       </div>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
         ${groupedQuestionHtml}
       </div>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomsten plan van aanpak</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten plan van aanpak</h3>
         ${planRows}
       </div>
     </section>
@@ -2517,7 +2518,7 @@ function getRiskInventoryReportHtml() {
       return `
         ${index > 0 ? getWordPageBreakHtml() : ""}
         <section class="report-section report-risk-group">
-          <h2 style="margin: 0 0 8px; font-size: 10pt;">${escapeHtml(group.title)}</h2>
+          <h2 style="margin: 0 0 8px; font-size: 9pt;">${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
       `;
@@ -2527,7 +2528,7 @@ function getRiskInventoryReportHtml() {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 10pt;">Uitwerking vraag 1.1.1</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">Uitwerking vraag 1.1.1</h2>
       ${groupsHtml}
     </section>
   `;
@@ -2587,14 +2588,14 @@ function buildPrintableReportHtml() {
 
           .report-header h1 {
             margin: 0 0 6px;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           .report-meta {
             margin: 0;
             color: #5b6472;
             line-height: 1.35;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           .report-section {
@@ -2603,12 +2604,12 @@ function buildPrintableReportHtml() {
 
           .report-section h2 {
             margin: 0 0 8px;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           .report-subsection h3 {
             margin: 10px 0 6px;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           .report-question,
@@ -2677,8 +2678,8 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 6px; font-size: 10pt;">RI&E pre-toets rapport</h1>
-            <p class="report-meta" style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 10pt;">Gegenereerd op ${escapeHtml(
+            <h1 style="margin: 0 0 6px; font-size: 9pt;">RI&E pre-toets rapport</h1>
+            <p class="report-meta" style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
               generatedAt
             )}</p>
           </header>
@@ -2692,6 +2693,87 @@ function buildPrintableReportHtml() {
             ...reliabilityItems,
           ])}
           ${getRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
+        </main>
+      </body>
+    </html>
+  `;
+}
+
+function buildSummaryWordHtml() {
+  const assessment = computeAssessment();
+  const generatedAt = new Intl.DateTimeFormat("nl-NL", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Europe/Amsterdam",
+  }).format(new Date());
+
+  return `
+    <!doctype html>
+    <html lang="nl">
+      <head>
+        <meta charset="utf-8">
+        <title>RI&E pre-toets samenvatting</title>
+        <style>
+          @page {
+            margin: 2cm 1.6cm 1.8cm 1.6cm;
+          }
+
+          body {
+            margin: 0;
+            font-family: Verdana, Arial, sans-serif;
+            color: #172033;
+            background: #ffffff;
+            font-size: 9pt;
+            line-height: 1.3;
+          }
+
+          .report-page {
+            max-width: none;
+            margin: 0 auto;
+            padding: 0 0 24px;
+            background: #ffffff;
+          }
+
+          .report-header {
+            padding-bottom: 10px;
+            border-bottom: 1px solid #c8ced6;
+          }
+
+          .report-section {
+            margin-top: 16px;
+          }
+
+          .report-block {
+            display: block;
+          }
+
+          .report-list {
+            margin: 6px 0 0;
+            padding-left: 16px;
+          }
+
+          .report-list li {
+            margin-top: 6px;
+            line-height: 1.3;
+          }
+
+          .report-muted {
+            color: #6b7280;
+            font-style: italic;
+          }
+        </style>
+      </head>
+      <body>
+        <main class="report-page">
+          <header class="report-header">
+            <h1 style="margin: 0 0 6px; font-size: 9pt;">RI&E pre-toets samenvatting</h1>
+            <p style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
+              generatedAt
+            )}</p>
+          </header>
+
+          ${getGeneralFieldsReportHtml()}
+          ${getSummaryOutcomeReportHtml(assessment)}
         </main>
       </body>
     </html>
@@ -2848,6 +2930,14 @@ function generateWordReport() {
     type: "application/msword;charset=utf-8",
   });
   downloadBlob(blob, `${getReportFileBaseName()}.doc`);
+}
+
+function generateSummaryWordReport() {
+  const html = buildSummaryWordHtml();
+  const blob = new Blob([html], {
+    type: "application/msword;charset=utf-8",
+  });
+  downloadBlob(blob, `${getReportFileBaseName()}-samenvatting.doc`);
 }
 
 function updateScoreRing(readiness) {
@@ -3381,6 +3471,7 @@ survey.addEventListener("input", () => {
 copyReport.addEventListener("click", copyReportToClipboard);
 generatePdf?.addEventListener("click", generatePdfReport);
 generateWord?.addEventListener("click", generateWordReport);
+generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
 cancelReset?.addEventListener("click", (event) => {
   event.preventDefault();
