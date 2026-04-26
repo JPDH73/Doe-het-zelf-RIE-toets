@@ -2330,11 +2330,16 @@ function getRegularQuestionReportSection(title, items) {
     .join("");
 
   return `
-    <section class="report-section report-page-break">
+    ${getWordPageBreakHtml()}
+    <section class="report-section">
       <h2>${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
+}
+
+function getWordPageBreakHtml() {
+  return '<div class="word-page-break" aria-hidden="true"></div>';
 }
 
 function getSummaryOutcomeReportHtml(assessment) {
@@ -2408,7 +2413,8 @@ function getSummaryOutcomeReportHtml(assessment) {
     .join("");
 
   return `
-    <section class="report-section report-page-break">
+    ${getWordPageBreakHtml()}
+    <section class="report-section">
       <h2>Samenvatting uitkomst</h2>
       <div class="report-subsection">
         <h3>Uitkomst vraag 1.1.1</h3>
@@ -2507,7 +2513,8 @@ function getRiskInventoryReportHtml() {
         .join("");
 
       return `
-        <section class="report-section report-risk-group ${index > 0 ? "report-page-break" : ""}">
+        ${index > 0 ? getWordPageBreakHtml() : ""}
+        <section class="report-section report-risk-group">
           <h2>${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
@@ -2516,7 +2523,8 @@ function getRiskInventoryReportHtml() {
     .join("");
 
   return `
-    <section class="report-section report-page-break">
+    ${getWordPageBreakHtml()}
+    <section class="report-section">
       <h2>Uitwerking vraag 1.1.1</h2>
       ${groupsHtml}
     </section>
@@ -2577,14 +2585,14 @@ function buildPrintableReportHtml() {
 
           .report-header h1 {
             margin: 0 0 6px;
-            font-size: 20pt;
+            font-size: 10pt;
           }
 
           .report-meta {
             margin: 0;
             color: #5b6472;
             line-height: 1.35;
-            font-size: 8.5pt;
+            font-size: 10pt;
           }
 
           .report-section {
@@ -2593,12 +2601,12 @@ function buildPrintableReportHtml() {
 
           .report-section h2 {
             margin: 0 0 8px;
-            font-size: 14pt;
+            font-size: 10pt;
           }
 
           .report-subsection h3 {
             margin: 10px 0 6px;
-            font-size: 14pt;
+            font-size: 10pt;
           }
 
           .report-question,
@@ -2638,9 +2646,13 @@ function buildPrintableReportHtml() {
             line-height: 1.3;
           }
 
-          .report-page-break {
+          .word-page-break {
+            display: block;
+            height: 0;
+            margin: 0;
             break-before: page;
             page-break-before: always;
+            mso-special-character: line-break;
           }
 
           .report-muted {
