@@ -2726,12 +2726,12 @@ function buildSummaryWordHtml() {
     )}:</b> ${formatFieldValue(value)}</p>
   `;
 
-  const renderListParagraphs = (items, emptyText, indent = 0) => {
+  const renderListParagraphs = (items, emptyText, indentCm = 0) => {
     const values = items.length > 0 ? items : [emptyText];
     return values
       .map(
         (item) =>
-          `<p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;">•\u00a0${escapeHtml(
+          `<p style="margin: 0 0 6px 0; padding-left: ${indentCm}cm; text-indent: 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">•\u00a0${escapeHtml(
             item
           )}</p>`
       )
@@ -2887,33 +2887,35 @@ function buildSummaryWordHtml() {
           ${spacer(10, 12)}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
           ${spacer(9, 11)}
-          <p style="margin: 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing</b></p>
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
           ${renderListParagraphs(
             applicable,
-            "Nog geen onderdelen als van toepassing aangemerkt."
+            "Nog geen onderdelen als van toepassing aangemerkt.",
+            0.48
           )}
-          <p style="margin: 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing en beschreven</b></p>
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
           ${renderListParagraphs(
             describedApplicable,
-            "Nog geen onderdelen als van toepassing en beschreven aangemerkt."
+            "Nog geen onderdelen als van toepassing en beschreven aangemerkt.",
+            0.48
           )}
-          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing maar niet beschreven</b></p>
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
           ${renderListParagraphs(
             notDescribedApplicable,
             "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
-            18
+            0.48
           )}
-          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Niet van toepassing</b></p>
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
           ${renderListParagraphs(
             notApplicable,
             "Nog geen onderdelen als niet van toepassing aangemerkt.",
-            18
+            0.48
           )}
-          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Nadere voorschriften met ja beantwoord</b></p>
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
           ${renderListParagraphs(
             supplementedApplicable,
             "Nog geen nadere voorschriften met ja beantwoord.",
-            18
+            0.48
           )}
           ${spacer(9, 11)}
           ${spacer(11, 13)}
