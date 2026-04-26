@@ -2738,6 +2738,9 @@ function buildSummaryWordHtml() {
       .join("");
   };
 
+  const spacer = (fontSize = 11, minHeight = 13) =>
+    `<p style="margin: 0; font: ${fontSize}pt Verdana; color: #172033; min-height: ${minHeight}px;"><br></p>`;
+
   const groupedQuestions = [
     {
       title: "Uitkomst volledigheid",
@@ -2773,12 +2776,12 @@ function buildSummaryWordHtml() {
 
     return `
       ${breakBefore ? getWordPageBreakHtml() : ""}
-      <p style="margin: 0 0 0 0; font: 12pt Verdana; color: #172033;"><u><b>${escapeHtml(
+      <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>${escapeHtml(
         title
       )}</b></u></p>
-      <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+      ${spacer(12, 15)}
       ${rows}
-      <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+      ${spacer(12, 15)}
     `;
   };
 
@@ -2860,9 +2863,9 @@ function buildSummaryWordHtml() {
               generatedAt
             )}</p>
           </header>
-          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${spacer(11, 13)}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Bedrijfsprofiel</b></p>
-          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${spacer(11, 13)}
           ${renderField("Bedrijfsnaam", companyName.value)}
           ${renderField("Contactpersoon", contactName.value)}
           ${renderField("Contactpersoon ondernemingsraad", worksCouncilContact?.value || "")}
@@ -2871,9 +2874,9 @@ function buildSummaryWordHtml() {
           ${renderField("Arbo-certificaten", arboCertificates?.value || "")}
           ${renderField("Aantal medewerkers", employees.value)}
           ${renderField("Datum van invullen", assessmentDate.value)}
-          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${spacer(11, 13)}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Afbakening en documentgegevens van de RI&amp;E</b></p>
-          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${spacer(11, 13)}
           ${renderField("Naam of omschrijving van de RI&E", rieName.value)}
           ${renderField("Reikwijdte van de RI&E", scopeDescription.value)}
           ${renderField("Uitvoering van de RI&E", executionDescription.value)}
@@ -2881,9 +2884,9 @@ function buildSummaryWordHtml() {
           ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
           ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
-          <p style="margin: 0; font: 10pt Verdana; color: #172033; min-height: 12px;"><br></p>
+          ${spacer(10, 12)}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
-          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
+          ${spacer(9, 11)}
           <p style="margin: 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing</b></p>
           ${renderListParagraphs(
             applicable,
@@ -2912,18 +2915,18 @@ function buildSummaryWordHtml() {
             "Nog geen nadere voorschriften met ja beantwoord.",
             18
           )}
-          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
-          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${spacer(9, 11)}
+          ${spacer(11, 13)}
           ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
-          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
+          ${spacer(9, 11)}
           ${groupedQuestions
             .map((group, index) =>
               renderQuestionGroup(group.title, group.items, index === 1)
             )
             .join("")}
           <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
-          <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+          ${spacer(12, 15)}
           ${planRows}
         </main>
       </body>
