@@ -404,6 +404,9 @@ const copyReport = document.querySelector("#copyReport");
 const generatePdf = document.querySelector("#generatePdf");
 const generateWord = document.querySelector("#generateWord");
 const resetApp = document.querySelector("#resetApp");
+const resetModal = document.querySelector("#resetModal");
+const cancelReset = document.querySelector("#cancelReset");
+const confirmReset = document.querySelector("#confirmReset");
 const toggleAllSections = document.querySelector("#toggleAllSections");
 const draftStatus = document.querySelector("#draftStatus");
 
@@ -557,16 +560,24 @@ function clearAllAnswers() {
   updateDraftStatus("Concept is gewist op deze computer.");
 }
 
-function handleResetClick() {
-  const confirmed = window.confirm(
-    "Wilt u zeker weten dat u alle ingevulde gegevens en het opgeslagen concept wilt resetten?"
-  );
-
-  if (!confirmed) {
+function openResetModal() {
+  if (!resetModal) {
     return;
   }
 
-  clearAllAnswers();
+  resetModal.hidden = false;
+}
+
+function closeResetModal() {
+  if (!resetModal) {
+    return;
+  }
+
+  resetModal.hidden = true;
+}
+
+function handleResetClick() {
+  openResetModal();
 }
 
 function makeRadioToggleable(input) {
@@ -3239,6 +3250,16 @@ copyReport.addEventListener("click", copyReportToClipboard);
 generatePdf?.addEventListener("click", generatePdfReport);
 generateWord?.addEventListener("click", generateWordReport);
 resetApp?.addEventListener("click", handleResetClick);
+cancelReset?.addEventListener("click", closeResetModal);
+confirmReset?.addEventListener("click", () => {
+  clearAllAnswers();
+  closeResetModal();
+});
+resetModal?.addEventListener("click", (event) => {
+  if (event.target === resetModal) {
+    closeResetModal();
+  }
+});
 toggleAllSections?.addEventListener("click", toggleAllExpandableSections);
 document.addEventListener(
   "toggle",

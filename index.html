@@ -316,6 +316,19 @@
       </section>
     </main>
 
+    <div id="resetModal" class="modal-backdrop" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+        <h3 id="resetModalTitle">Weet u het zeker?</h3>
+        <p>
+          Wilt u alle ingevulde gegevens en het opgeslagen concept wissen?
+        </p>
+        <div class="button-row modal-actions">
+          <button id="cancelReset" class="secondary-button" type="button">Annuleren</button>
+          <button id="confirmReset" class="secondary-button secondary-button-danger" type="button">Reset bevestigen</button>
+        </div>
+      </div>
+    </div>
+
     <template id="questionTemplate">
       <details class="question-card">
         <summary class="question-card-toggle">
