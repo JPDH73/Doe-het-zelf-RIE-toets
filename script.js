@@ -2288,20 +2288,22 @@ function getGeneralFieldsReportHtml() {
     rows
       .map(
         ([label, value]) => `
-          <p class="report-line"><strong>${escapeHtml(label)}:</strong> ${formatOptionalValue(value)}</p>
+          <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
+            label
+          )}:</strong> ${formatOptionalValue(value)}</p>
         `
       )
       .join("");
 
   return `
     <section class="report-section">
-      <h2>Bedrijfsprofiel</h2>
+      <h2 style="margin: 0 0 8px; font-size: 14pt;">Bedrijfsprofiel</h2>
       <div class="report-block">
         ${renderRows(profileRows)}
       </div>
     </section>
     <section class="report-section">
-      <h2>Afbakening en documentgegevens van de RI&E</h2>
+      <h2 style="margin: 0 0 8px; font-size: 14pt;">Afbakening en documentgegevens van de RI&E</h2>
       <div class="report-block">
         ${renderRows(rieRows)}
       </div>
@@ -2317,11 +2319,11 @@ function getRegularQuestionReportSection(title, items) {
 
       return `
         <article class="report-question">
-          <h3>${escapeHtml(getDisplayQuestionTitle(question))}</h3>
-          <p class="report-line"><strong>Antwoord:</strong> ${escapeHtml(
+          <h3 style="margin: 0 0 6px; font-size: 9pt;">${escapeHtml(getDisplayQuestionTitle(question))}</h3>
+          <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Antwoord:</strong> ${escapeHtml(
             getOptionLabel(getQuestionOptions(question), answer)
           )}</p>
-          <p class="report-line"><strong>Controleerbaar bewijs of toelichting:</strong> ${formatOptionalValue(
+          <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Controleerbaar bewijs of toelichting:</strong> ${formatOptionalValue(
             note
           )}</p>
         </article>
@@ -2332,14 +2334,14 @@ function getRegularQuestionReportSection(title, items) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2>${escapeHtml(title)}</h2>
+      <h2 style="margin: 0 0 8px; font-size: 10pt;">${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
 }
 
 function getWordPageBreakHtml() {
-  return '<div class="word-page-break" aria-hidden="true"></div>';
+  return '<br clear="all" style="mso-special-character: line-break; page-break-before: always;">';
 }
 
 function getSummaryOutcomeReportHtml(assessment) {
@@ -2383,7 +2385,7 @@ function getSummaryOutcomeReportHtml(assessment) {
         .map((question) => {
           const presentation = getStatusPresentation(getAnswerValue(question.id));
           return `
-            <p class="report-line">
+            <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;">
               <strong>${escapeHtml(getDisplayQuestionTitle(question))}:</strong>
               ${escapeHtml(presentation.label)}
             </p>
@@ -2393,7 +2395,7 @@ function getSummaryOutcomeReportHtml(assessment) {
 
       return `
         <div class="report-subsection">
-          <h3>${escapeHtml(group.title)}</h3>
+          <h3 style="margin: 10px 0 6px; font-size: 10pt;">${escapeHtml(group.title)}</h3>
           ${rows}
         </div>
       `;
@@ -2404,7 +2406,7 @@ function getSummaryOutcomeReportHtml(assessment) {
     .map((question) => {
       const presentation = getStatusPresentation(getAnswerValue(question.id));
       return `
-        <p class="report-line">
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;">
           <strong>${escapeHtml(getDisplayQuestionTitle(question))}:</strong>
           ${escapeHtml(presentation.label)}
         </p>
@@ -2415,41 +2417,41 @@ function getSummaryOutcomeReportHtml(assessment) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2>Samenvatting uitkomst</h2>
+      <h2 style="margin: 0 0 8px; font-size: 10pt;">Samenvatting uitkomst</h2>
       <div class="report-subsection">
-        <h3>Uitkomst vraag 1.1.1</h3>
-        <p class="report-line"><strong>Van toepassing</strong></p>
+        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomst vraag 1.1.1</h3>
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing</strong></p>
         <ul class="report-list">${renderList(
           applicable,
           "Nog geen onderdelen als van toepassing aangemerkt."
         )}</ul>
-        <p class="report-line"><strong>Van toepassing en beschreven</strong></p>
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing en beschreven</strong></p>
         <ul class="report-list">${renderList(
           describedApplicable,
           "Nog geen onderdelen als van toepassing en beschreven aangemerkt."
         )}</ul>
-        <p class="report-line"><strong>Van toepassing maar niet beschreven</strong></p>
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing maar niet beschreven</strong></p>
         <ul class="report-list">${renderList(
           notDescribedApplicable,
           "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt."
         )}</ul>
-        <p class="report-line"><strong>Niet van toepassing</strong></p>
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Niet van toepassing</strong></p>
         <ul class="report-list">${renderList(
           notApplicable,
           "Nog geen onderdelen als niet van toepassing aangemerkt."
         )}</ul>
-        <p class="report-line"><strong>Nadere voorschriften met ja beantwoord</strong></p>
+        <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Nadere voorschriften met ja beantwoord</strong></p>
         <ul class="report-list">${renderList(
           supplementedApplicable,
           "Nog geen nadere voorschriften met ja beantwoord."
         )}</ul>
       </div>
       <div class="report-subsection">
-        <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
         ${groupedQuestionHtml}
       </div>
       <div class="report-subsection">
-        <h3>Uitkomsten plan van aanpak</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 10pt;">Uitkomsten plan van aanpak</h3>
         ${planRows}
       </div>
     </section>
@@ -2469,7 +2471,7 @@ function getRiskInventoryReportHtml() {
               const note = item.supplementalNotes?.[config.key] || "";
 
               return `
-                <li>
+                <li style="margin-top: 6px; line-height: 1.3; font-size: 9pt;">
                   <strong>${escapeHtml(config.prompt)}</strong><br>
                   Antwoord: ${escapeHtml(getOptionLabel(requirementsOptions, answer))}<br>
                   Toelichting: ${formatOptionalValue(note)}
@@ -2480,26 +2482,26 @@ function getRiskInventoryReportHtml() {
 
           return `
             <article class="report-risk-item">
-              <h4>${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h4>
+              <h4 style="margin: 0 0 6px; font-size: 9pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h4>
               <div class="report-block">
-                <p class="report-line"><strong>Van toepassing:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.applicable))}</p>
-                <p class="report-line"><strong>Toelichting niet van toepassing:</strong> ${formatOptionalValue(item.applicabilityNote)}</p>
-                <p class="report-line"><strong>Is het risico beschreven in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.described))}</p>
-                <p class="report-line"><strong>Waar is dit onderdeel terug te vinden in de RI&E?:</strong> ${formatOptionalValue(item.describedYesNote)}</p>
-                <p class="report-line"><strong>Wie heeft dit risico beoordeeld?:</strong> ${formatOptionalValue(item.assessorNote)}</p>
-                <p class="report-line"><strong>Welke methode is gebruikt om het risico te inventariseren?:</strong> ${formatOptionalValue(item.assessmentMethodNote)}</p>
-                <p class="report-line"><strong>Welke methode is gebruikt om het risico te evalueren?:</strong> ${formatOptionalValue(item.evaluationMethodNote)}</p>
-                <p class="report-line"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.justified))}</p>
-                <p class="report-line"><strong>Reden waarom dit risico niet is opgenomen:</strong> ${formatOptionalValue(item.describedNoNote)}</p>
-                <p class="report-line"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.causes))}</p>
-                <p class="report-line"><strong>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?:</strong> ${formatOptionalValue(item.causesYesNote)}</p>
-                <p class="report-line"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(item.causesNoNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.applicable))}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Toelichting niet van toepassing:</strong> ${formatOptionalValue(item.applicabilityNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Is het risico beschreven in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.described))}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Waar is dit onderdeel terug te vinden in de RI&E?:</strong> ${formatOptionalValue(item.describedYesNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Wie heeft dit risico beoordeeld?:</strong> ${formatOptionalValue(item.assessorNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Welke methode is gebruikt om het risico te inventariseren?:</strong> ${formatOptionalValue(item.assessmentMethodNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Welke methode is gebruikt om het risico te evalueren?:</strong> ${formatOptionalValue(item.evaluationMethodNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.justified))}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Reden waarom dit risico niet is opgenomen:</strong> ${formatOptionalValue(item.describedNoNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.causes))}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?:</strong> ${formatOptionalValue(item.causesYesNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(item.causesNoNote)}</p>
               </div>
               ${
                 supplementalHtml
                   ? `
                     <div class="report-subsection">
-                      <strong>Nadere voorschriften</strong>
+                      <strong style="font-size: 9pt;">Nadere voorschriften</strong>
                       <ul class="report-list">
                         ${supplementalHtml}
                       </ul>
@@ -2515,7 +2517,7 @@ function getRiskInventoryReportHtml() {
       return `
         ${index > 0 ? getWordPageBreakHtml() : ""}
         <section class="report-section report-risk-group">
-          <h2>${escapeHtml(group.title)}</h2>
+          <h2 style="margin: 0 0 8px; font-size: 10pt;">${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
       `;
@@ -2525,7 +2527,7 @@ function getRiskInventoryReportHtml() {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2>Uitwerking vraag 1.1.1</h2>
+      <h2 style="margin: 0 0 8px; font-size: 10pt;">Uitwerking vraag 1.1.1</h2>
       ${groupsHtml}
     </section>
   `;
@@ -2675,8 +2677,10 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1>RI&E pre-toets rapport</h1>
-            <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
+            <h1 style="margin: 0 0 6px; font-size: 10pt;">RI&E pre-toets rapport</h1>
+            <p class="report-meta" style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 10pt;">Gegenereerd op ${escapeHtml(
+              generatedAt
+            )}</p>
           </header>
 
           ${getGeneralFieldsReportHtml()}
