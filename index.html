@@ -57,7 +57,7 @@
                 </div>
               </div>
 
-              <div class="grid two">
+              <div class="grid profile-grid">
                 <label class="field">
                   <span>Bedrijfsnaam</span>
                   <input
@@ -109,6 +109,16 @@
                 </label>
 
                 <label class="field">
+                  <span>Arbo-certificaten</span>
+                  <input
+                    id="arboCertificates"
+                    name="arboCertificates"
+                    type="text"
+                    placeholder="Geef aan welke arbo-certificaten het bedrijf heeft, bijvoorbeeld VCA of ISO 45001"
+                  />
+                </label>
+
+                <label class="field">
                   <span>Aantal medewerkers</span>
                   <input
                     id="employees"
@@ -144,7 +154,12 @@
                   />
                 </label>
 
-                <label class="field">
+                <label class="field field-compact">
+                  <span>Datum van de RI&amp;E</span>
+                  <input id="rieDate" name="rieDate" type="date" />
+                </label>
+
+                <label class="field field-full">
                   <span>Reikwijdte van de RI&amp;E</span>
                   <details class="question-help-toggle">
                     <summary>Toelichting</summary>
@@ -161,7 +176,7 @@
                   ></textarea>
                 </label>
 
-                <label class="field">
+                <label class="field field-full">
                   <span>Uitvoering van de RI&amp;E</span>
                   <details class="question-help-toggle">
                     <summary>Toelichting</summary>
@@ -178,12 +193,7 @@
                   ></textarea>
                 </label>
 
-                <label class="field field-compact">
-                  <span>Datum van de RI&amp;E</span>
-                  <input id="rieDate" name="rieDate" type="date" />
-                </label>
-
-                <label class="field">
+                <label class="field field-full">
                   <span>Documenten die behoren tot de te toetsen RI&amp;E</span>
                   <details class="question-help-toggle">
                     <summary>Toelichting</summary>
@@ -279,6 +289,9 @@
               <div class="summary-head">
                 <h3>Rapporttekst</h3>
                 <div class="button-row">
+                  <button id="resetApp" class="secondary-button secondary-button-danger" type="button">
+                    Reset
+                  </button>
                   <button id="generatePdf" class="secondary-button" type="button">
                     Genereer PDF
                   </button>

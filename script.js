@@ -376,6 +376,7 @@ const contactName = document.querySelector("#contactName");
 const worksCouncilContact = document.querySelector("#worksCouncilContact");
 const occupationalService = document.querySelector("#occupationalService");
 const industry = document.querySelector("#industry");
+const arboCertificates = document.querySelector("#arboCertificates");
 const employees = document.querySelector("#employees");
 const assessmentDate = document.querySelector("#assessmentDate");
 const rieName = document.querySelector("#rieName");
@@ -402,10 +403,12 @@ const scoreRing = document.querySelector(".score-ring");
 const copyReport = document.querySelector("#copyReport");
 const generatePdf = document.querySelector("#generatePdf");
 const generateWord = document.querySelector("#generateWord");
+const resetApp = document.querySelector("#resetApp");
 const toggleAllSections = document.querySelector("#toggleAllSections");
 const draftStatus = document.querySelector("#draftStatus");
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
+let resetConfirmationActive = false;
 
 function slugify(text) {
   return text
@@ -531,6 +534,57 @@ function restoreDraftFromLocalStorage() {
   } catch (error) {
     updateDraftStatus("Het opgeslagen concept kon niet worden teruggezet.");
   }
+}
+
+function clearAllAnswers() {
+  survey.reset();
+
+  for (const input of survey.querySelectorAll('input[type="radio"]')) {
+    input.checked = false;
+  }
+
+  for (const detail of document.querySelectorAll("details")) {
+    detail.open = false;
+  }
+
+  try {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch (error) {
+    // Intentionally ignore storage errors during reset.
+  }
+
+  renderAssessment();
+  updateToggleAllButtonLabel();
+  updateDraftStatus("Concept is gewist op deze computer.");
+}
+
+function resetResetButtonLabel() {
+  if (!resetApp) {
+    return;
+  }
+
+  resetConfirmationActive = false;
+  resetApp.textContent = "Reset";
+}
+
+function handleResetClick() {
+  if (!resetApp) {
+    return;
+  }
+
+  if (!resetConfirmationActive) {
+    resetConfirmationActive = true;
+    resetApp.textContent = "Weet u het zeker? Klik nogmaals";
+    window.setTimeout(() => {
+      if (resetConfirmationActive) {
+        resetResetButtonLabel();
+      }
+    }, 4000);
+    return;
+  }
+
+  clearAllAnswers();
+  resetResetButtonLabel();
 }
 
 function makeRadioToggleable(input) {
@@ -2132,6 +2186,7 @@ function buildReport(assessment) {
     `Contactpersoon ondernemingsraad: ${getPlainValue(worksCouncilContact?.value || "")}`,
     `Arbodienst / Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
     `Branche: ${getPlainValue(industry.value)}`,
+    `Arbo-certificaten: ${getPlainValue(arboCertificates?.value || "")}`,
     `Aantal medewerkers: ${getPlainValue(employees.value)}`,
     `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
     "",
@@ -2220,6 +2275,7 @@ function getGeneralFieldsReportHtml() {
     ["Contactpersoon ondernemingsraad", worksCouncilContact?.value || ""],
     ["Arbodienst / Bedrijfsarts", occupationalService?.value || ""],
     ["Branche", industry.value],
+    ["Arbo-certificaten", arboCertificates?.value || ""],
     ["Aantal medewerkers", employees.value],
     ["Datum van invullen", assessmentDate.value],
   ];
@@ -2430,6 +2486,11 @@ function buildPrintableReportHtml() {
             color-scheme: light;
           }
 
+          @page {
+            margin: 2cm 1.6cm 2.2cm 1.6cm;
+            mso-footer: page-footer;
+          }
+
           body {
             margin: 0;
             font-family: "Georgia", "Times New Roman", serif;
@@ -2535,6 +2596,18 @@ function buildPrintableReportHtml() {
             font-style: italic;
           }
 
+          .word-page-footer {
+            mso-element: footer;
+            position: running(page-footer);
+          }
+
+          .word-page-footer p {
+            margin: 0;
+            font-size: 10pt;
+            color: #5b6472;
+            text-align: right;
+          }
+
           @media print {
             body {
               background: #fff;
@@ -2548,6 +2621,12 @@ function buildPrintableReportHtml() {
         </style>
       </head>
       <body>
+        <div class="word-page-footer">
+          <p>
+            Pagina <span style="mso-field-code: PAGE"></span>
+            van <span style="mso-field-code: NUMPAGES"></span>
+          </p>
+        </div>
         <main class="report-page">
           <header class="report-header">
             <h1>RI&E pre-toets rapport</h1>
@@ -3238,6 +3317,7 @@ survey.addEventListener("input", () => {
 copyReport.addEventListener("click", copyReportToClipboard);
 generatePdf?.addEventListener("click", generatePdfReport);
 generateWord?.addEventListener("click", generateWordReport);
+resetApp?.addEventListener("click", handleResetClick);
 toggleAllSections?.addEventListener("click", toggleAllExpandableSections);
 document.addEventListener(
   "toggle",
