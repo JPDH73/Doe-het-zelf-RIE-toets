@@ -2706,6 +2706,94 @@ function buildSummaryWordHtml() {
     timeStyle: "short",
     timeZone: "Europe/Amsterdam",
   }).format(new Date());
+  const {
+    applicable,
+    describedApplicable,
+    supplementedApplicable,
+    notDescribedApplicable,
+    notApplicable,
+  } = collectApplicabilitySummaryData(assessment);
+
+  const emptyValue = '<span style="color: #6b7280; font-style: italic;">Niet ingevuld</span>';
+  const formatFieldValue = (value) => {
+    const normalized = getPlainValue(value);
+    return normalized ? escapeHtml(normalized) : emptyValue;
+  };
+
+  const renderField = (label, value, indent = 0) => `
+    <p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
+      label
+    )}:</b> ${formatFieldValue(value)}</p>
+  `;
+
+  const renderListParagraphs = (items, emptyText, indent = 0) => {
+    const values = items.length > 0 ? items : [emptyText];
+    return values
+      .map(
+        (item) =>
+          `<p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;">${escapeHtml(
+            item
+          )}</p>`
+      )
+      .join("");
+  };
+
+  const groupedQuestions = [
+    {
+      title: "Uitkomst volledigheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
+    },
+    {
+      title: "Uitkomst actualiteit",
+      items: getQuestionStatusItems().filter(
+        (question) =>
+          question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
+      ),
+    },
+    {
+      title: "Uitkomst betrouwbaarheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
+    },
+  ];
+
+  const renderQuestionGroup = (title, items) => {
+    const rows = items
+      .map((question) => {
+        const presentation = getStatusPresentation(getAnswerValue(question.id));
+        return `
+          <p style="margin: 0 0 0 0; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
+            getDisplayQuestionTitle(question)
+          )}</b></p>
+          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;">${escapeHtml(
+            presentation.label
+          )}</p>
+        `;
+      })
+      .join("");
+
+    return `
+      <p style="margin: 0 0 0 0; font: 12pt Verdana; color: #172033;"><u><b>${escapeHtml(
+        title
+      )}</b></u></p>
+      <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+      ${rows}
+      <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+    `;
+  };
+
+  const planRows = getPlanStatusItems()
+    .map((question) => {
+      const presentation = getStatusPresentation(getAnswerValue(question.id));
+      return `
+        <p style="margin: 0 0 0 0; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
+          getDisplayQuestionTitle(question)
+        )}</b></p>
+        <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;">${escapeHtml(
+          presentation.label
+        )}</p>
+      `;
+    })
+    .join("");
 
   return `
     <!doctype html>
@@ -2766,14 +2854,70 @@ function buildSummaryWordHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 6px; font-size: 9pt;">RI&E pre-toets samenvatting</h1>
+            <h1 style="margin: 0 0 6px; font-size: 16pt;">RI&E pre-toets samenvatting</h1>
             <p style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
               generatedAt
             )}</p>
           </header>
-
-          ${getGeneralFieldsReportHtml()}
-          ${getSummaryOutcomeReportHtml(assessment)}
+          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Bedrijfsprofiel</b></p>
+          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${renderField("Bedrijfsnaam", companyName.value)}
+          ${renderField("Contactpersoon", contactName.value)}
+          ${renderField("Contactpersoon ondernemingsraad", worksCouncilContact?.value || "")}
+          ${renderField("Arbodienst / Bedrijfsarts", occupationalService?.value || "")}
+          ${renderField("Branche", industry.value)}
+          ${renderField("Arbo-certificaten", arboCertificates?.value || "")}
+          ${renderField("Aantal medewerkers", employees.value)}
+          ${renderField("Datum van invullen", assessmentDate.value)}
+          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Afbakening en documentgegevens van de RI&amp;E</b></p>
+          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${renderField("Naam of omschrijving van de RI&E", rieName.value)}
+          ${renderField("Reikwijdte van de RI&E", scopeDescription.value)}
+          ${renderField("Uitvoering van de RI&E", executionDescription.value)}
+          ${renderField("Datum van de RI&E", rieDate.value)}
+          ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
+          <p style="margin: 0; font: 10pt Verdana; color: #172033; min-height: 12px;"><br></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
+          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
+          <p style="margin: 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing</b></p>
+          ${renderListParagraphs(
+            applicable,
+            "Nog geen onderdelen als van toepassing aangemerkt."
+          )}
+          <p style="margin: 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing en beschreven</b></p>
+          ${renderListParagraphs(
+            describedApplicable,
+            "Nog geen onderdelen als van toepassing en beschreven aangemerkt."
+          )}
+          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Van toepassing maar niet beschreven</b></p>
+          ${renderListParagraphs(
+            notDescribedApplicable,
+            "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
+            18
+          )}
+          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Niet van toepassing</b></p>
+          ${renderListParagraphs(
+            notApplicable,
+            "Nog geen onderdelen als niet van toepassing aangemerkt.",
+            18
+          )}
+          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;"><b>Nadere voorschriften met ja beantwoord</b></p>
+          ${renderListParagraphs(
+            supplementedApplicable,
+            "Nog geen nadere voorschriften met ja beantwoord.",
+            18
+          )}
+          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
+          <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
+          <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
+          ${groupedQuestions.map((group) => renderQuestionGroup(group.title, group.items)).join("")}
+          <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
+          <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
+          ${planRows}
         </main>
       </body>
     </html>
