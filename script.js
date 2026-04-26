@@ -2198,7 +2198,7 @@ function buildReport(assessment) {
       "Uitkomsten vragen 1.1.2 t/m 1.4.1",
       getQuestionStatusItems()
     ),
-    ...buildRegularQuestionReportLines("Uitkomst plan van aanpak", getPlanStatusItems()),
+    ...buildRegularQuestionReportLines("Uitkomsten plan van aanpak", getPlanStatusItems()),
   ];
 
   return lines.join("\n");
@@ -2211,7 +2211,7 @@ function buildReportPreviewHtml(reportText) {
     "Afbakening en documentgegevens van de RI&E",
     "Uitkomst vraag 1.1.1",
     "Uitkomsten vragen 1.1.2 t/m 1.4.1",
-    "Uitkomst plan van aanpak",
+    "Uitkomsten plan van aanpak",
   ]);
 
   return reportText
@@ -2330,16 +2330,129 @@ function getRegularQuestionReportSection(title, items) {
     .join("");
 
   return `
-    <section class="report-section">
+    <section class="report-section report-page-break">
       <h2>${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
 }
 
+function getSummaryOutcomeReportHtml(assessment) {
+  const {
+    applicable,
+    describedApplicable,
+    supplementedApplicable,
+    notDescribedApplicable,
+    notApplicable,
+  } = collectApplicabilitySummaryData(assessment);
+
+  const renderList = (items, emptyText) => {
+    if (items.length === 0) {
+      return `<li>${escapeHtml(emptyText)}</li>`;
+    }
+
+    return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  };
+
+  const groupedQuestions = [
+    {
+      title: "Uitkomst volledigheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
+    },
+    {
+      title: "Uitkomst actualiteit",
+      items: getQuestionStatusItems().filter(
+        (question) =>
+          question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
+      ),
+    },
+    {
+      title: "Uitkomst betrouwbaarheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
+    },
+  ];
+
+  const groupedQuestionHtml = groupedQuestions
+    .map((group) => {
+      const rows = group.items
+        .map((question) => {
+          const presentation = getStatusPresentation(getAnswerValue(question.id));
+          return `
+            <p class="report-line">
+              <strong>${escapeHtml(getDisplayQuestionTitle(question))}:</strong>
+              ${escapeHtml(presentation.label)}
+            </p>
+          `;
+        })
+        .join("");
+
+      return `
+        <div class="report-subsection">
+          <h3>${escapeHtml(group.title)}</h3>
+          ${rows}
+        </div>
+      `;
+    })
+    .join("");
+
+  const planRows = getPlanStatusItems()
+    .map((question) => {
+      const presentation = getStatusPresentation(getAnswerValue(question.id));
+      return `
+        <p class="report-line">
+          <strong>${escapeHtml(getDisplayQuestionTitle(question))}:</strong>
+          ${escapeHtml(presentation.label)}
+        </p>
+      `;
+    })
+    .join("");
+
+  return `
+    <section class="report-section report-page-break">
+      <h2>Samenvatting uitkomst</h2>
+      <div class="report-subsection">
+        <h3>Uitkomst vraag 1.1.1</h3>
+        <p class="report-line"><strong>Van toepassing</strong></p>
+        <ul class="report-list">${renderList(
+          applicable,
+          "Nog geen onderdelen als van toepassing aangemerkt."
+        )}</ul>
+        <p class="report-line"><strong>Van toepassing en beschreven</strong></p>
+        <ul class="report-list">${renderList(
+          describedApplicable,
+          "Nog geen onderdelen als van toepassing en beschreven aangemerkt."
+        )}</ul>
+        <p class="report-line"><strong>Van toepassing maar niet beschreven</strong></p>
+        <ul class="report-list">${renderList(
+          notDescribedApplicable,
+          "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt."
+        )}</ul>
+        <p class="report-line"><strong>Niet van toepassing</strong></p>
+        <ul class="report-list">${renderList(
+          notApplicable,
+          "Nog geen onderdelen als niet van toepassing aangemerkt."
+        )}</ul>
+        <p class="report-line"><strong>Nadere voorschriften met ja beantwoord</strong></p>
+        <ul class="report-list">${renderList(
+          supplementedApplicable,
+          "Nog geen nadere voorschriften met ja beantwoord."
+        )}</ul>
+      </div>
+      <div class="report-subsection">
+        <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+        ${groupedQuestionHtml}
+      </div>
+      <div class="report-subsection">
+        <h3>Uitkomsten plan van aanpak</h3>
+        ${planRows}
+      </div>
+    </section>
+  `;
+}
+
 function getRiskInventoryReportHtml() {
   const groupsHtml = riskCatalog
-    .map((group) => {
+    .map((group, index) => {
       const itemHtml = group.items
         .map((itemLabel) => {
           const item = getRiskItemState(group.id, group.title, itemLabel);
@@ -2394,7 +2507,7 @@ function getRiskInventoryReportHtml() {
         .join("");
 
       return `
-        <section class="report-section">
+        <section class="report-section report-risk-group ${index > 0 ? "report-page-break" : ""}">
           <h2>${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
@@ -2403,7 +2516,7 @@ function getRiskInventoryReportHtml() {
     .join("");
 
   return `
-    <section class="report-section">
+    <section class="report-section report-page-break">
       <h2>Uitwerking vraag 1.1.1</h2>
       ${groupsHtml}
     </section>
@@ -2438,8 +2551,7 @@ function buildPrintableReportHtml() {
           }
 
           @page {
-            margin: 2cm 1.6cm 2.2cm 1.6cm;
-            mso-footer: page-footer;
+            margin: 2cm 1.6cm 1.8cm 1.6cm;
           }
 
           body {
@@ -2447,7 +2559,7 @@ function buildPrintableReportHtml() {
             font-family: Verdana, Arial, sans-serif;
             color: #172033;
             background: #ffffff;
-            font-size: 9.5pt;
+            font-size: 9pt;
             line-height: 1.3;
           }
 
@@ -2465,7 +2577,7 @@ function buildPrintableReportHtml() {
 
           .report-header h1 {
             margin: 0 0 6px;
-            font-size: 15pt;
+            font-size: 20pt;
           }
 
           .report-meta {
@@ -2475,18 +2587,18 @@ function buildPrintableReportHtml() {
             font-size: 8.5pt;
           }
 
-          .report-intro {
-            margin-top: 12px;
-            padding: 8px 0 0;
-          }
-
           .report-section {
             margin-top: 16px;
           }
 
           .report-section h2 {
             margin: 0 0 8px;
-            font-size: 11pt;
+            font-size: 14pt;
+          }
+
+          .report-subsection h3 {
+            margin: 10px 0 6px;
+            font-size: 14pt;
           }
 
           .report-question,
@@ -2503,7 +2615,7 @@ function buildPrintableReportHtml() {
           .report-question h3,
           .report-risk-item h4 {
             margin: 0 0 6px;
-            font-size: 9.5pt;
+            font-size: 9pt;
           }
 
           .report-line,
@@ -2526,21 +2638,14 @@ function buildPrintableReportHtml() {
             line-height: 1.3;
           }
 
+          .report-page-break {
+            break-before: page;
+            page-break-before: always;
+          }
+
           .report-muted {
             color: #6b7280;
             font-style: italic;
-          }
-
-          .word-page-footer {
-            mso-element: footer;
-            position: running(page-footer);
-          }
-
-          .word-page-footer p {
-            margin: 0;
-            font-size: 10pt;
-            color: #5b6472;
-            text-align: right;
           }
 
           @media print {
@@ -2556,31 +2661,21 @@ function buildPrintableReportHtml() {
         </style>
       </head>
       <body>
-        <div class="word-page-footer">
-          <p>
-            Pagina <span style="mso-field-code: PAGE"></span>
-            van <span style="mso-field-code: NUMPAGES"></span>
-          </p>
-        </div>
         <main class="report-page">
           <header class="report-header">
             <h1>RI&E pre-toets rapport</h1>
             <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
           </header>
 
-          <section class="report-intro">
-            <strong>Samenvatting uitkomst</strong>
-            <p>${escapeHtml(buildSummary(assessment))}</p>
-          </section>
-
           ${getGeneralFieldsReportHtml()}
+          ${getSummaryOutcomeReportHtml(assessment)}
           ${getRiskInventoryReportHtml()}
           ${getRegularQuestionReportSection("Uitkomsten vragen 1.1.2 t/m 1.4.1", [
             ...completenessItems,
             ...actualityItems,
             ...reliabilityItems,
           ])}
-          ${getRegularQuestionReportSection("Uitkomst plan van aanpak", planItems)}
+          ${getRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
         </main>
       </body>
     </html>
@@ -3089,17 +3184,7 @@ function renderPlanStatusMatrix() {
   planStatusMatrix.append(section);
 }
 
-function renderApplicabilityLists(assessment) {
-  if (
-    !applicableItems ||
-    !describedApplicableItems ||
-    !supplementedApplicableItems ||
-    !notDescribedApplicableItems ||
-    !notApplicableItems
-  ) {
-    return;
-  }
-
+function collectApplicabilitySummaryData(assessment) {
   const applicable = [];
   const describedApplicable = [];
   const supplementedApplicable = [];
@@ -3150,6 +3235,34 @@ function renderApplicabilityLists(assessment) {
       applicable.push(result.title);
     }
   }
+
+  return {
+    applicable,
+    describedApplicable,
+    supplementedApplicable,
+    notDescribedApplicable,
+    notApplicable,
+  };
+}
+
+function renderApplicabilityLists(assessment) {
+  if (
+    !applicableItems ||
+    !describedApplicableItems ||
+    !supplementedApplicableItems ||
+    !notDescribedApplicableItems ||
+    !notApplicableItems
+  ) {
+    return;
+  }
+
+  const {
+    applicable,
+    describedApplicable,
+    supplementedApplicable,
+    notDescribedApplicable,
+    notApplicable,
+  } = collectApplicabilitySummaryData(assessment);
 
   applicableItems.innerHTML = "";
   describedApplicableItems.innerHTML = "";
