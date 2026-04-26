@@ -168,7 +168,7 @@ const questions = [
     id: "1-1-14",
     category: "1.1 Volledigheid",
     title:
-      "Zijn de risicobeperkende maatregelen getoetst aan de arbeidshygienische principes en het daarbij te hanteren redelijkerwijsbeginsel?",
+      "Zijn de risicobeperkende maatregelen getoetst aan de arbeidshygiënische principes en het daarbij te hanteren redelijkerwijsbeginsel?",
     severity: 3,
   },
   {
@@ -209,20 +209,20 @@ const questions = [
     id: "2-2",
     category: "2. Plan van aanpak",
     title:
-      "Is bij de voorstellen voor risicobeperkende maatregelen rekening gehouden met de arbeidshygienische strategie?",
+      "Is bij de voorstellen voor risicobeperkende maatregelen rekening gehouden met de arbeidshygiënische strategie?",
     severity: 3,
   },
   {
     id: "2-3",
     category: "2. Plan van aanpak",
     title:
-      "Als in het plan van aanpak bij de voorgestelde maatregelen is afgeweken van de arbeidshygienische strategie, is dit dan gemotiveerd?",
+      "Als in het plan van aanpak bij de voorgestelde maatregelen is afgeweken van de arbeidshygiënische strategie, is dit dan gemotiveerd?",
     severity: 2,
   },
   {
     id: "2-4",
     category: "2. Plan van aanpak",
-    title: "Is beschreven hoe de maatregelen worden geimplementeerd?",
+    title: "Is beschreven hoe de maatregelen worden geïmplementeerd?",
     severity: 2,
   },
   {
@@ -1429,7 +1429,7 @@ function renderRiskInventory(container) {
       <div>Van toepassing?</div>
       <div>Beschreven in RI&E?</div>
       <div>Waarom niet beschreven?</div>
-      <div>Grondoorzaken geinventariseerd?</div>
+      <div>Grondoorzaken geïnventariseerd?</div>
       <div>Bewijs / toelichting</div>
     `;
     content.append(head);
@@ -1531,7 +1531,7 @@ function renderRiskInventory(container) {
       item.append(whyNot);
 
       const causes = createRiskColumn(
-        "Zijn de grondoorzaken van dit risico in de RI&E geinventariseerd?",
+        "Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?",
         "causes",
         [
           { value: "yes", label: "Ja" },
@@ -1544,12 +1544,12 @@ function renderRiskInventory(container) {
       appendRiskEvidenceField(
         causes,
         `risk-${itemId}-causes-yes-note`,
-        "Beschrijf hier waaruit blijkt dat de grondoorzaken van dit risico zijn geinventariseerd."
+        "Beschrijf hier waaruit blijkt dat de grondoorzaken van dit risico zijn geïnventariseerd."
       );
       appendRiskEvidenceField(
         causes,
         `risk-${itemId}-causes-no-note`,
-        "Licht hier toe waarom de grondoorzaken van dit risico niet zijn geinventariseerd."
+        "Licht hier toe waarom de grondoorzaken van dit risico niet zijn geïnventariseerd."
       );
       item.append(causes);
 
@@ -1779,7 +1779,7 @@ function getRiskItemState(groupId, groupTitle, itemLabel) {
         answer: "no",
         severity: 3,
         weightedScore: 6,
-        note: "Het risico is wel beschreven, maar de achterliggende grondoorzaken zijn niet geinventariseerd.",
+        note: "Het risico is wel beschreven, maar de achterliggende grondoorzaken zijn niet geïnventariseerd.",
         evidence: [describedYesNote, assessorNote, assessmentMethodNote, evaluationMethodNote, causesNoNote]
           .filter(Boolean)
           .join(" | "),
@@ -2731,7 +2731,7 @@ function buildSummaryWordHtml() {
     return values
       .map(
         (item) =>
-          `<p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;">${escapeHtml(
+          `<p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;">•\u00a0${escapeHtml(
             item
           )}</p>`
       )
