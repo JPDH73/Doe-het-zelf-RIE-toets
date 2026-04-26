@@ -2756,7 +2756,7 @@ function buildSummaryWordHtml() {
     },
   ];
 
-  const renderQuestionGroup = (title, items) => {
+  const renderQuestionGroup = (title, items, breakBefore = false) => {
     const rows = items
       .map((question) => {
         const presentation = getStatusPresentation(getAnswerValue(question.id));
@@ -2772,6 +2772,7 @@ function buildSummaryWordHtml() {
       .join("");
 
     return `
+      ${breakBefore ? getWordPageBreakHtml() : ""}
       <p style="margin: 0 0 0 0; font: 12pt Verdana; color: #172033;"><u><b>${escapeHtml(
         title
       )}</b></u></p>
@@ -2878,6 +2879,7 @@ function buildSummaryWordHtml() {
           ${renderField("Uitvoering van de RI&E", executionDescription.value)}
           ${renderField("Datum van de RI&E", rieDate.value)}
           ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
+          ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
           <p style="margin: 0; font: 10pt Verdana; color: #172033; min-height: 12px;"><br></p>
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
@@ -2912,9 +2914,14 @@ function buildSummaryWordHtml() {
           )}
           <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
           <p style="margin: 0; font: 11pt Verdana; color: #172033; min-height: 13px;"><br></p>
+          ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
           <p style="margin: 0; font: 9pt Verdana; color: #172033; min-height: 11px;"><br></p>
-          ${groupedQuestions.map((group) => renderQuestionGroup(group.title, group.items)).join("")}
+          ${groupedQuestions
+            .map((group, index) =>
+              renderQuestionGroup(group.title, group.items, index === 1)
+            )
+            .join("")}
           <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
           <p style="margin: 0; font: 12pt Verdana; color: #172033; min-height: 15px;"><br></p>
           ${planRows}
