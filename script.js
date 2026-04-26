@@ -2767,7 +2767,7 @@ function buildSummaryWordHtml() {
           <p style="margin: 0 0 0 0; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
             getDisplayQuestionTitle(question)
           )}</b></p>
-          <p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033;">${escapeHtml(
+          <p style="margin: 3pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">${escapeHtml(
             presentation.label
           )}</p>
         `;
