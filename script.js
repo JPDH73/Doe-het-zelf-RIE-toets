@@ -408,7 +408,6 @@ const toggleAllSections = document.querySelector("#toggleAllSections");
 const draftStatus = document.querySelector("#draftStatus");
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
-let resetConfirmationActive = false;
 
 function slugify(text) {
   return text
@@ -558,33 +557,16 @@ function clearAllAnswers() {
   updateDraftStatus("Concept is gewist op deze computer.");
 }
 
-function resetResetButtonLabel() {
-  if (!resetApp) {
-    return;
-  }
-
-  resetConfirmationActive = false;
-  resetApp.textContent = "Reset";
-}
-
 function handleResetClick() {
-  if (!resetApp) {
-    return;
-  }
+  const confirmed = window.confirm(
+    "Wilt u zeker weten dat u alle ingevulde gegevens en het opgeslagen concept wilt resetten?"
+  );
 
-  if (!resetConfirmationActive) {
-    resetConfirmationActive = true;
-    resetApp.textContent = "Weet u het zeker? Klik nogmaals";
-    window.setTimeout(() => {
-      if (resetConfirmationActive) {
-        resetResetButtonLabel();
-      }
-    }, 4000);
+  if (!confirmed) {
     return;
   }
 
   clearAllAnswers();
-  resetResetButtonLabel();
 }
 
 function makeRadioToggleable(input) {
@@ -2292,10 +2274,7 @@ function getGeneralFieldsReportHtml() {
     rows
       .map(
         ([label, value]) => `
-          <tr>
-            <th>${escapeHtml(label)}</th>
-            <td>${formatOptionalValue(value)}</td>
-          </tr>
+          <p class="report-line"><strong>${escapeHtml(label)}:</strong> ${formatOptionalValue(value)}</p>
         `
       )
       .join("");
@@ -2303,19 +2282,15 @@ function getGeneralFieldsReportHtml() {
   return `
     <section class="report-section">
       <h2>Bedrijfsprofiel</h2>
-      <table class="report-table">
-        <tbody>
-          ${renderRows(profileRows)}
-        </tbody>
-      </table>
+      <div class="report-block">
+        ${renderRows(profileRows)}
+      </div>
     </section>
     <section class="report-section">
       <h2>Afbakening en documentgegevens van de RI&E</h2>
-      <table class="report-table">
-        <tbody>
-          ${renderRows(rieRows)}
-        </tbody>
-      </table>
+      <div class="report-block">
+        ${renderRows(rieRows)}
+      </div>
     </section>
   `;
 }
@@ -2329,12 +2304,12 @@ function getRegularQuestionReportSection(title, items) {
       return `
         <article class="report-question">
           <h3>${escapeHtml(getDisplayQuestionTitle(question))}</h3>
-          <div class="report-answer"><strong>Antwoord:</strong> ${escapeHtml(
+          <p class="report-line"><strong>Antwoord:</strong> ${escapeHtml(
             getOptionLabel(getQuestionOptions(question), answer)
-          )}</div>
-          <div class="report-note"><strong>Controleerbaar bewijs of toelichting:</strong> ${formatOptionalValue(
+          )}</p>
+          <p class="report-line"><strong>Controleerbaar bewijs of toelichting:</strong> ${formatOptionalValue(
             note
-          )}</div>
+          )}</p>
         </article>
       `;
     })
@@ -2373,58 +2348,20 @@ function getRiskInventoryReportHtml() {
           return `
             <article class="report-risk-item">
               <h4>${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h4>
-              <table class="report-table">
-                <tbody>
-                  <tr>
-                    <th>Van toepassing</th>
-                    <td>${escapeHtml(getOptionLabel(yesNoOptions, item.applicable))}</td>
-                  </tr>
-                  <tr>
-                    <th>Toelichting niet van toepassing</th>
-                    <td>${formatOptionalValue(item.applicabilityNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Is het risico beschreven in de RI&E?</th>
-                    <td>${escapeHtml(getOptionLabel(yesNoOptions, item.described))}</td>
-                  </tr>
-                  <tr>
-                    <th>Waar is dit onderdeel terug te vinden in de RI&E?</th>
-                    <td>${formatOptionalValue(item.describedYesNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Wie heeft dit risico beoordeeld?</th>
-                    <td>${formatOptionalValue(item.assessorNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Welke methode is gebruikt om het risico te inventariseren?</th>
-                    <td>${formatOptionalValue(item.assessmentMethodNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Welke methode is gebruikt om het risico te evalueren?</th>
-                    <td>${formatOptionalValue(item.evaluationMethodNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?</th>
-                    <td>${escapeHtml(getOptionLabel(yesNoOptions, item.justified))}</td>
-                  </tr>
-                  <tr>
-                    <th>Reden waarom dit risico niet is opgenomen</th>
-                    <td>${formatOptionalValue(item.describedNoNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?</th>
-                    <td>${escapeHtml(getOptionLabel(yesNoOptions, item.causes))}</td>
-                  </tr>
-                  <tr>
-                    <th>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?</th>
-                    <td>${formatOptionalValue(item.causesYesNote)}</td>
-                  </tr>
-                  <tr>
-                    <th>Waarom zijn de grondoorzaken niet geïnventariseerd?</th>
-                    <td>${formatOptionalValue(item.causesNoNote)}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="report-block">
+                <p class="report-line"><strong>Van toepassing:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.applicable))}</p>
+                <p class="report-line"><strong>Toelichting niet van toepassing:</strong> ${formatOptionalValue(item.applicabilityNote)}</p>
+                <p class="report-line"><strong>Is het risico beschreven in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.described))}</p>
+                <p class="report-line"><strong>Waar is dit onderdeel terug te vinden in de RI&E?:</strong> ${formatOptionalValue(item.describedYesNote)}</p>
+                <p class="report-line"><strong>Wie heeft dit risico beoordeeld?:</strong> ${formatOptionalValue(item.assessorNote)}</p>
+                <p class="report-line"><strong>Welke methode is gebruikt om het risico te inventariseren?:</strong> ${formatOptionalValue(item.assessmentMethodNote)}</p>
+                <p class="report-line"><strong>Welke methode is gebruikt om het risico te evalueren?:</strong> ${formatOptionalValue(item.evaluationMethodNote)}</p>
+                <p class="report-line"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.justified))}</p>
+                <p class="report-line"><strong>Reden waarom dit risico niet is opgenomen:</strong> ${formatOptionalValue(item.describedNoNote)}</p>
+                <p class="report-line"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.causes))}</p>
+                <p class="report-line"><strong>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?:</strong> ${formatOptionalValue(item.causesYesNote)}</p>
+                <p class="report-line"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(item.causesNoNote)}</p>
+              </div>
               ${
                 supplementalHtml
                   ? `
@@ -2493,102 +2430,86 @@ function buildPrintableReportHtml() {
 
           body {
             margin: 0;
-            font-family: "Georgia", "Times New Roman", serif;
+            font-family: Verdana, Arial, sans-serif;
             color: #172033;
-            background: #f5f1e8;
+            background: #ffffff;
+            font-size: 9.5pt;
+            line-height: 1.3;
           }
 
           .report-page {
-            max-width: 1040px;
+            max-width: none;
             margin: 0 auto;
-            padding: 32px 28px 48px;
-            background: #fffdf8;
+            padding: 0 0 24px;
+            background: #ffffff;
           }
 
           .report-header {
-            padding-bottom: 20px;
-            border-bottom: 2px solid #d8cdb9;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #c8ced6;
           }
 
           .report-header h1 {
-            margin: 0 0 10px;
-            font-size: 2rem;
+            margin: 0 0 6px;
+            font-size: 15pt;
           }
 
           .report-meta {
             margin: 0;
             color: #5b6472;
-            line-height: 1.6;
+            line-height: 1.35;
+            font-size: 8.5pt;
           }
 
           .report-intro {
-            margin-top: 20px;
-            padding: 18px 20px;
-            border: 1px solid #d8cdb9;
-            border-radius: 16px;
-            background: #fbf7ef;
+            margin-top: 12px;
+            padding: 8px 0 0;
           }
 
           .report-section {
-            margin-top: 28px;
+            margin-top: 16px;
           }
 
           .report-section h2 {
-            margin: 0 0 14px;
-            font-size: 1.35rem;
+            margin: 0 0 8px;
+            font-size: 11pt;
           }
 
           .report-question,
           .report-risk-item {
-            margin-top: 14px;
-            padding: 16px 18px;
-            border: 1px solid #ddd4c4;
-            border-radius: 14px;
-            background: #ffffff;
+            margin-top: 8px;
+            padding: 6px 0 0;
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            border-radius: 0;
+            background: transparent;
             break-inside: avoid;
           }
 
           .report-question h3,
           .report-risk-item h4 {
-            margin: 0 0 10px;
-            font-size: 1.05rem;
+            margin: 0 0 6px;
+            font-size: 9.5pt;
           }
 
-          .report-answer,
-          .report-note,
+          .report-line,
           .report-subsection {
-            margin-top: 8px;
-            line-height: 1.6;
+            margin: 2px 0 0;
+            line-height: 1.3;
           }
 
-          .report-table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-
-          .report-table th,
-          .report-table td {
-            padding: 10px 12px;
-            border: 1px solid #e7dfcf;
-            vertical-align: top;
-            text-align: left;
-            line-height: 1.55;
-          }
-
-          .report-table th {
-            width: 32%;
-            background: #faf4e8;
-            font-weight: 700;
+          .report-block {
+            display: block;
           }
 
           .report-list {
-            margin: 8px 0 0;
-            padding-left: 20px;
+            margin: 6px 0 0;
+            padding-left: 16px;
           }
 
           .report-list li {
-            margin-top: 10px;
-            line-height: 1.6;
+            margin-top: 6px;
+            line-height: 1.3;
           }
 
           .report-muted {

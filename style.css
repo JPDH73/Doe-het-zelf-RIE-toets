@@ -464,31 +464,23 @@ h1 {
 }
 
 .risk-table-head {
-  display: grid;
-  grid-template-columns: minmax(260px, 1.4fr) repeat(4, minmax(120px, 0.7fr)) minmax(220px, 1fr);
-  gap: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(15, 118, 110, 0.08);
-  color: var(--muted);
-  font-size: 0.84rem;
-  line-height: 1.35;
+  display: none;
 }
 
 .risk-item {
   display: grid;
-  grid-template-columns: minmax(260px, 1.4fr) repeat(4, minmax(120px, 0.7fr)) minmax(220px, 1fr);
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   align-items: start;
-  padding: 14px;
+  padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 20px;
   background: white;
+  box-shadow: 0 10px 30px rgba(55, 43, 30, 0.05);
 }
 
 .risk-item-header {
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 
 .risk-item-label {
@@ -505,27 +497,27 @@ h1 {
 }
 
 .risk-question-block {
+  display: grid;
+  gap: 10px;
   margin-top: 0;
-  padding-top: 0;
-  border-top: 0;
-}
-
-.risk-question-block:first-of-type {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(31, 29, 26, 0.09);
+  border-radius: 16px;
+  background: rgba(251, 247, 239, 0.9);
 }
 
 .risk-question {
-  margin-bottom: 8px;
+  margin: 0;
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.45;
+  font-weight: 600;
 }
 
 .binary-options {
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .binary-pill {
@@ -547,6 +539,7 @@ h1 {
 .risk-evidence {
   display: grid;
   gap: 8px;
+  margin-top: 4px;
 }
 
 .risk-evidence[hidden] {
@@ -560,7 +553,7 @@ h1 {
 }
 
 .risk-note {
-  min-height: 180px;
+  min-height: 140px;
   width: 100%;
   padding: 12px 13px;
   border: 1px solid var(--line);
