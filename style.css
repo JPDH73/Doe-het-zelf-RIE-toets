@@ -862,11 +862,15 @@ h1 {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: grid;
+  display: none;
   place-items: center;
   padding: 24px;
   background: rgba(20, 18, 15, 0.42);
   backdrop-filter: blur(6px);
+}
+
+.modal-backdrop.is-open {
+  display: grid;
 }
 
 .modal-card {

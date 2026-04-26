@@ -565,7 +565,8 @@ function openResetModal() {
     return;
   }
 
-  resetModal.hidden = false;
+  resetModal.classList.add("is-open");
+  resetModal.setAttribute("aria-hidden", "false");
 }
 
 function closeResetModal() {
@@ -573,10 +574,12 @@ function closeResetModal() {
     return;
   }
 
-  resetModal.hidden = true;
+  resetModal.classList.remove("is-open");
+  resetModal.setAttribute("aria-hidden", "true");
 }
 
-function handleResetClick() {
+function handleResetClick(event) {
+  event?.preventDefault();
   openResetModal();
 }
 
@@ -3250,13 +3253,22 @@ copyReport.addEventListener("click", copyReportToClipboard);
 generatePdf?.addEventListener("click", generatePdfReport);
 generateWord?.addEventListener("click", generateWordReport);
 resetApp?.addEventListener("click", handleResetClick);
-cancelReset?.addEventListener("click", closeResetModal);
-confirmReset?.addEventListener("click", () => {
+cancelReset?.addEventListener("click", (event) => {
+  event.preventDefault();
+  closeResetModal();
+});
+confirmReset?.addEventListener("click", (event) => {
+  event.preventDefault();
   clearAllAnswers();
   closeResetModal();
 });
 resetModal?.addEventListener("click", (event) => {
   if (event.target === resetModal) {
+    closeResetModal();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && resetModal?.classList.contains("is-open")) {
     closeResetModal();
   }
 });
