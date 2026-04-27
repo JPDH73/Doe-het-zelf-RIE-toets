@@ -303,6 +303,14 @@ h1 {
   line-height: 1.5;
 }
 
+.section-toggle-actions {
+  margin-top: 14px;
+}
+
+.section-toggle-inline {
+  margin: 0 0 12px;
+}
+
 .question-card {
   display: block;
   border: 1px solid var(--line);

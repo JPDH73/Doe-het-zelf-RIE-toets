@@ -399,6 +399,9 @@ const describedApplicableItems = document.querySelector("#describedApplicableIte
 const supplementedApplicableItems = document.querySelector("#supplementedApplicableItems");
 const notDescribedApplicableItems = document.querySelector("#notDescribedApplicableItems");
 const notApplicableItems = document.querySelector("#notApplicableItems");
+const summaryRiskOutput = document.querySelector("#summaryRiskOutput");
+const summaryQuestionOutput = document.querySelector("#summaryQuestionOutput");
+const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
 const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
@@ -412,6 +415,12 @@ const resetModal = document.querySelector("#resetModal");
 const cancelReset = document.querySelector("#cancelReset");
 const confirmReset = document.querySelector("#confirmReset");
 const toggleAllSections = document.querySelector("#toggleAllSections");
+const toggleRiskInventoryQuestion = document.querySelector("#toggleRiskInventoryQuestion");
+const toggleRegularQuestions = document.querySelector("#toggleRegularQuestions");
+const togglePlanQuestions = document.querySelector("#togglePlanQuestions");
+const toggleSummaryRiskOutput = document.querySelector("#toggleSummaryRiskOutput");
+const toggleSummaryQuestionOutput = document.querySelector("#toggleSummaryQuestionOutput");
+const toggleSummaryPlanOutput = document.querySelector("#toggleSummaryPlanOutput");
 const draftStatus = document.querySelector("#draftStatus");
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
@@ -1587,7 +1596,23 @@ function renderRiskInventory(container) {
 }
 
 function renderQuestions() {
+  questionGroups.textContent = "";
+
   for (const question of questions) {
+    if (question.id === "1-1-2" && toggleRegularQuestions) {
+      const regularToggleRow = document.createElement("div");
+      regularToggleRow.className = "button-row section-toggle-actions section-toggle-inline";
+      regularToggleRow.append(toggleRegularQuestions);
+      questionGroups.append(regularToggleRow);
+    }
+
+    if (question.id === "2-1" && togglePlanQuestions) {
+      const planToggleRow = document.createElement("div");
+      planToggleRow.className = "button-row section-toggle-actions section-toggle-inline";
+      planToggleRow.append(togglePlanQuestions);
+      questionGroups.append(planToggleRow);
+    }
+
     const fragment = template.content.cloneNode(true);
     const card = fragment.querySelector(".question-card");
     const copy = fragment.querySelector(".question-copy");
@@ -2991,6 +3016,110 @@ function buildSummaryPdfHtml() {
   return buildSummaryWordHtml().replace("</body>", `${printScript}</body>`);
 }
 
+function buildSummaryPdfText() {
+  const assessment = computeAssessment();
+  const generatedAt = new Intl.DateTimeFormat("nl-NL", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Europe/Amsterdam",
+  }).format(new Date());
+  const summaryData = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+    formatSupplementalLabel: getShortSupplementalSummaryLabel,
+  });
+
+  const lines = [
+    "RI&E pre-toets samenvatting",
+    `Gegenereerd op ${generatedAt}`,
+    "",
+    "Bedrijfsprofiel",
+    `Bedrijfsnaam: ${getPlainValue(companyName.value)}`,
+    `Contactpersoon: ${getPlainValue(contactName.value)}`,
+    `E-mailadres contactpersoon: ${getPlainValue(contactEmail?.value || "")}`,
+    `Naam invuller RI&E-toets: ${getPlainValue(rieAssessorName?.value || "")}`,
+    `Contactpersoon ondernemingsraad: ${getPlainValue(worksCouncilContact?.value || "")}`,
+    `Arbodienst/ Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
+    `Branche: ${getPlainValue(industry.value)}`,
+    `Arbo-certificaten: ${getPlainValue(arboCertificates?.value || "")}`,
+    `Aantal medewerkers: ${getPlainValue(employees.value)}`,
+    `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
+    "",
+    "Afbakening en documentgegevens van de RI&E",
+    `Naam of omschrijving van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
+    `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
+    `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
+    "Documenten die behoren tot de te toetsen RI&E:",
+    getPlainValue(rieDocuments.value),
+    "",
+    "SAMENVATTING UITKOMST",
+    "",
+    "Uitkomst vraag 1.1.1",
+    "Van toepassing",
+    ...(summaryData.applicable.length
+      ? summaryData.applicable.map((item) => `• ${item}`)
+      : ["• Nog geen onderdelen als van toepassing aangemerkt."]),
+    "",
+    "Van toepassing en beschreven",
+    ...(summaryData.describedApplicable.length
+      ? summaryData.describedApplicable.map((item) => `• ${item}`)
+      : ["• Nog geen onderdelen als van toepassing en beschreven aangemerkt."]),
+    "",
+    "Van toepassing maar niet beschreven",
+    ...(summaryData.notDescribedApplicable.length
+      ? summaryData.notDescribedApplicable.map((item) => `• ${item}`)
+      : ["• Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt."]),
+    "",
+    "Niet van toepassing",
+    ...(summaryData.notApplicable.length
+      ? summaryData.notApplicable.map((item) => `• ${item}`)
+      : ["• Nog geen onderdelen als niet van toepassing aangemerkt."]),
+    "",
+    "Nadere voorschriften met ja beantwoord",
+    ...(summaryData.supplementedApplicable.length
+      ? summaryData.supplementedApplicable.map((item) => `• ${item}`)
+      : ["• Nog geen nadere voorschriften met ja beantwoord."]),
+    "",
+    "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+  ];
+
+  const groupedQuestions = [
+    {
+      title: "Uitkomst volledigheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
+    },
+    {
+      title: "Uitkomst actualiteit",
+      items: getQuestionStatusItems().filter(
+        (question) =>
+          question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
+      ),
+    },
+    {
+      title: "Uitkomst betrouwbaarheid",
+      items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
+    },
+  ];
+
+  for (const group of groupedQuestions) {
+    lines.push("", group.title);
+    for (const question of group.items) {
+      const presentation = getStatusPresentation(getAnswerValue(question.id));
+      lines.push(getDisplayQuestionTitle(question));
+      lines.push(presentation.label);
+    }
+  }
+
+  lines.push("", "Uitkomsten plan van aanpak");
+  for (const question of getPlanStatusItems()) {
+    const presentation = getStatusPresentation(getAnswerValue(question.id));
+    lines.push(getDisplayQuestionTitle(question));
+    lines.push(presentation.label);
+  }
+
+  return lines.join("\n");
+}
+
 function getReportFileBaseName() {
   const company = getPlainValue(companyName.value) || "rie-pretoets";
   const date = getPlainValue(assessmentDate.value) || new Date().toISOString().slice(0, 10);
@@ -3152,17 +3281,9 @@ function generateSummaryWordReport() {
 }
 
 function generateSummaryPdfReport() {
-  const html = buildSummaryPdfHtml();
-  const summaryWindow = window.open("", "_blank", "noopener,noreferrer,width=1024,height=768");
-
-  if (!summaryWindow) {
-    window.alert("Sta pop-ups toe om de samenvatting als PDF te openen.");
-    return;
-  }
-
-  summaryWindow.document.open();
-  summaryWindow.document.write(html);
-  summaryWindow.document.close();
+  const reportText = buildSummaryPdfText();
+  const blob = buildPdfBlobFromText(reportText);
+  downloadBlob(blob, `${getReportFileBaseName()}-samenvatting.pdf`);
 }
 
 function updateScoreRing(readiness) {
@@ -3734,6 +3855,44 @@ function getExpandableSections() {
   return Array.from(document.querySelectorAll("details"));
 }
 
+function getRiskInventoryQuestionCard() {
+  return document.querySelector('.question-card[data-question-id="1-1-1"]');
+}
+
+function getRegularQuestionCards() {
+  return Array.from(document.querySelectorAll(".question-card")).filter((card) => {
+    const questionId = card.dataset.questionId || "";
+    return questionId !== "1-1-1" && questionId.startsWith("1-");
+  });
+}
+
+function getPlanQuestionCards() {
+  return Array.from(document.querySelectorAll(".question-card")).filter((card) => {
+    const questionId = card.dataset.questionId || "";
+    return questionId.startsWith("2-");
+  });
+}
+
+function updateSectionToggleButtonLabel(button, cards, openLabel, closeLabel) {
+  if (!button || cards.length === 0) {
+    return;
+  }
+
+  const allOpen = cards.every((card) => card.open);
+  button.textContent = allOpen ? closeLabel : openLabel;
+}
+
+function toggleQuestionCardCollection(cards) {
+  if (cards.length === 0) {
+    return;
+  }
+
+  const allOpen = cards.every((card) => card.open);
+  for (const card of cards) {
+    card.open = !allOpen;
+  }
+}
+
 function updateToggleAllButtonLabel() {
   if (!toggleAllSections) {
     return;
@@ -3742,6 +3901,28 @@ function updateToggleAllButtonLabel() {
   const sections = getExpandableSections();
   const allOpen = sections.length > 0 && sections.every((section) => section.open);
   toggleAllSections.textContent = allOpen ? "Klap alles dicht" : "Klap alles open";
+}
+
+function updateQuestionSectionToggleLabels() {
+  const riskInventoryCard = getRiskInventoryQuestionCard();
+  updateSectionToggleButtonLabel(
+    toggleRiskInventoryQuestion,
+    riskInventoryCard ? [riskInventoryCard] : [],
+    "Vraag 1.1.1 openklappen",
+    "Vraag 1.1.1 dichtklappen"
+  );
+  updateSectionToggleButtonLabel(
+    toggleRegularQuestions,
+    getRegularQuestionCards(),
+    "Vragen 1.1.2 t/m 1.4.1 openklappen",
+    "Vragen 1.1.2 t/m 1.4.1 dichtklappen"
+  );
+  updateSectionToggleButtonLabel(
+    togglePlanQuestions,
+    getPlanQuestionCards(),
+    "Vragen plan van aanpak openklappen",
+    "Vragen plan van aanpak dichtklappen"
+  );
 }
 
 function toggleAllExpandableSections() {
@@ -3756,6 +3937,49 @@ function toggleAllExpandableSections() {
   }
 
   updateToggleAllButtonLabel();
+}
+
+function toggleRiskInventoryQuestionCard() {
+  const card = getRiskInventoryQuestionCard();
+  if (!card) {
+    return;
+  }
+
+  card.open = !card.open;
+  updateQuestionSectionToggleLabels();
+}
+
+function toggleRegularQuestionSection() {
+  toggleQuestionCardCollection(getRegularQuestionCards());
+  updateQuestionSectionToggleLabels();
+}
+
+function togglePlanQuestionSection() {
+  toggleQuestionCardCollection(getPlanQuestionCards());
+  updateQuestionSectionToggleLabels();
+}
+
+function updateSummarySectionToggleButtonLabel(button, target) {
+  if (!button || !target) {
+    return;
+  }
+
+  button.textContent = target.hidden ? "Klap open" : "Klap dicht";
+}
+
+function updateSummarySectionToggleLabels() {
+  updateSummarySectionToggleButtonLabel(toggleSummaryRiskOutput, summaryRiskOutput);
+  updateSummarySectionToggleButtonLabel(toggleSummaryQuestionOutput, summaryQuestionOutput);
+  updateSummarySectionToggleButtonLabel(toggleSummaryPlanOutput, summaryPlanOutput);
+}
+
+function toggleSummarySection(target, button) {
+  if (!target) {
+    return;
+  }
+
+  target.hidden = !target.hidden;
+  updateSummarySectionToggleButtonLabel(button, target);
 }
 
 function updateReportToggleButtonLabel() {
@@ -3779,6 +4003,8 @@ renderQuestions();
 restoreDraftFromLocalStorage();
 renderAssessment();
 updateToggleAllButtonLabel();
+updateQuestionSectionToggleLabels();
+updateSummarySectionToggleLabels();
 updateReportToggleButtonLabel();
 
 survey.addEventListener("change", () => {
@@ -3795,6 +4021,18 @@ generateWord?.addEventListener("click", generateWordReport);
 generateSummaryPdf?.addEventListener("click", generateSummaryPdfReport);
 generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
+toggleRiskInventoryQuestion?.addEventListener("click", toggleRiskInventoryQuestionCard);
+toggleRegularQuestions?.addEventListener("click", toggleRegularQuestionSection);
+togglePlanQuestions?.addEventListener("click", togglePlanQuestionSection);
+toggleSummaryRiskOutput?.addEventListener("click", () =>
+  toggleSummarySection(summaryRiskOutput, toggleSummaryRiskOutput)
+);
+toggleSummaryQuestionOutput?.addEventListener("click", () =>
+  toggleSummarySection(summaryQuestionOutput, toggleSummaryQuestionOutput)
+);
+toggleSummaryPlanOutput?.addEventListener("click", () =>
+  toggleSummarySection(summaryPlanOutput, toggleSummaryPlanOutput)
+);
 cancelReset?.addEventListener("click", (event) => {
   event.preventDefault();
   closeResetModal();
@@ -3819,6 +4057,7 @@ document.addEventListener(
   "toggle",
   () => {
     updateToggleAllButtonLabel();
+    updateQuestionSectionToggleLabels();
     saveDraftToLocalStorage();
   },
   true

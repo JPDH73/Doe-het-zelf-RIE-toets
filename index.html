@@ -251,12 +251,25 @@
               <div class="risk-table-legend">
                 <strong>Toelichting vraag 1.1.1</strong>
                 <p>
-                  De hoofdrisico’s zijn uitklapbaar en opgebouwd uit deelrisico’s. Per deelrisico
-                  beantwoordt u de vragen en kunt u bewijsnotities of een toelichting toevoegen.
+                  De hoofdrisico’s zijn opgebouwd uit deelrisico’s. Per deelrisico beantwoordt u
+                  de vraag en kunt u bewijsnotities of een toelichting toevoegen.
                 </p>
+                <div class="button-row section-toggle-actions">
+                  <button id="toggleRiskInventoryQuestion" class="secondary-button" type="button">
+                    Vraag 1.1.1 openklappen
+                  </button>
+                </div>
               </div>
 
               <div id="questionGroups" class="question-groups"></div>
+              <div style="display: none;">
+                <button id="toggleRegularQuestions" class="secondary-button" type="button">
+                  Vragen 1.1.2 t/m 1.4.1 openklappen
+                </button>
+                <button id="togglePlanQuestions" class="secondary-button" type="button">
+                  Vragen plan van aanpak openklappen
+                </button>
+              </div>
             </section>
           </form>
         </div>
@@ -285,37 +298,58 @@
             </div>
 
             <section class="summary">
-              <h3>Uitkomst vraag 1.1.1</h3>
-              <div class="result-list-block">
-                <strong>Van toepassing</strong>
-                <ul id="applicableItems" class="result-list"></ul>
+              <div class="summary-head">
+                <h3>Uitkomst vraag 1.1.1</h3>
+                <button id="toggleSummaryRiskOutput" class="secondary-button" type="button">
+                  Klap dicht
+                </button>
               </div>
-              <div class="result-list-block">
-                <strong>Van toepassing en beschreven</strong>
-                <ul id="describedApplicableItems" class="result-list"></ul>
-              </div>
-              <div class="result-list-block">
-                <strong>Van toepassing maar niet beschreven</strong>
-                <ul id="notDescribedApplicableItems" class="result-list"></ul>
-              </div>
-              <div class="result-list-block">
-                <strong>Niet van toepassing</strong>
-                <ul id="notApplicableItems" class="result-list"></ul>
-              </div>
-              <div class="result-list-block">
-                <strong>Nadere voorschriften met ja beantwoord</strong>
-                <ul id="supplementedApplicableItems" class="result-list"></ul>
+              <div id="summaryRiskOutput">
+                <div class="result-list-block">
+                  <strong>Van toepassing</strong>
+                  <ul id="applicableItems" class="result-list"></ul>
+                </div>
+                <div class="result-list-block">
+                  <strong>Van toepassing en beschreven</strong>
+                  <ul id="describedApplicableItems" class="result-list"></ul>
+                </div>
+                <div class="result-list-block">
+                  <strong>Van toepassing maar niet beschreven</strong>
+                  <ul id="notDescribedApplicableItems" class="result-list"></ul>
+                </div>
+                <div class="result-list-block">
+                  <strong>Niet van toepassing</strong>
+                  <ul id="notApplicableItems" class="result-list"></ul>
+                </div>
+                <div class="result-list-block">
+                  <strong>Nadere voorschriften met ja beantwoord</strong>
+                  <ul id="supplementedApplicableItems" class="result-list"></ul>
+                </div>
               </div>
             </section>
 
             <section class="summary">
-              <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
-              <div id="questionStatusMatrix" class="status-matrix"></div>
+              <div class="summary-head">
+                <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+                <button id="toggleSummaryQuestionOutput" class="secondary-button" type="button">
+                  Klap dicht
+                </button>
+              </div>
+              <div id="summaryQuestionOutput">
+                <div id="questionStatusMatrix" class="status-matrix"></div>
+              </div>
             </section>
 
             <section class="summary">
-              <h3>Uitkomsten vragen 2.1 t/m 2.9</h3>
-              <div id="planStatusMatrix" class="status-matrix"></div>
+              <div class="summary-head">
+                <h3>Uitkomsten vragen 2.1 t/m 2.9</h3>
+                <button id="toggleSummaryPlanOutput" class="secondary-button" type="button">
+                  Klap dicht
+                </button>
+              </div>
+              <div id="summaryPlanOutput">
+                <div id="planStatusMatrix" class="status-matrix"></div>
+              </div>
             </section>
 
             <section class="summary">
