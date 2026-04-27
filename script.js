@@ -404,6 +404,7 @@ const summaryQuestionOutput = document.querySelector("#summaryQuestionOutput");
 const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
 const profileSectionContent = document.querySelector("#profileSectionContent");
 const scopeSectionContent = document.querySelector("#scopeSectionContent");
+const step3SectionContent = document.querySelector("#step3SectionContent");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
 const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
@@ -425,6 +426,7 @@ const toggleSummaryQuestionOutput = document.querySelector("#toggleSummaryQuesti
 const toggleSummaryPlanOutput = document.querySelector("#toggleSummaryPlanOutput");
 const toggleProfileSection = document.querySelector("#toggleProfileSection");
 const toggleScopeSection = document.querySelector("#toggleScopeSection");
+const toggleStep3Section = document.querySelector("#toggleStep3Section");
 const draftStatus = document.querySelector("#draftStatus");
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
@@ -4235,6 +4237,7 @@ function updateSummarySectionToggleLabels() {
 function updatePanelSectionToggleLabels() {
   updateSummarySectionToggleButtonLabel(toggleProfileSection, profileSectionContent);
   updateSummarySectionToggleButtonLabel(toggleScopeSection, scopeSectionContent);
+  updateSummarySectionToggleButtonLabel(toggleStep3Section, step3SectionContent);
 }
 
 function toggleSummarySection(target, button) {
@@ -4303,6 +4306,9 @@ toggleProfileSection?.addEventListener("click", () =>
 );
 toggleScopeSection?.addEventListener("click", () =>
   toggleSummarySection(scopeSectionContent, toggleScopeSection)
+);
+toggleStep3Section?.addEventListener("click", () =>
+  toggleSummarySection(step3SectionContent, toggleStep3Section)
 );
 cancelReset?.addEventListener("click", (event) => {
   event.preventDefault();
