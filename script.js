@@ -2623,7 +2623,7 @@ function getRelevantRegularQuestionReportSection(title, items) {
 
       return `
         <article class="report-question">
-          <h3 style="margin: 0 0 6pt; font-size: 9pt;">${escapeHtml(getDisplayQuestionTitle(question))}</h3>
+          <h3 style="margin: 6pt 0 6pt; font-size: 9pt;">${escapeHtml(getDisplayQuestionTitle(question))}</h3>
           <p class="report-line"><strong>Antwoord:</strong> ${escapeHtml(
             getOptionLabel(getQuestionOptions(question), answer)
           )}</p>
