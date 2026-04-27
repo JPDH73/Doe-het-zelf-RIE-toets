@@ -394,11 +394,8 @@ const criticalCount = document.querySelector("#criticalCount");
 const priorityList = document.querySelector("#priorityList");
 const summaryText = document.querySelector("#summaryText");
 const reportOutput = document.querySelector("#reportOutput");
-const applicableItems = document.querySelector("#applicableItems");
-const describedApplicableItems = document.querySelector("#describedApplicableItems");
+const riskOverviewItems = document.querySelector("#riskOverviewItems");
 const supplementedApplicableItems = document.querySelector("#supplementedApplicableItems");
-const notDescribedApplicableItems = document.querySelector("#notDescribedApplicableItems");
-const notApplicableItems = document.querySelector("#notApplicableItems");
 const summaryRiskOutput = document.querySelector("#summaryRiskOutput");
 const summaryQuestionOutput = document.querySelector("#summaryQuestionOutput");
 const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
@@ -4314,34 +4311,19 @@ function collectApplicabilitySummaryData(assessment, options = {}) {
 }
 
 function renderApplicabilityLists(assessment) {
-  if (
-    !applicableItems ||
-    !describedApplicableItems ||
-    !supplementedApplicableItems ||
-    !notDescribedApplicableItems ||
-    !notApplicableItems
-  ) {
+  if (!riskOverviewItems || !supplementedApplicableItems) {
     return;
   }
 
-  const {
-    applicable,
-    describedApplicable,
-    supplementedApplicable,
-    notDescribedApplicable,
-    notApplicable,
-  } = collectApplicabilitySummaryData(assessment, {
+  const { supplementedApplicable } = collectApplicabilitySummaryData(assessment, {
     formatRiskLabel: getShortRiskSummaryLabel,
     formatSupplementalLabel: getShortSupplementalSummaryLabel,
   });
 
-  applicableItems.innerHTML = "";
-  describedApplicableItems.innerHTML = "";
+  riskOverviewItems.innerHTML = "";
   supplementedApplicableItems.innerHTML = "";
-  notDescribedApplicableItems.innerHTML = "";
-  notApplicableItems.innerHTML = "";
 
-  const renderList = (target, items, emptyText) => {
+  const renderList = (target, items, emptyText, statusConfig = null) => {
     if (items.length === 0) {
       const entry = document.createElement("li");
       entry.textContent = emptyText;
@@ -4351,31 +4333,89 @@ function renderApplicabilityLists(assessment) {
 
     for (const item of items) {
       const entry = document.createElement("li");
-      entry.textContent = item;
+      if (!statusConfig) {
+        entry.textContent = item;
+        target.append(entry);
+        continue;
+      }
+
+      entry.className = "result-list-item";
+
+      const text = document.createElement("span");
+      text.className = "result-list-text";
+      text.textContent = item;
+
+      const chip = document.createElement("span");
+      chip.className = `status-chip ${statusConfig.className}`;
+      chip.textContent = statusConfig.label;
+
+      entry.append(text, chip);
       target.append(entry);
     }
   };
 
-  renderList(applicableItems, applicable, "Nog geen onderdelen als van toepassing aangemerkt.");
+  const overviewItems = riskCatalog
+    .flatMap((group) =>
+      group.items.map((itemLabel) => {
+        const item = getRiskItemState(group.id, group.title, itemLabel);
+        const label = getShortRiskSummaryLabel(item);
+
+        if (item.applicable === "yes" && item.described === "yes") {
+          return {
+            label,
+            status: { label: "beschreven", className: "status-chip-yes" },
+          };
+        }
+
+        if (item.applicable === "yes" && item.described === "no") {
+          return {
+            label,
+            status: { label: "niet beschreven", className: "status-chip-no" },
+          };
+        }
+
+        if (item.applicable === "no") {
+          return {
+            label,
+            status: { label: "niet van toepassing", className: "status-chip-empty" },
+          };
+        }
+
+        return null;
+      })
+    )
+    .filter(Boolean);
+
   renderList(
-    describedApplicableItems,
-    describedApplicable,
-    "Nog geen onderdelen als van toepassing en beschreven aangemerkt."
+    riskOverviewItems,
+    overviewItems.map((item) => item.label),
+    "Nog geen hoofd- en deelrisico's beoordeeld."
   );
+
+  if (overviewItems.length > 0) {
+    riskOverviewItems.innerHTML = "";
+
+    for (const item of overviewItems) {
+      const entry = document.createElement("li");
+      entry.className = "result-list-item";
+
+      const text = document.createElement("span");
+      text.className = "result-list-text";
+      text.textContent = item.label;
+
+      const chip = document.createElement("span");
+      chip.className = `status-chip ${item.status.className}`;
+      chip.textContent = item.status.label;
+
+      entry.append(text, chip);
+      riskOverviewItems.append(entry);
+    }
+  }
+
   renderList(
     supplementedApplicableItems,
     supplementedApplicable,
     "Nog geen nadere voorschriften of artikelen uit het Arbobesluit met ja beantwoord."
-  );
-  renderList(
-    notDescribedApplicableItems,
-    notDescribedApplicable,
-    "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt."
-  );
-  renderList(
-    notApplicableItems,
-    notApplicable,
-    "Nog geen onderdelen als niet van toepassing aangemerkt."
   );
 }
 
