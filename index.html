@@ -356,19 +356,23 @@
             <section class="summary">
               <div class="summary-head">
                 <h3>Volledig rapport</h3>
-                <div class="button-row">
-                  <button id="toggleReportOutput" class="secondary-button" type="button">
-                    Klap open
-                  </button>
-                  <button id="generateReportPdf" class="secondary-button" type="button">
-                    Rapport PDF
-                  </button>
-                  <button id="generateWord" class="secondary-button" type="button">
-                    Rapport WORD
-                  </button>
-                  <button id="copyReport" class="secondary-button" type="button">
-                    Kopieer
-                  </button>
+                <div class="report-action-stack">
+                  <div class="button-row report-action-row">
+                    <button id="toggleReportOutput" class="secondary-button" type="button">
+                      Klap open
+                    </button>
+                    <button id="copyReport" class="secondary-button" type="button">
+                      Kopieer
+                    </button>
+                  </div>
+                  <div class="button-row report-action-row">
+                    <button id="generateReportPdf" class="secondary-button" type="button">
+                      Rapport PDF
+                    </button>
+                    <button id="generateWord" class="secondary-button" type="button">
+                      Rapport WORD
+                    </button>
+                  </div>
                 </div>
               </div>
               <div id="reportOutput" class="report-output report-output-rich" hidden></div>

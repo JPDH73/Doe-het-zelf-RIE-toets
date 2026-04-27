@@ -123,10 +123,11 @@ p {
 }
 
 h1 {
-  max-width: 12ch;
+  max-width: none;
   margin-bottom: 18px;
-  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-size: clamp(2.2rem, 4vw, 4.4rem);
   line-height: 0.95;
+  white-space: nowrap;
 }
 
 .intro {
@@ -819,6 +820,16 @@ h1 {
   align-items: center;
 }
 
+.report-action-stack {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.report-action-row {
+  justify-content: flex-end;
+}
+
 .hero-actions {
   margin-top: 12px;
 }
@@ -1039,5 +1050,6 @@ h1 {
   h1 {
     max-width: none;
     font-size: 2.6rem;
+    white-space: normal;
   }
 }

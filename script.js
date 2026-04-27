@@ -2681,6 +2681,7 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
     formatRiskLabel: getShortRiskSummaryLabel,
     formatSupplementalLabel: getShortSupplementalSummaryLabel,
   });
+  const supplementalStatusItems = collectSupplementalStatusSummaryData();
 
   const groupedQuestionHtml = groupedQuestions
     .map((group) => {
@@ -3321,6 +3322,7 @@ function buildSummaryWordHtml() {
     formatRiskLabel: getShortRiskSummaryLabel,
     formatSupplementalLabel: getShortSupplementalSummaryLabel,
   });
+  const supplementalStatusItems = collectSupplementalStatusSummaryData();
 
   const renderQuestionGroup = (title, items, breakBefore = false) => {
     const rows = items
@@ -3476,10 +3478,10 @@ function buildSummaryWordHtml() {
             "Nog geen onderdelen als niet van toepassing aangemerkt.",
             0.48
           )}
-          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
+          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften</b></p>
           ${renderListParagraphs(
-            summaryData.supplementedApplicable,
-            "Nog geen nadere voorschriften met ja beantwoord.",
+            supplementalStatusItems,
+            "Nog geen relevante nadere voorschriften.",
             0.48
           )}
           ${spacer(9, 11)}
@@ -3576,10 +3578,10 @@ function buildSummaryPdfText() {
       ? summaryData.notApplicable.map((item) => `• ${item}`)
       : ["• Nog geen onderdelen als niet van toepassing aangemerkt."]),
     "",
-    "Nadere voorschriften met ja beantwoord",
-    ...(summaryData.supplementedApplicable.length
-      ? summaryData.supplementedApplicable.map((item) => `• ${item}`)
-      : ["• Nog geen nadere voorschriften met ja beantwoord."]),
+    "Nadere voorschriften",
+    ...(supplementalStatusItems.length
+      ? supplementalStatusItems.map((item) => `• ${item}`)
+      : ["• Nog geen relevante nadere voorschriften."]),
     "",
     "Uitkomsten vragen 1.1.2 t/m 1.4.1",
   ];
@@ -4301,6 +4303,35 @@ function collectApplicabilitySummaryData(assessment, options = {}) {
     notDescribedApplicable,
     notApplicable,
   };
+}
+
+function collectSupplementalStatusSummaryData() {
+  return riskCatalog
+    .flatMap((group) =>
+      group.items.flatMap((itemLabel) => {
+        const item = getRiskItemState(group.id, group.title, itemLabel);
+        if (!(item.applicable === "yes" && item.described === "yes")) {
+          return [];
+        }
+
+        const riskLabel = getShortRiskSummaryLabel(item);
+        return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => {
+          const answer = item.supplementalAnswers?.[config.key] || null;
+          let status = "nog niet beantwoord";
+
+          if (answer === "yes") {
+            status = "meegenomen";
+          } else if (answer === "no") {
+            status = "niet meegenomen";
+          } else if (answer === "na") {
+            status = "niet van toepassing";
+          }
+
+          return `${getShortSupplementalSummaryLabel(riskLabel, config.prompt, item)} - ${status}`;
+        });
+      })
+    )
+    .filter(Boolean);
 }
 
 function renderApplicabilityLists(assessment) {
