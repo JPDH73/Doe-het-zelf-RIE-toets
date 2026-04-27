@@ -2409,6 +2409,10 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
+  const summaryData = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+    formatSupplementalLabel: getShortSupplementalSummaryLabel,
+  });
 
   const groupedQuestionHtml = groupedQuestions
     .map((group) => {
@@ -2904,16 +2908,52 @@ function buildSummaryWordHtml() {
           ${renderField("Uitvoering van de RI&E", executionDescription.value)}
           ${renderField("Datum van de RI&E", rieDate.value)}
           ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
-          ${getSummaryOutcomeReportHtml(assessment, {
-            formatRiskLabel: getShortRiskSummaryLabel,
-            formatSupplementalLabel: getShortSupplementalSummaryLabel,
-          })
-            .replace('<section class="report-section">', `${getWordPageBreakHtml()}<section class="report-section">`)
-            .replace('<h2 style="margin: 0 0 8px; font-size: 9pt;">Samenvatting uitkomst</h2>', '<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>')
-            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst vraag 1.1.1</h3>', `${spacer(10, 12)}<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>${spacer(9, 11)}`)
-            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>', `${spacer(9, 11)}${spacer(11, 13)}${getWordPageBreakHtml()}<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>${spacer(9, 11)}`)
-            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten plan van aanpak</h3>', '<p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>')
-          }
+          ${getWordPageBreakHtml()}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
+          ${spacer(10, 12)}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
+          ${spacer(9, 11)}
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
+          ${renderListParagraphs(
+            summaryData.applicable,
+            "Nog geen onderdelen als van toepassing aangemerkt.",
+            0.48
+          )}
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
+          ${renderListParagraphs(
+            summaryData.describedApplicable,
+            "Nog geen onderdelen als van toepassing en beschreven aangemerkt.",
+            0.48
+          )}
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
+          ${renderListParagraphs(
+            summaryData.notDescribedApplicable,
+            "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
+            0.48
+          )}
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
+          ${renderListParagraphs(
+            summaryData.notApplicable,
+            "Nog geen onderdelen als niet van toepassing aangemerkt.",
+            0.48
+          )}
+          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
+          ${renderListParagraphs(
+            summaryData.supplementedApplicable,
+            "Nog geen nadere voorschriften met ja beantwoord.",
+            0.48
+          )}
+          ${spacer(9, 11)}
+          ${spacer(11, 13)}
+          ${getWordPageBreakHtml()}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
+          ${spacer(9, 11)}
+          ${groupedQuestions
+            .map((group, index) => renderQuestionGroup(group.title, group.items, index === 1))
+            .join("")}
+          <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
+          ${spacer(12, 15)}
+          ${planRows}
         </main>
       </body>
     </html>
