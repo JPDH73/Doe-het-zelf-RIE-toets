@@ -305,7 +305,7 @@ const requirementsOptions = [
   },
   {
     value: "na",
-    label: "Niet van toepassing",
+    label: "N.v.t.",
     score: 0,
     detail: "",
   },
@@ -641,11 +641,24 @@ function createBinaryOptions(name, choices, selectedValue) {
   return wrapper;
 }
 
-function createRiskColumn(questionText, fieldName, choices, itemId) {
+function createRiskColumn(questionText, fieldName, choices, itemId, helpContent = null) {
   const block = document.createElement("div");
   block.className = "risk-question-block";
   block.dataset.field = fieldName;
   block.innerHTML = `<p class="risk-question">${questionText}</p>`;
+
+  if (helpContent?.url) {
+    const helpToggle = document.createElement("details");
+    helpToggle.className = "question-help-toggle";
+    const summary = document.createElement("summary");
+    summary.textContent = "Toelichting";
+    const paragraph = document.createElement("p");
+    const linkText = helpContent.text || helpContent.url;
+    paragraph.innerHTML = `Raadpleeg de toelichting of wettekst via <a href="${helpContent.url}" target="_blank" rel="noopener noreferrer">${linkText}</a>.`;
+    helpToggle.append(summary, paragraph);
+    block.append(helpToggle);
+  }
+
   block.append(createBinaryOptions(`risk-${itemId}-${fieldName}`, choices, null));
   return block;
 }
@@ -1166,7 +1179,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Jeugdigen") {
     configs.push({
       key: "youth-article",
-      prompt: "Is invulling gegeven aan artikel 1.36 Arbobesluit voor jeugdigen?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 1.36: jeugdigen?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=1&afdeling=8&artikel=1.36&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 1.36 Arbobesluit voor jeugdigen.",
       noNote: "Voor jeugdigen is geen invulling gegeven aan artikel 1.36 Arbobesluit.",
@@ -1176,8 +1191,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Zwangeren") {
     configs.push({
       key: "pregnancy-article",
-      prompt:
-        "Is invulling gegeven aan artikel 1.41 Arbobesluit voor zwangere medewerkers en medewerkers tijdens de lactatie?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 1.4: zwangere medewerkers?",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 1.41 Arbobesluit voor zwangere medewerkers en medewerkers tijdens de lactatie.",
       noNote:
@@ -1188,8 +1202,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (groupId === "biologische-agentia") {
     configs.push({
       key: "biological-article",
-      prompt:
-        "Is invulling gegeven aan artikel 4.85 Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie voor biologische agentia?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 4.85: nadere voorschriften; biologische agentia?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=4&afdeling=9&paragraaf=2&artikel=4.85&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 4.85 Arbobesluit voor biologische agentia.",
       noNote: "Voor biologische agentia is geen invulling gegeven aan artikel 4.85 Arbobesluit.",
@@ -1204,8 +1219,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push(
       {
         key: "hazardous-substances-article-4-2",
-        prompt:
-          "Is invulling gegeven aan artikel 4.2 Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, beoordelen van gevaarlijke stoffen en asbest?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 4.2: nadere voorschriften; gevaarlijke stoffen?",
+        helpLink:
+          "http://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=4&afdeling=1&paragraaf=2&artikel=4.2",
         placeholder:
           "Omschrijf hier op welke wijze invulling is gegeven aan dit nadere voorschrift en waar dit uit blijkt.",
         noNote:
@@ -1213,8 +1229,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       },
       {
         key: "hazardous-substances-article-4-2a",
-        prompt:
-          "Is invulling gegeven aan artikel 4.2a Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, aanvullende registratie van gevaarlijke stoffen en reproductietoxische stoffen?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 4.2a, aanvullende registratie R-stoffen?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=4&afdeling=1&paragraaf=2&artikel=4.2a&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier op welke wijze invulling is gegeven aan artikel 4.2a Arbobesluit en waar dit uit blijkt.",
         noNote:
@@ -1222,8 +1239,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       },
       {
         key: "hazardous-substances-article-4-13",
-        prompt:
-          "Is invulling gegeven aan artikel 4.13 Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie voor CMR-stoffen?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 4.13, nadere voorschriften, CMR-stoffen?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=4&afdeling=2&paragraaf=2&artikel=4.13&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier op welke wijze invulling is gegeven aan artikel 4.13 Arbobesluit en waar dit uit blijkt.",
         noNote:
@@ -1237,7 +1255,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       {
         key: "hazardous-substances-article-4-2a",
         prompt:
-          "Is invulling gegeven aan hoofdstuk 2, afdeling 2 van het Arbobesluit: aanvullende voorschriften risico-inventarisatie en -evaluatie ter voorkoming en beperking van zware ongevallen met gevaarlijke stoffen?",
+          "Is invulling gegeven aan de aanvullende voorschriften van Arbobesluit hoofdstuk 2, afdeling 2; beperking van zware ongevallen met gevaarlijke stoffen?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=2&afdeling=2&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier op welke wijze invulling is gegeven aan hoofdstuk 2, afdeling 2 van het Arbobesluit en waar dit uit blijkt.",
         noNote:
@@ -1246,7 +1266,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       {
         key: "hazardous-substances-article-4-13",
         prompt:
-          "Is invulling gegeven aan artikel 3.5c Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie; explosieveiligheidsdocument?",
+          "Is invulling gegeven aan Arbobesluit art. 3.5c: nadere voorschriften; explosieveiligheidsdocument?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=3&afdeling=1&paragraaf=2a&artikel=3.5c&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 3.5c Arbobesluit en het explosieveiligheidsdocument.",
         noNote:
@@ -1258,8 +1280,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Fysieke overbelasting, zoals tillen, dragen, duwen, trekken, repeterende bewegingen en ongunstige houdingen") {
     configs.push({
       key: "physical-load-article",
-      prompt:
-        "Is invulling gegeven aan artikel 5.3 Arbobesluit: beperken gevaren en risico-inventarisatie en -evaluatie voor fysieke belasting?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 5.3: fysieke belasting?",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 5.3 Arbobesluit voor fysieke belasting.",
       noNote: "Voor fysieke belasting is geen invulling gegeven aan artikel 5.3 Arbobesluit.",
@@ -1269,8 +1290,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Beeldschermwerk") {
     configs.push({
       key: "screen-work-article",
-      prompt:
-        "Is invulling gegeven aan artikel 5.9 Arbobesluit: risico-inventarisatie en -evaluatie voor beeldschermwerk?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 5.9: beeldschermwerk?",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 5.9 Arbobesluit voor beeldschermwerk.",
       noNote: "Voor beeldschermwerk is geen invulling gegeven aan artikel 5.9 Arbobesluit.",
@@ -1278,80 +1298,42 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   }
 
   if (itemLabel === "Schadelijk of hinderlijk geluid") {
-    configs.push(
-      {
-        key: "noise-article-6-7",
-        prompt:
-          "Is invulling gegeven aan artikel 6.7 Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, beoordelen en meten van geluid?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.7 Arbobesluit voor geluid.",
-        noNote: "Voor geluid is geen invulling gegeven aan artikel 6.7 Arbobesluit.",
-      },
-      {
-        key: "noise-article-6-8",
-        prompt:
-          "Is invulling gegeven aan artikel 6.8 Arbobesluit: maatregelen ter voorkoming of beperking van de blootstelling aan geluid?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.8 Arbobesluit voor geluid.",
-        noNote: "Voor geluid is geen invulling gegeven aan artikel 6.8 Arbobesluit.",
-      }
-    );
+    configs.push({
+      key: "noise-article-6-7",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 6.7: nadere voorschriften; geluid.",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=6&afdeling=3&paragraaf=2&artikel=6.7&z=2026-04-09&g=2026-04-09",
+      placeholder:
+        "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.7 Arbobesluit voor geluid.",
+      noNote: "Voor geluid is geen invulling gegeven aan artikel 6.7 Arbobesluit.",
+    });
   }
 
   if (itemLabel === "Trillingen en schokken") {
-    configs.push(
-      {
-        key: "vibration-article-6-11b",
-        prompt:
-          "Is invulling gegeven aan artikel 6.11b Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, beoordelen en meten van mechanische trillingen?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.11b Arbobesluit voor trillingen.",
-        noNote: "Voor trillingen is geen invulling gegeven aan artikel 6.11b Arbobesluit.",
-      },
-      {
-        key: "vibration-article-6-11c",
-        prompt:
-          "Is invulling gegeven aan artikel 6.11c Arbobesluit: voorkomen of beperken van schadelijke trillingen?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.11c Arbobesluit voor trillingen.",
-        noNote: "Voor trillingen is geen invulling gegeven aan artikel 6.11c Arbobesluit.",
-      }
-    );
+    configs.push({
+      key: "vibration-article-6-11b",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 6.11b: nadere voorschriften; trillingen?",
+      placeholder:
+        "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.11b Arbobesluit voor trillingen.",
+      noNote: "Voor trillingen is geen invulling gegeven aan artikel 6.11b Arbobesluit.",
+    });
   }
 
   if (itemLabel === "Straling, zoals niet-ioniserende straling, uv-straling en kunstmatige optische straling") {
     configs.push(
       {
         key: "optical-radiation-article-6-12d",
-        prompt:
-          "Is invulling gegeven aan artikel 6.12d Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, beoordelen, meten en berekenen van optische straling?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 6.12d; optische straling?",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.12d Arbobesluit voor optische straling.",
         noNote: "Voor optische straling is geen invulling gegeven aan artikel 6.12d Arbobesluit.",
       },
       {
-        key: "optical-radiation-article-6-12e",
-        prompt:
-          "Is invulling gegeven aan artikel 6.12e Arbobesluit: maatregelen ter voorkoming of beperking van de blootstelling aan optische straling?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.12e Arbobesluit voor optische straling.",
-        noNote: "Voor optische straling is geen invulling gegeven aan artikel 6.12e Arbobesluit.",
-      },
-      {
         key: "emf-article-6-12k",
-        prompt:
-          "Is invulling gegeven aan artikel 6.12k Arbobesluit: nadere voorschriften risico-inventarisatie en -evaluatie, beoordelen, meten en berekenen van elektromagnetische velden?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 6.12k: nadere voorschriften; elektromagnetische velden?",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.12k Arbobesluit voor elektromagnetische velden.",
         noNote: "Voor elektromagnetische velden is geen invulling gegeven aan artikel 6.12k Arbobesluit.",
-      },
-      {
-        key: "emf-article-6-12l",
-        prompt:
-          "Is invulling gegeven aan artikel 6.12l Arbobesluit: maatregelen ter voorkoming of beperking van de blootstelling aan elektromagnetische velden?",
-        placeholder:
-          "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.12l Arbobesluit voor elektromagnetische velden.",
-        noNote: "Voor elektromagnetische velden is geen invulling gegeven aan artikel 6.12l Arbobesluit.",
       }
     );
   }
@@ -1360,8 +1342,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push(
       {
         key: "work-equipment-article-7-3",
-        prompt:
-          "Is invulling gegeven aan artikel 7.3 Arbobesluit: geschiktheid van arbeidsmiddelen?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 7.3: geschiktheid van arbeidsmiddelen?",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 7.3 Arbobesluit voor arbeidsmiddelen.",
         noNote: "Voor arbeidsmiddelen is geen invulling gegeven aan artikel 7.3 Arbobesluit.",
@@ -1369,23 +1350,25 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       {
         key: "work-height-article-7-23",
         prompt:
-          "Is invulling gegeven aan artikel 7.23 Arbobesluit: algemene eisen voor tijdelijke werkzaamheden op hoogte en beschikbaarheid van arbeidsmiddelen?",
+          "Is invulling gegeven aan Arbobesluit art. 7.23: algemene eisen voor tijdelijke werkzaamheden op hoogte?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=7&afdeling=4&paragraaf=2b&artikel=7.23&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 7.23 Arbobesluit voor werkzaamheden op hoogte.",
         noNote: "Voor werkzaamheden op hoogte is geen invulling gegeven aan artikel 7.23 Arbobesluit.",
       },
       {
         key: "rope-access-article-7-23c",
-        prompt:
-          "Is invulling gegeven aan artikel 7.23c Arbobesluit: specifieke bepalingen voor het gebruik van toegangs- en positioneringstechnieken met lijnen?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 7.23c: werken met lijnen.",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=7&afdeling=4&paragraaf=2b&artikel=7.23c&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 7.23c Arbobesluit.",
         noNote: "Voor toegangs- en positioneringstechnieken met lijnen is geen invulling gegeven aan artikel 7.23c Arbobesluit.",
       },
       {
         key: "work-platform-article-7-23d",
-        prompt:
-          "Is invulling gegeven aan artikel 7.23d Arbobesluit: toepassing van werkbakken en werkplatforms?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 7.23d: werkbakken en werkplatforms?",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 7.23d Arbobesluit.",
         noNote: "Voor werkbakken en werkplatforms is geen invulling gegeven aan artikel 7.23d Arbobesluit.",
@@ -1396,8 +1379,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Persoonlijke beschermingsmiddelen: noodzaak, geschiktheid, keuringen en onderhoud") {
     configs.push({
       key: "ppe-article-8-2",
-      prompt:
-        "Is invulling gegeven aan artikel 8.2 Arbobesluit: keuze van persoonlijke beschermingsmiddelen?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 8.2: keuze van PBM?",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 8.2 Arbobesluit voor persoonlijke beschermingsmiddelen.",
       noNote: "Voor persoonlijke beschermingsmiddelen is geen invulling gegeven aan artikel 8.2 Arbobesluit.",
@@ -1590,8 +1572,10 @@ function renderRiskInventory(container) {
           [
             { value: "yes", label: "Ja" },
             { value: "no", label: "Nee" },
+            { value: "na", label: "N.v.t." },
           ],
-          itemId
+          itemId,
+          config.helpLink ? { url: config.helpLink, text: config.helpLink } : null
         );
         supplementalBlock.classList.add("conditional-block");
         supplementalBlock.dataset.when = "described-yes";
@@ -2636,14 +2620,18 @@ function getWordPageBreakHtml() {
 }
 
 function getShortSupplementalSummaryLabel(riskLabel, prompt) {
-  const articleMatch = prompt.match(/(artikel\s+[0-9a-z.]+\s+Arbobesluit)/i);
+  const articleMatch = prompt.match(
+    /((?:Arbobesluit\s+art\.|AB\s+artikel|artikel)\s*[0-9a-z.]+|AB\s+[0-9a-z.]+)/i
+  );
   if (articleMatch) {
     return `${riskLabel} - ${articleMatch[1]}`;
   }
 
-  const chapterMatch = prompt.match(/(hoofdstuk\s+\d+,\s*afdeling\s+\d+\s+van het Arbobesluit)/i);
+  const chapterMatch = prompt.match(
+    /((?:Arbobesluit|AB)?\s*hoofdstuk\s+\d+,\s*afdeling\s+\d+(?:\s+van het Arbobesluit)?)/i
+  );
   if (chapterMatch) {
-    return `${riskLabel} - ${chapterMatch[1]}`;
+    return `${riskLabel} - ${chapterMatch[1].trim()}`;
   }
 
   return `${riskLabel} - ${prompt}`;
@@ -3908,7 +3896,7 @@ function updateRiskInventoryVisibility() {
       const note = field?.querySelector(".risk-note");
 
       if (field) {
-        field.hidden = value !== "yes" && value !== "no";
+        field.hidden = value !== "yes" && value !== "no" && value !== "na";
       }
 
       if (note) {
@@ -3920,6 +3908,11 @@ function updateRiskInventoryVisibility() {
         if (value === "no") {
           note.placeholder =
             "Omschrijf hier waarom geen invulling is gegeven aan dit nadere voorschrift.";
+        }
+
+        if (value === "na") {
+          note.placeholder =
+            "Omschrijf hier waarom dit nadere voorschrift niet van toepassing is.";
         }
       }
     }
@@ -4315,11 +4308,6 @@ function renderApplicabilityLists(assessment) {
     return;
   }
 
-  const { supplementedApplicable } = collectApplicabilitySummaryData(assessment, {
-    formatRiskLabel: getShortRiskSummaryLabel,
-    formatSupplementalLabel: getShortSupplementalSummaryLabel,
-  });
-
   riskOverviewItems.innerHTML = "";
   supplementedApplicableItems.innerHTML = "";
 
@@ -4394,10 +4382,15 @@ function renderApplicabilityLists(assessment) {
 
   if (overviewItems.length > 0) {
     riskOverviewItems.innerHTML = "";
+    let previousGroupPrefix = "";
 
     for (const item of overviewItems) {
       const entry = document.createElement("li");
       entry.className = "result-list-item";
+      const groupPrefix = item.label.split(" - ")[0] || "";
+      if (previousGroupPrefix && groupPrefix !== previousGroupPrefix) {
+        entry.classList.add("result-list-item-group-start");
+      }
 
       const text = document.createElement("span");
       text.className = "result-list-text";
@@ -4409,14 +4402,72 @@ function renderApplicabilityLists(assessment) {
 
       entry.append(text, chip);
       riskOverviewItems.append(entry);
+      previousGroupPrefix = groupPrefix;
     }
   }
 
-  renderList(
-    supplementedApplicableItems,
-    supplementedApplicable,
-    "Nog geen nadere voorschriften of artikelen uit het Arbobesluit met ja beantwoord."
-  );
+  const supplementalOverviewItems = riskCatalog
+    .flatMap((group) =>
+      group.items.flatMap((itemLabel) => {
+        const item = getRiskItemState(group.id, group.title, itemLabel);
+        if (!(item.applicable === "yes" && item.described === "yes")) {
+          return [];
+        }
+
+        const riskLabel = getShortRiskSummaryLabel(item);
+        return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => {
+          const answer = item.supplementalAnswers?.[config.key] || null;
+          let status = { label: "nog niet beantwoord", className: "status-chip-empty" };
+
+          if (answer === "yes") {
+            status = { label: "meegenomen", className: "status-chip-yes" };
+          } else if (answer === "no") {
+            status = { label: "niet meegenomen", className: "status-chip-no" };
+          } else if (answer === "na") {
+            status = { label: "niet van toepassing", className: "status-chip-empty" };
+          }
+
+          return {
+            label: getShortSupplementalSummaryLabel(riskLabel, config.prompt, item),
+            status,
+          };
+        });
+      })
+    )
+    .filter(Boolean);
+
+  if (supplementalOverviewItems.length === 0) {
+    renderList(
+      supplementedApplicableItems,
+      [],
+      "Nog geen relevante nadere voorschriften."
+    );
+    return;
+  }
+
+  supplementedApplicableItems.innerHTML = "";
+  let previousSupplementalGroupPrefix = "";
+
+  for (const item of supplementalOverviewItems) {
+    const entry = document.createElement("li");
+    entry.className = "result-list-item";
+    const groupPrefix = item.label.split(" - ").slice(0, 2).join(" - ") || item.label;
+    if (previousSupplementalGroupPrefix && groupPrefix !== previousSupplementalGroupPrefix) {
+      entry.classList.add("result-list-item-group-start");
+    }
+
+    const text = document.createElement("span");
+    text.className = "result-list-text";
+    text.textContent = item.label;
+
+    const chip = document.createElement("span");
+    chip.className = `status-chip ${item.status.className}`;
+    chip.textContent = item.status.label;
+
+    entry.append(text, chip);
+    supplementedApplicableItems.append(entry);
+    previousSupplementalGroupPrefix = groupPrefix;
+  }
 }
 
 async function copyReportToClipboard() {

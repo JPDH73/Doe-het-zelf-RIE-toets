@@ -545,7 +545,9 @@ h1 {
 .binary-options {
   display: grid;
   gap: 10px;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(170px, max-content));
+  align-items: stretch;
+  justify-content: start;
 }
 
 .binary-pill {
@@ -717,6 +719,22 @@ h1 {
   gap: 6px;
 }
 
+.result-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.result-list-item-group-start {
+  margin-top: 18px;
+}
+
+.result-list-text {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .status-matrix {
   display: grid;
   gap: 10px;
@@ -755,10 +773,10 @@ h1 {
   align-items: center;
   justify-content: center;
   min-width: 76px;
-  padding: 7px 12px;
+  padding: 5px 10px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 
