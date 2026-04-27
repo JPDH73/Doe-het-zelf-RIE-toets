@@ -4330,7 +4330,10 @@ function renderApplicabilityLists(assessment) {
     supplementedApplicable,
     notDescribedApplicable,
     notApplicable,
-  } = collectApplicabilitySummaryData(assessment);
+  } = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+    formatSupplementalLabel: getShortSupplementalSummaryLabel,
+  });
 
   applicableItems.innerHTML = "";
   describedApplicableItems.innerHTML = "";
