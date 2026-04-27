@@ -1149,6 +1149,20 @@ function getAlphabeticLabel(index) {
   return String.fromCharCode(97 + index);
 }
 
+function getNumberedRiskItemLabel(groupId, itemLabel) {
+  const group = riskCatalog.find((entry) => entry.id === groupId);
+  if (!group) {
+    return itemLabel;
+  }
+
+  const itemIndex = group.items.findIndex((entry) => entry === itemLabel);
+  if (itemIndex < 0) {
+    return itemLabel;
+  }
+
+  return `${getAlphabeticLabel(itemIndex)}. ${itemLabel}`;
+}
+
 function getSupplementalRequirementConfigs(groupId, itemLabel) {
   const configs = [];
 
@@ -2120,7 +2134,7 @@ function buildRiskInventoryReportLines() {
         continue;
       }
 
-      groupLines.push(`${item.groupTitle} - ${item.itemLabel}`);
+      groupLines.push(`${item.groupTitle} - ${getNumberedRiskItemLabel(group.id, item.itemLabel)}`);
 
       if (item.applicable) {
         groupLines.push(`Van toepassing: ${getPlainOptionLabel(yesNoOptions, item.applicable)}`);
@@ -3056,7 +3070,9 @@ function getRelevantRiskInventoryReportHtml() {
 
           return `
             <article class="report-risk-item">
-              <h3 style="margin: 18pt 0 6pt; font-size: 11pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
+              <h3 style="margin: 18pt 0 6pt; font-size: 11pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(
+                getNumberedRiskItemLabel(group.id, item.itemLabel)
+              )}</h3>
               ${lines.join("")}
             </article>
           `;
@@ -3662,6 +3678,22 @@ function wrapPdfLine(line, maxLength = 92) {
   let current = "";
 
   for (const word of words) {
+    if (word.length > maxLength) {
+      if (current) {
+        wrapped.push(current);
+        current = "";
+      }
+
+      let remaining = word;
+      while (remaining.length > maxLength) {
+        wrapped.push(remaining.slice(0, maxLength));
+        remaining = remaining.slice(maxLength);
+      }
+
+      current = remaining;
+      continue;
+    }
+
     const candidate = current ? `${current} ${word}` : word;
     if (candidate.length <= maxLength) {
       current = candidate;
