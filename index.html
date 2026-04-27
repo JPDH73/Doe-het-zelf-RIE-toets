@@ -33,6 +33,11 @@
               </p>
               <div class="intro-meta">
                 <p id="draftStatus" class="draft-status">Concept wordt lokaal opgeslagen in deze browser.</p>
+                <div class="button-row hero-actions">
+                  <button id="resetApp" class="secondary-button secondary-button-danger" type="button">
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -75,6 +80,26 @@
                     name="contactName"
                     type="text"
                     placeholder="Vul de naam van de invuller van deze app in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>E-mailadres contactpersoon</span>
+                  <input
+                    id="contactEmail"
+                    name="contactEmail"
+                    type="email"
+                    placeholder="Vul het e-mailadres van de contactpersoon in"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Naam invuller RI&amp;E-toets</span>
+                  <input
+                    id="rieAssessorName"
+                    name="rieAssessorName"
+                    type="text"
+                    placeholder="Vul de naam van de invuller van de RI&amp;E-toets in"
                   />
                 </label>
 
@@ -241,6 +266,14 @@
               <div>
                 <p class="section-kicker">Live resultaat</p>
                 <h2>Samenvatting uitkomst</h2>
+                <div class="button-row summary-export-action">
+                  <button id="generateSummaryPdf" class="secondary-button" type="button">
+                    Samenvatting PDF
+                  </button>
+                  <button id="generateSummaryWord" class="secondary-button" type="button">
+                    Samenvatting WORD
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -287,19 +320,13 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Rapporttekst</h3>
+                <h3>Volledig rapport</h3>
                 <div class="button-row">
-                  <button id="resetApp" class="secondary-button secondary-button-danger" type="button">
-                    Reset
-                  </button>
-                  <button id="generatePdf" class="secondary-button" type="button">
-                    Genereer PDF
+                  <button id="toggleReportOutput" class="secondary-button" type="button">
+                    Klap dicht
                   </button>
                   <button id="generateWord" class="secondary-button" type="button">
                     Genereer Word
-                  </button>
-                  <button id="generateSummaryWord" class="secondary-button" type="button">
-                    Samenvatting WORD
                   </button>
                   <button id="copyReport" class="secondary-button" type="button">
                     Kopieer

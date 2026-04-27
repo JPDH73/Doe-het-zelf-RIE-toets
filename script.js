@@ -373,6 +373,8 @@ const template = document.querySelector("#questionTemplate");
 const survey = document.querySelector("#survey");
 const companyName = document.querySelector("#companyName");
 const contactName = document.querySelector("#contactName");
+const contactEmail = document.querySelector("#contactEmail");
+const rieAssessorName = document.querySelector("#rieAssessorName");
 const worksCouncilContact = document.querySelector("#worksCouncilContact");
 const occupationalService = document.querySelector("#occupationalService");
 const industry = document.querySelector("#industry");
@@ -401,8 +403,9 @@ const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
 const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
 const copyReport = document.querySelector("#copyReport");
-const generatePdf = document.querySelector("#generatePdf");
+const toggleReportOutput = document.querySelector("#toggleReportOutput");
 const generateWord = document.querySelector("#generateWord");
+const generateSummaryPdf = document.querySelector("#generateSummaryPdf");
 const generateSummaryWord = document.querySelector("#generateSummaryWord");
 const resetApp = document.querySelector("#resetApp");
 const resetModal = document.querySelector("#resetModal");
@@ -1979,7 +1982,7 @@ function buildPriorityMessage(item) {
 
 function buildSummary(assessment) {
   const company = companyName.value.trim() || "Deze organisatie";
-  const contact = contactName.value.trim();
+  const contact = rieAssessorName?.value.trim() || contactName.value.trim();
   const rieNameText = rieName.value.trim()
     ? ` De naam of omschrijving van de RI&E is: ${rieName.value.trim()}.`
     : "";
@@ -2180,6 +2183,8 @@ function buildReport(assessment) {
     "Bedrijfsprofiel",
     `Bedrijfsnaam: ${getPlainValue(companyName.value)}`,
     `Contactpersoon: ${getPlainValue(contactName.value)}`,
+    `E-mailadres contactpersoon: ${getPlainValue(contactEmail?.value || "")}`,
+    `Naam invuller RI&E-toets: ${getPlainValue(rieAssessorName?.value || "")}`,
     `Contactpersoon ondernemingsraad: ${getPlainValue(worksCouncilContact?.value || "")}`,
     `Arbodienst/ Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
     `Branche: ${getPlainValue(industry.value)}`,
@@ -2269,6 +2274,8 @@ function getGeneralFieldsReportHtml() {
   const profileRows = [
     ["Bedrijfsnaam", companyName.value],
     ["Contactpersoon", contactName.value],
+    ["E-mailadres contactpersoon", contactEmail?.value || ""],
+    ["Naam invuller RI&E-toets", rieAssessorName?.value || ""],
     ["Contactpersoon ondernemingsraad", worksCouncilContact?.value || ""],
     ["Arbodienst/ Bedrijfsarts", occupationalService?.value || ""],
     ["Branche", industry.value],
@@ -2898,6 +2905,8 @@ function buildSummaryWordHtml() {
           ${spacer(11, 13)}
           ${renderField("Bedrijfsnaam", companyName.value)}
           ${renderField("Contactpersoon", contactName.value)}
+          ${renderField("E-mailadres contactpersoon", contactEmail?.value || "")}
+          ${renderField("Naam invuller RI&E-toets", rieAssessorName?.value || "")}
           ${renderField("Contactpersoon ondernemingsraad", worksCouncilContact?.value || "")}
           ${renderField("Arbodienst/ Bedrijfsarts", occupationalService?.value || "")}
           ${renderField("Branche", industry.value)}
@@ -2923,25 +2932,25 @@ function buildSummaryWordHtml() {
             "Nog geen onderdelen als van toepassing aangemerkt.",
             0.48
           )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
+          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
           ${renderListParagraphs(
             summaryData.describedApplicable,
             "Nog geen onderdelen als van toepassing en beschreven aangemerkt.",
             0.48
           )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
+          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
           ${renderListParagraphs(
             summaryData.notDescribedApplicable,
             "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
             0.48
           )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
+          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
           ${renderListParagraphs(
             summaryData.notApplicable,
             "Nog geen onderdelen als niet van toepassing aangemerkt.",
             0.48
           )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
+          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
           ${renderListParagraphs(
             summaryData.supplementedApplicable,
             "Nog geen nadere voorschriften met ja beantwoord.",
@@ -2962,6 +2971,24 @@ function buildSummaryWordHtml() {
       </body>
     </html>
   `;
+}
+
+function buildSummaryPdfHtml() {
+  const printScript = `
+    <script>
+      window.addEventListener("load", () => {
+        window.setTimeout(() => {
+          window.print();
+        }, 150);
+
+        window.addEventListener("afterprint", () => {
+          window.close();
+        });
+      });
+    </script>
+  `;
+
+  return buildSummaryWordHtml().replace("</body>", `${printScript}</body>`);
 }
 
 function getReportFileBaseName() {
@@ -3122,6 +3149,20 @@ function generateSummaryWordReport() {
     type: "application/msword;charset=utf-8",
   });
   downloadBlob(blob, `${getReportFileBaseName()}-samenvatting.doc`);
+}
+
+function generateSummaryPdfReport() {
+  const html = buildSummaryPdfHtml();
+  const summaryWindow = window.open("", "_blank", "noopener,noreferrer,width=1024,height=768");
+
+  if (!summaryWindow) {
+    window.alert("Sta pop-ups toe om de samenvatting als PDF te openen.");
+    return;
+  }
+
+  summaryWindow.document.open();
+  summaryWindow.document.write(html);
+  summaryWindow.document.close();
 }
 
 function updateScoreRing(readiness) {
@@ -3717,10 +3758,28 @@ function toggleAllExpandableSections() {
   updateToggleAllButtonLabel();
 }
 
+function updateReportToggleButtonLabel() {
+  if (!toggleReportOutput || !reportOutput) {
+    return;
+  }
+
+  toggleReportOutput.textContent = reportOutput.hidden ? "Klap open" : "Klap dicht";
+}
+
+function toggleReportOutputVisibility() {
+  if (!reportOutput) {
+    return;
+  }
+
+  reportOutput.hidden = !reportOutput.hidden;
+  updateReportToggleButtonLabel();
+}
+
 renderQuestions();
 restoreDraftFromLocalStorage();
 renderAssessment();
 updateToggleAllButtonLabel();
+updateReportToggleButtonLabel();
 
 survey.addEventListener("change", () => {
   renderAssessment();
@@ -3731,8 +3790,9 @@ survey.addEventListener("input", () => {
   saveDraftToLocalStorage();
 });
 copyReport.addEventListener("click", copyReportToClipboard);
-generatePdf?.addEventListener("click", generatePdfReport);
+toggleReportOutput?.addEventListener("click", toggleReportOutputVisibility);
 generateWord?.addEventListener("click", generateWordReport);
+generateSummaryPdf?.addEventListener("click", generateSummaryPdfReport);
 generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
 cancelReset?.addEventListener("click", (event) => {

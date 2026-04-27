@@ -332,8 +332,8 @@ h1 {
 
 .question-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   padding: 20px;
 }
 
@@ -384,9 +384,10 @@ h1 {
 
 .question-options {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 10px;
-  min-width: 220px;
+  min-width: 0;
+  align-items: flex-start;
 }
 
 .risk-inventory {
@@ -539,6 +540,7 @@ h1 {
 .risk-evidence {
   display: grid;
   gap: 8px;
+  flex-basis: 100%;
   margin-top: 4px;
 }
 
@@ -578,6 +580,7 @@ h1 {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
+  min-width: 132px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: white;
@@ -769,6 +772,14 @@ h1 {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+.hero-actions {
+  margin-top: 12px;
+}
+
+.summary-export-action {
+  margin-top: 10px;
 }
 
 .priority-list {
