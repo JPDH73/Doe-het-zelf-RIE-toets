@@ -2346,12 +2346,14 @@ function getGeneralFieldsReportHtml() {
 
   return `
     <section class="report-section">
+      <p style="margin: 0 0 12pt; font-size: 9pt;"><br></p>
       <h2 style="margin: 6pt 0 6pt; font-size: 12pt;">Bedrijfsprofiel</h2>
       <div class="report-block">
         ${renderRows(profileRows)}
       </div>
     </section>
     <section class="report-section">
+      <p style="margin: 0 0 12pt; font-size: 9pt;"><br></p>
       <h2 style="margin: 6pt 0 6pt; font-size: 12pt;">Afbakening en documentgegevens van de RI&E</h2>
       <div class="report-block">
         ${renderRows(rieRows)}
@@ -2629,7 +2631,7 @@ function getRelevantRegularQuestionReportSection(title, items) {
             normalizedNote
               ? `<p class="report-line"><strong>${escapeHtml(
                   evidenceConfig.label || "Controleerbaar bewijs of toelichting"
-                )}:</strong> ${formatOptionalValue(note)}</p>`
+                )}${(evidenceConfig.label || "Controleerbaar bewijs of toelichting").trim().endsWith("?") ? "" : ":"}</strong> ${formatOptionalValue(note)}</p>`
               : ""
           }
         </article>
@@ -2702,7 +2704,7 @@ function getRelevantRiskInventoryReportHtml() {
           if (item.applicable === "yes") {
             if (item.described) {
               lines.push(
-                `<p class="report-line"><strong>Is het risico beschreven in de RI&E?:</strong> ${escapeHtml(
+                `<p class="report-line"><strong>Is het risico beschreven in de RI&E?</strong> ${escapeHtml(
                   getOptionLabel(yesNoOptions, item.described)
                 )}</p>`
               );
@@ -2711,7 +2713,7 @@ function getRelevantRiskInventoryReportHtml() {
             if (item.described === "yes") {
               if (item.assessorNote) {
                 lines.push(
-                  `<p class="report-line"><strong>Wie heeft dit risico beoordeeld?:</strong> ${formatOptionalValue(
+                  `<p class="report-line"><strong>Wie heeft dit risico beoordeeld?</strong> ${formatOptionalValue(
                     item.assessorNote
                   )}</p>`
                 );
@@ -2719,7 +2721,7 @@ function getRelevantRiskInventoryReportHtml() {
 
               if (item.assessmentMethodNote) {
                 lines.push(
-                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te inventariseren?:</strong> ${formatOptionalValue(
+                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te inventariseren?</strong> ${formatOptionalValue(
                     item.assessmentMethodNote
                   )}</p>`
                 );
@@ -2727,7 +2729,7 @@ function getRelevantRiskInventoryReportHtml() {
 
               if (item.evaluationMethodNote) {
                 lines.push(
-                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te evalueren?:</strong> ${formatOptionalValue(
+                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te evalueren?</strong> ${formatOptionalValue(
                     item.evaluationMethodNote
                   )}</p>`
                 );
@@ -2735,7 +2737,7 @@ function getRelevantRiskInventoryReportHtml() {
 
               if (item.describedYesNote) {
                 lines.push(
-                  `<p class="report-line"><strong>Waar is dit onderdeel terug te vinden in de RI&E?:</strong> ${formatOptionalValue(
+                  `<p class="report-line"><strong>Waar is dit onderdeel terug te vinden in de RI&E?</strong> ${formatOptionalValue(
                     item.describedYesNote
                   )}</p>`
                 );
@@ -2743,7 +2745,7 @@ function getRelevantRiskInventoryReportHtml() {
 
               if (item.causes) {
                 lines.push(
-                  `<p class="report-line"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(
+                  `<p class="report-line"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?</strong> ${escapeHtml(
                     getOptionLabel(yesNoOptions, item.causes)
                   )}</p>`
                 );
@@ -2803,7 +2805,7 @@ function getRelevantRiskInventoryReportHtml() {
             if (item.described === "no") {
               if (item.justified) {
                 lines.push(
-                  `<p class="report-line"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?:</strong> ${escapeHtml(
+                  `<p class="report-line"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?</strong> ${escapeHtml(
                     getOptionLabel(yesNoOptions, item.justified)
                   )}</p>`
                 );
@@ -2825,7 +2827,7 @@ function getRelevantRiskInventoryReportHtml() {
 
           return `
             <article class="report-risk-item">
-              <h3 style="margin: 6pt 0 6pt; font-size: 11pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
+              <h3 style="margin: 18pt 0 6pt; font-size: 11pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
               ${lines.join("")}
             </article>
           `;
@@ -2840,7 +2842,7 @@ function getRelevantRiskInventoryReportHtml() {
       return `
         ${index > 0 ? getWordPageBreakHtml() : ""}
         <section class="report-section report-risk-group">
-          <h2 style="margin: 6pt 0 6pt; font-size: 14pt;">${escapeHtml(group.title)}</h2>
+          <h2 style="margin: 6pt 0 6pt; font-size: 13pt;">${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
       `;
@@ -3017,7 +3019,7 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 8px; font-size: 14pt;">RI&E pre-toets rapport</h1>
+            <h1 style="margin: 0 0 8px; font-size: 18pt;">RI&E pre-toets rapport</h1>
             <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
           </header>
 
