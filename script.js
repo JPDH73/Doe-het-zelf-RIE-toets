@@ -2938,6 +2938,10 @@ function buildPrintableReportHtml() {
             font-size: 12pt;
           }
 
+          .report-risk-group h2 {
+            font-size: 14pt;
+          }
+
           .report-subsection {
             margin-top: 12px;
           }
@@ -2957,6 +2961,10 @@ function buildPrintableReportHtml() {
           .report-risk-item h3 {
             margin: 0 0 10px;
             font-size: 12pt;
+          }
+
+          .report-risk-item h3 {
+            font-size: 11pt;
           }
 
           .report-line {

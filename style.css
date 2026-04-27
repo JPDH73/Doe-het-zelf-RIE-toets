@@ -150,8 +150,17 @@ h1 {
 }
 
 .hero-list li {
+  position: relative;
   margin: 0;
-  padding-left: 0;
+  padding-left: 16px;
+}
+
+.hero-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--muted);
 }
 
 .survey {
