@@ -2901,7 +2901,7 @@ function buildPrintableReportHtml() {
             font-family: Verdana, Arial, sans-serif;
             color: #172033;
             background: #ffffff;
-            font-size: 10.5pt;
+            font-size: 9pt;
             line-height: 1.5;
           }
 
@@ -2919,14 +2919,14 @@ function buildPrintableReportHtml() {
 
           .report-header h1 {
             margin: 0 0 8px;
-            font-size: 15pt;
+            font-size: 14pt;
           }
 
           .report-meta {
             margin: 0;
             color: #5b6472;
             line-height: 1.45;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           .report-section {
@@ -2956,7 +2956,7 @@ function buildPrintableReportHtml() {
           .report-question h3,
           .report-risk-item h3 {
             margin: 0 0 10px;
-            font-size: 11pt;
+            font-size: 12pt;
           }
 
           .report-line {
@@ -2991,7 +2991,7 @@ function buildPrintableReportHtml() {
           .report-subheading {
             display: inline-block;
             margin-top: 10px;
-            font-size: 10pt;
+            font-size: 9pt;
           }
 
           @media print {

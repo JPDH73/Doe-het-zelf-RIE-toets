@@ -144,9 +144,14 @@ h1 {
 .hero-list {
   margin: 0;
   padding-left: 0;
-  list-style-position: inside;
+  list-style: none;
   color: var(--muted);
   line-height: 1.8;
+}
+
+.hero-list li {
+  margin: 0;
+  padding-left: 0;
 }
 
 .survey {
