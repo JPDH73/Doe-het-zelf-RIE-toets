@@ -3534,7 +3534,11 @@ function getShortRiskSummaryLabel(item) {
     ],
     [
       "Werknemers met een beperking of gedeeltelijke arbeidsongeschiktheid",
-      "Bijzondere categorieën Werknemers met een beperking",
+      "Werknemers met een beperking",
+    ],
+    [
+      "Andere personen of derden, zoals bezoekers en voorbijgangers",
+      "Andere personen of derden",
     ],
   ]);
 
