@@ -21,7 +21,7 @@ const riskCatalog = [
     id: "biologische-agentia",
     title: "3. Biologische agentia",
     items: [
-      "Micro-organismen, zoals bacterien, schimmels, virussen, parasieten, infectieuze agentia, toxinen en allergenen",
+      "Micro-organismen, zoals bacteriën, schimmels, virussen, parasieten, infectieuze agentia, toxinen en allergenen",
     ],
   },
   {
@@ -61,7 +61,7 @@ const riskCatalog = [
   },
   {
     id: "bijzondere-categorieen",
-    title: "8. Bijzondere categorieen werknemers die mogelijk extra risico lopen",
+    title: "8. Bijzondere categorieën werknemers die mogelijk extra risico lopen",
     items: [
       "Uitzendkrachten",
       "Stagiaires",
@@ -2362,7 +2362,9 @@ function getSummaryOutcomeReportHtml(assessment) {
     supplementedApplicable,
     notDescribedApplicable,
     notApplicable,
-  } = collectApplicabilitySummaryData(assessment);
+  } = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+  });
 
   const renderList = (items, emptyText) => {
     if (items.length === 0) {
@@ -3456,19 +3458,83 @@ function renderPlanStatusMatrix() {
   planStatusMatrix.append(section);
 }
 
-function collectApplicabilitySummaryData(assessment) {
+function getShortRiskSummaryLabel(item) {
+  const groupPrefix = item.groupTitle.replace(/^\d+\.\s*/, "").trim();
+  const itemLabel = item.itemLabel.trim();
+
+  const shortItemMap = new Map([
+    [
+      "Gezondheidsrisico's, zoals carcinogene, mutagene, reprotoxische en sensibiliserende stoffen en procesemissies",
+      "Gezondheidsrisico's",
+    ],
+    [
+      "Veiligheidsrisico's, zoals brand, explosie en zware ongevallen bij opslag of gebruik",
+      "Veiligheidsrisico's",
+    ],
+    [
+      "Micro-organismen, zoals bacteriën, schimmels, virussen, parasieten, infectieuze agentia, toxinen en allergenen",
+      "",
+    ],
+    [
+      "Klimaat, zoals hoge en lage temperaturen, luchtverversing, luchtvochtigheid en tocht",
+      "Klimaat",
+    ],
+    [
+      "Straling, zoals niet-ioniserende straling, uv-straling en kunstmatige optische straling",
+      "Straling",
+    ],
+    [
+      "Arbeidsmiddelen: geschiktheid, beschikbaarheid, bevoegd gebruik, keuringen en onderhoud",
+      "Arbeidsmiddelen",
+    ],
+    [
+      "Inrichting arbeidsplaatsen, zoals werkruimten, orde en netheid, beveiligingen, signalering, bewegingsruimte, werken op hoogte en noodvoorzieningen",
+      "Inrichting arbeidsplaatsen",
+    ],
+    [
+      "Persoonlijke beschermingsmiddelen: noodzaak, geschiktheid, keuringen en onderhoud",
+      "Arbeidsmiddelen en arbeidsplaatsen - Persoonlijke beschermingsmiddelen",
+    ],
+    [
+      "Fysieke onderbelasting, zoals weinig beweging en lang zitten of staan",
+      "Fysieke belasting - Fysieke onderbelasting",
+    ],
+    [
+      "Fysieke overbelasting, zoals tillen, dragen, duwen, trekken, repeterende bewegingen en ongunstige houdingen",
+      "Fysieke belasting - Fysieke overbelasting",
+    ],
+    [
+      "Werknemers met een beperking of gedeeltelijke arbeidsongeschiktheid",
+      "Bijzondere categorieën Werknemers met een beperking",
+    ],
+  ]);
+
+  if (groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen") {
+    return `Bijzondere categorieën ${itemLabel}`;
+  }
+
+  if (shortItemMap.has(itemLabel)) {
+    const shortLabel = shortItemMap.get(itemLabel);
+    return shortLabel ? `${groupPrefix} - ${shortLabel}` : groupPrefix;
+  }
+
+  return `${groupPrefix} - ${itemLabel}`;
+}
+
+function collectApplicabilitySummaryData(assessment, options = {}) {
   const applicable = [];
   const describedApplicable = [];
   const supplementedApplicable = [];
   const notDescribedApplicable = [];
   const notApplicable = [];
+  const formatRiskLabel = options.formatRiskLabel || ((item) => `${item.groupTitle} - ${item.itemLabel}`);
 
   const inventoryItems = riskCatalog.flatMap((group) =>
     group.items.map((itemLabel) => getRiskItemState(group.id, group.title, itemLabel))
   );
 
   for (const item of inventoryItems) {
-    const label = `${item.groupTitle} - ${item.itemLabel}`;
+    const label = formatRiskLabel(item);
     if (item.applicable === "yes") {
       applicable.push(label);
       if (item.described === "yes") {
