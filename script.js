@@ -402,6 +402,8 @@ const notApplicableItems = document.querySelector("#notApplicableItems");
 const summaryRiskOutput = document.querySelector("#summaryRiskOutput");
 const summaryQuestionOutput = document.querySelector("#summaryQuestionOutput");
 const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
+const profileSectionContent = document.querySelector("#profileSectionContent");
+const scopeSectionContent = document.querySelector("#scopeSectionContent");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
 const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
@@ -421,6 +423,8 @@ const togglePlanQuestions = document.querySelector("#togglePlanQuestions");
 const toggleSummaryRiskOutput = document.querySelector("#toggleSummaryRiskOutput");
 const toggleSummaryQuestionOutput = document.querySelector("#toggleSummaryQuestionOutput");
 const toggleSummaryPlanOutput = document.querySelector("#toggleSummaryPlanOutput");
+const toggleProfileSection = document.querySelector("#toggleProfileSection");
+const toggleScopeSection = document.querySelector("#toggleScopeSection");
 const draftStatus = document.querySelector("#draftStatus");
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
@@ -3973,6 +3977,11 @@ function updateSummarySectionToggleLabels() {
   updateSummarySectionToggleButtonLabel(toggleSummaryPlanOutput, summaryPlanOutput);
 }
 
+function updatePanelSectionToggleLabels() {
+  updateSummarySectionToggleButtonLabel(toggleProfileSection, profileSectionContent);
+  updateSummarySectionToggleButtonLabel(toggleScopeSection, scopeSectionContent);
+}
+
 function toggleSummarySection(target, button) {
   if (!target) {
     return;
@@ -4005,6 +4014,7 @@ renderAssessment();
 updateToggleAllButtonLabel();
 updateQuestionSectionToggleLabels();
 updateSummarySectionToggleLabels();
+updatePanelSectionToggleLabels();
 updateReportToggleButtonLabel();
 
 survey.addEventListener("change", () => {
@@ -4032,6 +4042,12 @@ toggleSummaryQuestionOutput?.addEventListener("click", () =>
 );
 toggleSummaryPlanOutput?.addEventListener("click", () =>
   toggleSummarySection(summaryPlanOutput, toggleSummaryPlanOutput)
+);
+toggleProfileSection?.addEventListener("click", () =>
+  toggleSummarySection(profileSectionContent, toggleProfileSection)
+);
+toggleScopeSection?.addEventListener("click", () =>
+  toggleSummarySection(scopeSectionContent, toggleScopeSection)
 );
 cancelReset?.addEventListener("click", (event) => {
   event.preventDefault();
