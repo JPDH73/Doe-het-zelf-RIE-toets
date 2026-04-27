@@ -2647,7 +2647,7 @@ function getRelevantRegularQuestionReportSection(title, items) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2 style="margin: 6pt 0 6pt; font-size: 12pt;">${escapeHtml(title)}</h2>
+      <h2 style="margin: 6pt 0 6pt; font-size: 14pt;">${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
