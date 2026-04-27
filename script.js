@@ -2181,7 +2181,7 @@ function buildReport(assessment) {
     `Bedrijfsnaam: ${getPlainValue(companyName.value)}`,
     `Contactpersoon: ${getPlainValue(contactName.value)}`,
     `Contactpersoon ondernemingsraad: ${getPlainValue(worksCouncilContact?.value || "")}`,
-    `Arbodienst / Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
+    `Arbodienst/ Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
     `Branche: ${getPlainValue(industry.value)}`,
     `Arbo-certificaten: ${getPlainValue(arboCertificates?.value || "")}`,
     `Aantal medewerkers: ${getPlainValue(employees.value)}`,
@@ -2270,7 +2270,7 @@ function getGeneralFieldsReportHtml() {
     ["Bedrijfsnaam", companyName.value],
     ["Contactpersoon", contactName.value],
     ["Contactpersoon ondernemingsraad", worksCouncilContact?.value || ""],
-    ["Arbodienst / Bedrijfsarts", occupationalService?.value || ""],
+    ["Arbodienst/ Bedrijfsarts", occupationalService?.value || ""],
     ["Branche", industry.value],
     ["Arbo-certificaten", arboCertificates?.value || ""],
     ["Aantal medewerkers", employees.value],
@@ -2288,11 +2288,21 @@ function getGeneralFieldsReportHtml() {
   const renderRows = (rows) =>
     rows
       .map(
-        ([label, value]) => `
-          <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
-            label
-          )}:</strong> ${formatOptionalValue(value)}</p>
-        `
+        ([label, value]) => {
+          if (label === "Documenten die behoren tot de te toetsen RI&E") {
+            return `
+              <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
+                label
+              )}:</strong><br>${formatOptionalValue(value)}</p>
+            `;
+          }
+
+          return `
+            <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
+              label
+            )}:</strong> ${formatOptionalValue(value)}</p>
+          `;
+        }
       )
       .join("");
 
@@ -2869,7 +2879,7 @@ function buildSummaryWordHtml() {
           ${renderField("Bedrijfsnaam", companyName.value)}
           ${renderField("Contactpersoon", contactName.value)}
           ${renderField("Contactpersoon ondernemingsraad", worksCouncilContact?.value || "")}
-          ${renderField("Arbodienst / Bedrijfsarts", occupationalService?.value || "")}
+          ${renderField("Arbodienst/ Bedrijfsarts", occupationalService?.value || "")}
           ${renderField("Branche", industry.value)}
           ${renderField("Arbo-certificaten", arboCertificates?.value || "")}
           ${renderField("Aantal medewerkers", employees.value)}
@@ -3453,48 +3463,35 @@ function collectApplicabilitySummaryData(assessment) {
   const notDescribedApplicable = [];
   const notApplicable = [];
 
-  for (const result of assessment.results) {
-    if (result.type === "risk-inventory") {
-      const inventoryItems = riskCatalog.flatMap((group) =>
-        group.items.map((itemLabel) => getRiskItemState(group.id, group.title, itemLabel))
-      );
+  const inventoryItems = riskCatalog.flatMap((group) =>
+    group.items.map((itemLabel) => getRiskItemState(group.id, group.title, itemLabel))
+  );
 
-      for (const item of inventoryItems) {
-        const label = `${item.groupTitle} - ${item.itemLabel}`;
-        if (item.applicable === "yes") {
-          applicable.push(label);
-          if (item.described === "yes") {
-            describedApplicable.push(label);
-            const supplementalEntries = Object.entries(item.supplementalAnswers || {});
-            for (const [key, value] of supplementalEntries) {
-              if (value === "yes") {
-                const config = getSupplementalRequirementConfigs(item.groupId, item.itemLabel).find(
-                  (entry) => entry.key === key
-                );
+  for (const item of inventoryItems) {
+    const label = `${item.groupTitle} - ${item.itemLabel}`;
+    if (item.applicable === "yes") {
+      applicable.push(label);
+      if (item.described === "yes") {
+        describedApplicable.push(label);
+        const supplementalEntries = Object.entries(item.supplementalAnswers || {});
+        for (const [key, value] of supplementalEntries) {
+          if (value === "yes") {
+            const config = getSupplementalRequirementConfigs(item.groupId, item.itemLabel).find(
+              (entry) => entry.key === key
+            );
 
-                if (config) {
-                  supplementedApplicable.push(`${label} - ${config.prompt}`);
-                }
-              }
+            if (config) {
+              supplementedApplicable.push(`${label} - ${config.prompt}`);
             }
           }
-          if (item.described === "no") {
-            notDescribedApplicable.push(label);
-          }
-        }
-        if (item.applicable === "no") {
-          notApplicable.push(label);
         }
       }
-      continue;
+      if (item.described === "no") {
+        notDescribedApplicable.push(label);
+      }
     }
-
-    if (result.answer === "na") {
-      notApplicable.push(result.title);
-    }
-
-    if (result.answer === "yes" || result.answer === "partial") {
-      applicable.push(result.title);
+    if (item.applicable === "no") {
+      notApplicable.push(label);
     }
   }
 
