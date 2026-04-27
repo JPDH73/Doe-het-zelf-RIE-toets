@@ -88,8 +88,8 @@ textarea {
   padding: 24px 28px;
   background: linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(242, 233, 217, 0.94));
   display: grid;
-  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   align-items: start;
 }
 

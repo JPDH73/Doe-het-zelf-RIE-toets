@@ -2346,13 +2346,13 @@ function getGeneralFieldsReportHtml() {
 
   return `
     <section class="report-section">
-      <h2>Bedrijfsprofiel</h2>
+      <h2 style="margin: 0 0 12px; font-size: 12pt;">Bedrijfsprofiel</h2>
       <div class="report-block">
         ${renderRows(profileRows)}
       </div>
     </section>
     <section class="report-section">
-      <h2>Afbakening en documentgegevens van de RI&E</h2>
+      <h2 style="margin: 0 0 12px; font-size: 12pt;">Afbakening en documentgegevens van de RI&E</h2>
       <div class="report-block">
         ${renderRows(rieRows)}
       </div>
@@ -2621,7 +2621,7 @@ function getRelevantRegularQuestionReportSection(title, items) {
 
       return `
         <article class="report-question">
-          <h3>${escapeHtml(getDisplayQuestionTitle(question))}</h3>
+          <h3 style="margin: 0 0 10px; font-size: 12pt;">${escapeHtml(getDisplayQuestionTitle(question))}</h3>
           <p class="report-line"><strong>Antwoord:</strong> ${escapeHtml(
             getOptionLabel(getQuestionOptions(question), answer)
           )}</p>
@@ -2645,7 +2645,7 @@ function getRelevantRegularQuestionReportSection(title, items) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2>${escapeHtml(title)}</h2>
+      <h2 style="margin: 0 0 12px; font-size: 12pt;">${escapeHtml(title)}</h2>
       ${questionBlocks}
     </section>
   `;
@@ -2825,7 +2825,7 @@ function getRelevantRiskInventoryReportHtml() {
 
           return `
             <article class="report-risk-item">
-              <h3>${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
+              <h3 style="margin: 0 0 10px; font-size: 11pt;">${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
               ${lines.join("")}
             </article>
           `;
@@ -2840,7 +2840,7 @@ function getRelevantRiskInventoryReportHtml() {
       return `
         ${index > 0 ? getWordPageBreakHtml() : ""}
         <section class="report-section report-risk-group">
-          <h2>${escapeHtml(group.title)}</h2>
+          <h2 style="margin: 0 0 12px; font-size: 14pt;">${escapeHtml(group.title)}</h2>
           ${itemHtml}
         </section>
       `;
@@ -2855,7 +2855,7 @@ function getRelevantRiskInventoryReportHtml() {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2>Uitwerking vraag 1.1.1</h2>
+      <h2 style="margin: 0 0 12px; font-size: 12pt;">Uitwerking vraag 1.1.1</h2>
       ${groupsHtml}
     </section>
   `;
@@ -3017,7 +3017,7 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1>RI&E pre-toets rapport</h1>
+            <h1 style="margin: 0 0 8px; font-size: 14pt;">RI&E pre-toets rapport</h1>
             <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
           </header>
 
