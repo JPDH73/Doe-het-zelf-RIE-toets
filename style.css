@@ -823,11 +823,24 @@ h1 {
 .report-action-stack {
   display: grid;
   gap: 10px;
-  justify-items: end;
+  justify-items: start;
+  margin-top: 10px;
 }
 
 .report-action-row {
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+.report-summary-head {
+  display: grid;
+  gap: 6px;
+  align-items: start;
+}
+
+.report-summary-title {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  line-height: 1.15;
 }
 
 .hero-actions {
