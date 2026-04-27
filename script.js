@@ -2784,6 +2784,10 @@ function buildSummaryWordHtml() {
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
+  const summaryData = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+    formatSupplementalLabel: getShortSupplementalSummaryLabel,
+  });
 
   const renderQuestionGroup = (title, items, breakBefore = false) => {
     const rows = items
