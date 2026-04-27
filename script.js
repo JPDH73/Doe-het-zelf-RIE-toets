@@ -2327,14 +2327,14 @@ function getGeneralFieldsReportHtml() {
         ([label, value]) => {
           if (label === "Documenten die behoren tot de te toetsen RI&E") {
             return `
-              <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
+              <p class="report-line"><strong>${escapeHtml(
                 label
               )}:</strong><br>${formatOptionalValue(value)}</p>
             `;
           }
 
           return `
-            <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>${escapeHtml(
+            <p class="report-line"><strong>${escapeHtml(
               label
             )}:</strong> ${formatOptionalValue(value)}</p>
           `;
@@ -2344,13 +2344,13 @@ function getGeneralFieldsReportHtml() {
 
   return `
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 9pt;">Bedrijfsprofiel</h2>
+      <h2>Bedrijfsprofiel</h2>
       <div class="report-block">
         ${renderRows(profileRows)}
       </div>
     </section>
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 9pt;">Afbakening en documentgegevens van de RI&E</h2>
+      <h2>Afbakening en documentgegevens van de RI&E</h2>
       <div class="report-block">
         ${renderRows(rieRows)}
       </div>
@@ -2604,20 +2604,279 @@ function getRiskInventoryReportHtml() {
   `;
 }
 
+function getRelevantRegularQuestionReportSection(title, items) {
+  const questionBlocks = items
+    .map((question) => {
+      const answer = getAnswerValue(question.id);
+      const note = survey.querySelector(`[name="question-${question.id}-note"]`)?.value || "";
+      const normalizedNote = getPlainValue(note);
+
+      if (!answer && !normalizedNote) {
+        return "";
+      }
+
+      const evidenceConfig = getQuestionEvidenceConfig(question, answer);
+
+      return `
+        <article class="report-question">
+          <h3>${escapeHtml(getDisplayQuestionTitle(question))}</h3>
+          <p class="report-line"><strong>Antwoord:</strong> ${escapeHtml(
+            getOptionLabel(getQuestionOptions(question), answer)
+          )}</p>
+          ${
+            normalizedNote
+              ? `<p class="report-line"><strong>${escapeHtml(
+                  evidenceConfig.label || "Controleerbaar bewijs of toelichting"
+                )}:</strong> ${formatOptionalValue(note)}</p>`
+              : ""
+          }
+        </article>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!questionBlocks) {
+    return "";
+  }
+
+  return `
+    ${getWordPageBreakHtml()}
+    <section class="report-section">
+      <h2>${escapeHtml(title)}</h2>
+      ${questionBlocks}
+    </section>
+  `;
+}
+
+function getRelevantRiskInventoryReportHtml() {
+  const groupsHtml = riskCatalog
+    .map((group, index) => {
+      const itemHtml = group.items
+        .map((itemLabel) => {
+          const item = getRiskItemState(group.id, group.title, itemLabel);
+          const supplementalConfigs = getSupplementalRequirementConfigs(group.id, itemLabel);
+
+          const hasAnyData =
+            item.applicable ||
+            item.described ||
+            item.justified ||
+            item.causes ||
+            item.applicabilityNote ||
+            item.describedYesNote ||
+            item.assessorNote ||
+            item.assessmentMethodNote ||
+            item.evaluationMethodNote ||
+            item.describedNoNote ||
+            item.causesYesNote ||
+            item.causesNoNote ||
+            Object.values(item.supplementalAnswers || {}).some(Boolean) ||
+            Object.values(item.supplementalNotes || {}).some(Boolean);
+
+          if (!hasAnyData) {
+            return "";
+          }
+
+          const lines = [];
+
+          if (item.applicable) {
+            lines.push(
+              `<p class="report-line"><strong>Van toepassing:</strong> ${escapeHtml(
+                getOptionLabel(yesNoOptions, item.applicable)
+              )}</p>`
+            );
+          }
+
+          if (item.applicable === "no") {
+            if (item.applicabilityNote) {
+              lines.push(
+                `<p class="report-line"><strong>Toelichting niet van toepassing:</strong> ${formatOptionalValue(
+                  item.applicabilityNote
+                )}</p>`
+              );
+            }
+          }
+
+          if (item.applicable === "yes") {
+            if (item.described) {
+              lines.push(
+                `<p class="report-line"><strong>Is het risico beschreven in de RI&E?:</strong> ${escapeHtml(
+                  getOptionLabel(yesNoOptions, item.described)
+                )}</p>`
+              );
+            }
+
+            if (item.described === "yes") {
+              if (item.assessorNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Wie heeft dit risico beoordeeld?:</strong> ${formatOptionalValue(
+                    item.assessorNote
+                  )}</p>`
+                );
+              }
+
+              if (item.assessmentMethodNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te inventariseren?:</strong> ${formatOptionalValue(
+                    item.assessmentMethodNote
+                  )}</p>`
+                );
+              }
+
+              if (item.evaluationMethodNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Welke methode is gebruikt om het risico te evalueren?:</strong> ${formatOptionalValue(
+                    item.evaluationMethodNote
+                  )}</p>`
+                );
+              }
+
+              if (item.describedYesNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Waar is dit onderdeel terug te vinden in de RI&E?:</strong> ${formatOptionalValue(
+                    item.describedYesNote
+                  )}</p>`
+                );
+              }
+
+              if (item.causes) {
+                lines.push(
+                  `<p class="report-line"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(
+                    getOptionLabel(yesNoOptions, item.causes)
+                  )}</p>`
+                );
+              }
+
+              if (item.causes === "yes" && item.causesYesNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?:</strong> ${formatOptionalValue(
+                    item.causesYesNote
+                  )}</p>`
+                );
+              }
+
+              if (item.causes === "no" && item.causesNoNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(
+                    item.causesNoNote
+                  )}</p>`
+                );
+              }
+
+              const supplementalHtml = supplementalConfigs
+                .map((config) => {
+                  const answer = item.supplementalAnswers?.[config.key];
+                  const note = item.supplementalNotes?.[config.key] || "";
+                  const normalizedNote = getPlainValue(note);
+
+                  if (!answer && !normalizedNote) {
+                    return "";
+                  }
+
+                  return `
+                    <li>
+                      <strong>${escapeHtml(config.prompt)}</strong><br>
+                      Antwoord: ${escapeHtml(getOptionLabel(requirementsOptions, answer))}
+                      ${
+                        normalizedNote
+                          ? `<br>Toelichting: ${formatOptionalValue(note)}`
+                          : ""
+                      }
+                    </li>
+                  `;
+                })
+                .filter(Boolean)
+                .join("");
+
+              if (supplementalHtml) {
+                lines.push(`
+                  <div class="report-subsection">
+                    <strong class="report-subheading">Nadere voorschriften</strong>
+                    <ul class="report-list">${supplementalHtml}</ul>
+                  </div>
+                `);
+              }
+            }
+
+            if (item.described === "no") {
+              if (item.justified) {
+                lines.push(
+                  `<p class="report-line"><strong>Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?:</strong> ${escapeHtml(
+                    getOptionLabel(yesNoOptions, item.justified)
+                  )}</p>`
+                );
+              }
+
+              if (item.describedNoNote) {
+                lines.push(
+                  `<p class="report-line"><strong>Reden waarom dit risico niet is opgenomen:</strong> ${formatOptionalValue(
+                    item.describedNoNote
+                  )}</p>`
+                );
+              }
+            }
+          }
+
+          if (lines.length === 0) {
+            return "";
+          }
+
+          return `
+            <article class="report-risk-item">
+              <h3>${escapeHtml(item.groupTitle)} - ${escapeHtml(item.itemLabel)}</h3>
+              ${lines.join("")}
+            </article>
+          `;
+        })
+        .filter(Boolean)
+        .join("");
+
+      if (!itemHtml) {
+        return "";
+      }
+
+      return `
+        ${index > 0 ? getWordPageBreakHtml() : ""}
+        <section class="report-section report-risk-group">
+          <h2>${escapeHtml(group.title)}</h2>
+          ${itemHtml}
+        </section>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!groupsHtml) {
+    return "";
+  }
+
+  return `
+    ${getWordPageBreakHtml()}
+    <section class="report-section">
+      <h2>Uitwerking vraag 1.1.1</h2>
+      ${groupsHtml}
+    </section>
+  `;
+}
+
 function buildPrintableReportHtml() {
-  const assessment = computeAssessment();
   const generatedAt = new Intl.DateTimeFormat("nl-NL", {
     dateStyle: "long",
     timeStyle: "short",
     timeZone: "Europe/Amsterdam",
   }).format(new Date());
 
-  const completenessItems = getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid");
-  const actualityItems = getQuestionStatusItems().filter(
-    (question) =>
-      question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
+  const completenessItems = getQuestionStatusItems().filter(
+    (question) => question.category === "1.1 Volledigheid"
   );
-  const reliabilityItems = getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid");
+  const actualityAndReliabilityItems = [
+    ...getQuestionStatusItems().filter(
+      (question) =>
+        question.category === "1.2 Actualiteit" ||
+        question.category === "1.3 Actuele inzichten" ||
+        question.category === "1.4 Betrouwbaarheid"
+    ),
+  ];
   const planItems = getPlanStatusItems();
 
   return `
@@ -2640,83 +2899,77 @@ function buildPrintableReportHtml() {
             font-family: Verdana, Arial, sans-serif;
             color: #172033;
             background: #ffffff;
-            font-size: 9pt;
-            line-height: 1.3;
+            font-size: 10.5pt;
+            line-height: 1.5;
           }
 
           .report-page {
             max-width: none;
             margin: 0 auto;
-            padding: 0 0 24px;
+            padding: 0 0 28px;
             background: #ffffff;
           }
 
           .report-header {
-            padding-bottom: 10px;
+            padding-bottom: 14px;
             border-bottom: 1px solid #c8ced6;
           }
 
           .report-header h1 {
-            margin: 0 0 6px;
-            font-size: 9pt;
+            margin: 0 0 8px;
+            font-size: 15pt;
           }
 
           .report-meta {
             margin: 0;
             color: #5b6472;
-            line-height: 1.35;
-            font-size: 9pt;
+            line-height: 1.45;
+            font-size: 10pt;
           }
 
           .report-section {
-            margin-top: 16px;
+            margin-top: 22px;
           }
 
           .report-section h2 {
-            margin: 0 0 8px;
-            font-size: 9pt;
+            margin: 0 0 12px;
+            font-size: 12pt;
           }
 
-          .report-subsection h3 {
-            margin: 10px 0 6px;
-            font-size: 9pt;
+          .report-subsection {
+            margin-top: 12px;
           }
 
           .report-question,
-          .report-risk-item {
-            margin-top: 8px;
-            padding: 6px 0 0;
-            border: 0;
-            border-top: 1px solid #e5e7eb;
-            border-radius: 0;
-            background: transparent;
+          .report-risk-item,
+          .report-block {
+            margin-top: 12px;
+            padding: 14px 16px;
+            border: 1px solid #d9e0e7;
+            border-radius: 12px;
+            background: #fbfcfd;
             break-inside: avoid;
           }
 
           .report-question h3,
-          .report-risk-item h4 {
-            margin: 0 0 6px;
-            font-size: 9pt;
+          .report-risk-item h3 {
+            margin: 0 0 10px;
+            font-size: 11pt;
           }
 
-          .report-line,
-          .report-subsection {
-            margin: 2px 0 0;
-            line-height: 1.3;
-          }
-
-          .report-block {
-            display: block;
+          .report-line {
+            margin: 8px 0 0;
+            line-height: 1.5;
           }
 
           .report-list {
-            margin: 6px 0 0;
-            padding-left: 16px;
+            margin: 8px 0 0;
+            padding-left: 20px;
           }
 
           .report-list li {
-            margin-top: 6px;
-            line-height: 1.3;
+            margin-top: 8px;
+            line-height: 1.45;
           }
 
           .word-page-break {
@@ -2731,6 +2984,12 @@ function buildPrintableReportHtml() {
           .report-muted {
             color: #6b7280;
             font-style: italic;
+          }
+
+          .report-subheading {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 10pt;
           }
 
           @media print {
@@ -2748,21 +3007,17 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 6px; font-size: 9pt;">RI&E pre-toets rapport</h1>
-            <p class="report-meta" style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
-              generatedAt
-            )}</p>
+            <h1>RI&E pre-toets rapport</h1>
+            <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
           </header>
 
           ${getGeneralFieldsReportHtml()}
-          ${getSummaryOutcomeReportHtml(assessment)}
-          ${getRiskInventoryReportHtml()}
-          ${getRegularQuestionReportSection("Uitkomsten vragen 1.1.2 t/m 1.4.1", [
-            ...completenessItems,
-            ...actualityItems,
-            ...reliabilityItems,
-          ])}
-          ${getRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
+          ${getRelevantRiskInventoryReportHtml()}
+          ${getRelevantRegularQuestionReportSection(
+            "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+            [...completenessItems, ...actualityAndReliabilityItems]
+          )}
+          ${getRelevantRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
         </main>
       </body>
     </html>
