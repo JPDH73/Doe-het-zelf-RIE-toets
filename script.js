@@ -410,6 +410,7 @@ const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
 const copyReport = document.querySelector("#copyReport");
 const toggleReportOutput = document.querySelector("#toggleReportOutput");
+const generateReportPdf = document.querySelector("#generateReportPdf");
 const generateWord = document.querySelector("#generateWord");
 const generateSummaryPdf = document.querySelector("#generateSummaryPdf");
 const generateSummaryWord = document.querySelector("#generateSummaryWord");
@@ -2063,6 +2064,10 @@ function getPlainOptionLabel(optionsList, value) {
   return optionsList.find((option) => option.value === value)?.label || value;
 }
 
+function formatReportLabel(label) {
+  return label.trim().endsWith("?") ? label : `${label}:`;
+}
+
 function buildRegularQuestionReportLines(sectionTitle, items) {
   const lines = [sectionTitle, ""];
 
@@ -2204,6 +2209,230 @@ function buildRiskInventoryReportLines() {
 
   lines.push("");
   return lines;
+}
+
+function buildRelevantRegularQuestionReportLines(sectionTitle, items) {
+  const lines = [sectionTitle, ""];
+  let hasContent = false;
+
+  for (const question of items) {
+    const answer = getAnswerValue(question.id);
+    const note = getPlainValue(
+      survey.querySelector(`[name="question-${question.id}-note"]`)?.value || ""
+    );
+
+    if (!answer && !note) {
+      continue;
+    }
+
+    const evidenceConfig = getQuestionEvidenceConfig(question, answer);
+    hasContent = true;
+    lines.push(getDisplayQuestionTitle(question));
+    lines.push(`Antwoord: ${getPlainOptionLabel(getQuestionOptions(question), answer)}`);
+
+    if (note) {
+      lines.push(`${formatReportLabel(evidenceConfig.label || "Controleerbaar bewijs of toelichting")} ${note}`);
+    }
+
+    lines.push("");
+  }
+
+  return hasContent ? lines : [];
+}
+
+function buildRelevantRiskInventoryReportLines() {
+  const lines = ["Uitwerking vraag 1.1.1", ""];
+  let hasContent = false;
+
+  for (const group of riskCatalog) {
+    const groupLines = [];
+
+    for (const itemLabel of group.items) {
+      const item = getRiskItemState(group.id, group.title, itemLabel);
+      const supplementalConfigs = getSupplementalRequirementConfigs(group.id, itemLabel);
+
+      const hasAnyData =
+        item.applicable ||
+        item.described ||
+        item.justified ||
+        item.causes ||
+        item.applicabilityNote ||
+        item.describedYesNote ||
+        item.assessorNote ||
+        item.assessmentMethodNote ||
+        item.evaluationMethodNote ||
+        item.describedNoNote ||
+        item.causesYesNote ||
+        item.causesNoNote ||
+        Object.values(item.supplementalAnswers || {}).some(Boolean) ||
+        Object.values(item.supplementalNotes || {}).some(Boolean);
+
+      if (!hasAnyData) {
+        continue;
+      }
+
+      hasContent = true;
+      groupLines.push(group.title);
+      groupLines.push(`${item.groupTitle} - ${item.itemLabel}`);
+
+      if (item.applicable) {
+        groupLines.push(`Van toepassing: ${getPlainOptionLabel(yesNoOptions, item.applicable)}`);
+      }
+
+      if (item.applicable === "no") {
+        if (item.applicabilityNote) {
+          groupLines.push(`Toelichting niet van toepassing: ${item.applicabilityNote}`);
+        }
+      }
+
+      if (item.applicable === "yes") {
+        if (item.described) {
+          groupLines.push(
+            `${formatReportLabel("Is het risico beschreven in de RI&E?")} ${getPlainOptionLabel(
+              yesNoOptions,
+              item.described
+            )}`
+          );
+        }
+
+        if (item.described === "yes") {
+          if (item.assessorNote) {
+            groupLines.push(`${formatReportLabel("Wie heeft dit risico beoordeeld?")} ${item.assessorNote}`);
+          }
+          if (item.assessmentMethodNote) {
+            groupLines.push(
+              `${formatReportLabel("Welke methode is gebruikt om het risico te inventariseren?")} ${item.assessmentMethodNote}`
+            );
+          }
+          if (item.evaluationMethodNote) {
+            groupLines.push(
+              `${formatReportLabel("Welke methode is gebruikt om het risico te evalueren?")} ${item.evaluationMethodNote}`
+            );
+          }
+          if (item.describedYesNote) {
+            groupLines.push(
+              `${formatReportLabel("Waar is dit onderdeel terug te vinden in de RI&E?")} ${item.describedYesNote}`
+            );
+          }
+          if (item.causes) {
+            groupLines.push(
+              `${formatReportLabel("Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?")} ${getPlainOptionLabel(
+                yesNoOptions,
+                item.causes
+              )}`
+            );
+          }
+          if (item.causes === "yes" && item.causesYesNote) {
+            groupLines.push(
+              `${formatReportLabel("Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?")} ${item.causesYesNote}`
+            );
+          }
+          if (item.causes === "no" && item.causesNoNote) {
+            groupLines.push(
+              `${formatReportLabel("Waarom zijn de grondoorzaken niet geïnventariseerd?")} ${item.causesNoNote}`
+            );
+          }
+
+          for (const config of supplementalConfigs) {
+            const answer = item.supplementalAnswers?.[config.key];
+            const note = item.supplementalNotes?.[config.key];
+            if (!answer && !note) {
+              continue;
+            }
+            groupLines.push(`${formatReportLabel(config.prompt)} ${getPlainOptionLabel(requirementsOptions, answer)}`);
+            if (note) {
+              groupLines.push(`Toelichting: ${note}`);
+            }
+          }
+        }
+
+        if (item.described === "no") {
+          if (item.justified) {
+            groupLines.push(
+              `${formatReportLabel("Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?")} ${getPlainOptionLabel(
+                yesNoOptions,
+                item.justified
+              )}`
+            );
+          }
+          if (item.describedNoNote) {
+            groupLines.push(`Reden waarom dit risico niet is opgenomen: ${item.describedNoNote}`);
+          }
+        }
+      }
+
+      groupLines.push("");
+    }
+
+    if (groupLines.length > 0) {
+      lines.push(...groupLines);
+    }
+  }
+
+  return hasContent ? lines : [];
+}
+
+function buildRelevantReportPdfText() {
+  const assessment = computeAssessment();
+  const lines = [
+    "RI&E pre-toets rapport",
+    `Gegenereerd op ${new Intl.DateTimeFormat("nl-NL", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "Europe/Amsterdam",
+    }).format(new Date())}`,
+    "",
+    "Bedrijfsprofiel",
+    `Bedrijfsnaam: ${getPlainValue(companyName.value)}`,
+    `Contactpersoon: ${getPlainValue(contactName.value)}`,
+    `E-mailadres contactpersoon: ${getPlainValue(contactEmail?.value || "")}`,
+    `Naam invuller RI&E-toets: ${getPlainValue(rieAssessorName?.value || "")}`,
+    `Contactpersoon ondernemingsraad: ${getPlainValue(worksCouncilContact?.value || "")}`,
+    `Arbodienst/ Bedrijfsarts: ${getPlainValue(occupationalService?.value || "")}`,
+    `Branche: ${getPlainValue(industry.value)}`,
+    `Arbo-certificaten: ${getPlainValue(arboCertificates?.value || "")}`,
+    `Aantal medewerkers: ${getPlainValue(employees.value)}`,
+    `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
+    "",
+    "Afbakening en documentgegevens van de RI&E",
+    `Naam of omschrijving van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
+    `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
+    `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
+    "Documenten die behoren tot de te toetsen RI&E:",
+    getPlainValue(rieDocuments.value),
+    "",
+  ];
+
+  const riskLines = buildRelevantRiskInventoryReportLines();
+  const regularLines = buildRelevantRegularQuestionReportLines(
+    "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+    [
+      ...getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
+      ...getQuestionStatusItems().filter(
+        (question) =>
+          question.category === "1.2 Actualiteit" ||
+          question.category === "1.3 Actuele inzichten" ||
+          question.category === "1.4 Betrouwbaarheid"
+      ),
+    ]
+  );
+  const planLines = buildRelevantRegularQuestionReportLines(
+    "Uitkomsten plan van aanpak",
+    getPlanStatusItems()
+  );
+
+  if (riskLines.length > 0) {
+    lines.push(...riskLines);
+  }
+  if (regularLines.length > 0) {
+    lines.push(...regularLines);
+  }
+  if (planLines.length > 0) {
+    lines.push(...planLines);
+  }
+
+  return lines.join("\n");
 }
 
 function buildReport(assessment) {
@@ -3535,6 +3764,12 @@ function generatePdfReport() {
   downloadBlob(blob, `${getReportFileBaseName()}.pdf`);
 }
 
+function generateRelevantReportPdf() {
+  const reportText = buildRelevantReportPdfText();
+  const blob = buildPdfBlobFromText(reportText);
+  downloadBlob(blob, `${getReportFileBaseName()}-rapport.pdf`);
+}
+
 function generateWordReport() {
   const html = buildPrintableReportHtml();
   const blob = new Blob([html], {
@@ -4295,6 +4530,7 @@ survey.addEventListener("input", () => {
 });
 copyReport.addEventListener("click", copyReportToClipboard);
 toggleReportOutput?.addEventListener("click", toggleReportOutputVisibility);
+generateReportPdf?.addEventListener("click", generateRelevantReportPdf);
 generateWord?.addEventListener("click", generateWordReport);
 generateSummaryPdf?.addEventListener("click", generateSummaryPdfReport);
 generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
