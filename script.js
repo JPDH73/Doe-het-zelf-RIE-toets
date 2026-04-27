@@ -3542,10 +3542,6 @@ function getShortRiskSummaryLabel(item) {
     ],
   ]);
 
-  if (groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen") {
-    return withNumbering(itemLabel);
-  }
-
   if (shortItemMap.has(itemLabel)) {
     const shortLabel = shortItemMap.get(itemLabel);
     if (
@@ -3557,6 +3553,10 @@ function getShortRiskSummaryLabel(item) {
         : shortLabel;
     }
     return shortLabel ? withNumbering(shortLabel) : `${groupNumber}. ${groupPrefix}`;
+  }
+
+  if (groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen") {
+    return withNumbering(itemLabel);
   }
 
   return withNumbering(itemLabel);
