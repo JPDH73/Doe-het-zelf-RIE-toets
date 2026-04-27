@@ -2724,7 +2724,9 @@ function buildSummaryWordHtml() {
     supplementedApplicable,
     notDescribedApplicable,
     notApplicable,
-  } = collectApplicabilitySummaryData(assessment);
+  } = collectApplicabilitySummaryData(assessment, {
+    formatRiskLabel: getShortRiskSummaryLabel,
+  });
 
   const emptyValue = '<span style="color: #6b7280; font-style: italic;">Niet ingevuld</span>';
   const formatFieldValue = (value) => {
