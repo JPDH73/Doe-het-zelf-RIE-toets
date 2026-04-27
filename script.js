@@ -2287,7 +2287,7 @@ function buildRelevantRiskInventoryReportLines() {
 
       hasContent = true;
       groupLines.push(group.title);
-      groupLines.push(`${item.groupTitle} - ${item.itemLabel}`);
+      groupLines.push(`${item.groupTitle} - ${getNumberedRiskItemLabel(group.id, item.itemLabel)}`);
 
       if (item.applicable) {
         groupLines.push(`Van toepassing: ${getPlainOptionLabel(yesNoOptions, item.applicable)}`);
@@ -3668,7 +3668,7 @@ function sanitizePdfText(value) {
     .replace(/\)/g, "\\)");
 }
 
-function wrapPdfLine(line, maxLength = 92) {
+function wrapPdfLine(line, maxLength = 72) {
   if (!line.trim()) {
     return [""];
   }
