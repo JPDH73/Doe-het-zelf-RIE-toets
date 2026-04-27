@@ -2355,7 +2355,24 @@ function getWordPageBreakHtml() {
   return '<br clear="all" style="mso-special-character: line-break; page-break-before: always;">';
 }
 
-function getSummaryOutcomeReportHtml(assessment) {
+function getShortSupplementalSummaryLabel(riskLabel, prompt) {
+  const articleMatch = prompt.match(/(artikel\s+[0-9a-z.]+\s+Arbobesluit)/i);
+  if (articleMatch) {
+    return `${riskLabel} - ${articleMatch[1]}`;
+  }
+
+  const chapterMatch = prompt.match(/(hoofdstuk\s+\d+,\s*afdeling\s+\d+\s+van het Arbobesluit)/i);
+  if (chapterMatch) {
+    return `${riskLabel} - ${chapterMatch[1]}`;
+  }
+
+  return `${riskLabel} - ${prompt}`;
+}
+
+function getSummaryOutcomeReportHtml(assessment, options = {}) {
+  const formatRiskLabel = options.formatRiskLabel || getShortRiskSummaryLabel;
+  const formatSupplementalLabel =
+    options.formatSupplementalLabel || ((riskLabel, prompt) => `${riskLabel} - ${prompt}`);
   const {
     applicable,
     describedApplicable,
@@ -2363,7 +2380,8 @@ function getSummaryOutcomeReportHtml(assessment) {
     notDescribedApplicable,
     notApplicable,
   } = collectApplicabilitySummaryData(assessment, {
-    formatRiskLabel: getShortRiskSummaryLabel,
+    formatRiskLabel,
+    formatSupplementalLabel,
   });
 
   const renderList = (items, emptyText) => {
@@ -2718,16 +2736,6 @@ function buildSummaryWordHtml() {
     timeStyle: "short",
     timeZone: "Europe/Amsterdam",
   }).format(new Date());
-  const {
-    applicable,
-    describedApplicable,
-    supplementedApplicable,
-    notDescribedApplicable,
-    notApplicable,
-  } = collectApplicabilitySummaryData(assessment, {
-    formatRiskLabel: getShortRiskSummaryLabel,
-  });
-
   const emptyValue = '<span style="color: #6b7280; font-style: italic;">Niet ingevuld</span>';
   const formatFieldValue = (value) => {
     const normalized = getPlainValue(value);
@@ -2896,54 +2904,16 @@ function buildSummaryWordHtml() {
           ${renderField("Uitvoering van de RI&E", executionDescription.value)}
           ${renderField("Datum van de RI&E", rieDate.value)}
           ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
-          ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
-          ${spacer(10, 12)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
-          ${spacer(9, 11)}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
-          ${renderListParagraphs(
-            applicable,
-            "Nog geen onderdelen als van toepassing aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
-          ${renderListParagraphs(
-            describedApplicable,
-            "Nog geen onderdelen als van toepassing en beschreven aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
-          ${renderListParagraphs(
-            notDescribedApplicable,
-            "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
-          ${renderListParagraphs(
-            notApplicable,
-            "Nog geen onderdelen als niet van toepassing aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften met ja beantwoord</b></p>
-          ${renderListParagraphs(
-            supplementedApplicable,
-            "Nog geen nadere voorschriften met ja beantwoord.",
-            0.48
-          )}
-          ${spacer(9, 11)}
-          ${spacer(11, 13)}
-          ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
-          ${spacer(9, 11)}
-          ${groupedQuestions
-            .map((group, index) =>
-              renderQuestionGroup(group.title, group.items, index === 1)
-            )
-            .join("")}
-          <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
-          ${spacer(12, 15)}
-          ${planRows}
+          ${getSummaryOutcomeReportHtml(assessment, {
+            formatRiskLabel: getShortRiskSummaryLabel,
+            formatSupplementalLabel: getShortSupplementalSummaryLabel,
+          })
+            .replace('<section class="report-section">', `${getWordPageBreakHtml()}<section class="report-section">`)
+            .replace('<h2 style="margin: 0 0 8px; font-size: 9pt;">Samenvatting uitkomst</h2>', '<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>')
+            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst vraag 1.1.1</h3>', `${spacer(10, 12)}<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>${spacer(9, 11)}`)
+            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>', `${spacer(9, 11)}${spacer(11, 13)}${getWordPageBreakHtml()}<p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>${spacer(9, 11)}`)
+            .replace('<h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten plan van aanpak</h3>', '<p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>')
+          }
         </main>
       </body>
     </html>
@@ -3461,8 +3431,17 @@ function renderPlanStatusMatrix() {
 }
 
 function getShortRiskSummaryLabel(item) {
-  const groupPrefix = item.groupTitle.replace(/^\d+\.\s*/, "").trim();
+  const groupMatch = item.groupTitle.match(/^(\d+)\.\s*(.*)$/);
+  const groupNumber = groupMatch?.[1] || "";
+  const groupPrefix = groupMatch?.[2]?.trim() || item.groupTitle.trim();
   const itemLabel = item.itemLabel.trim();
+  const groupConfig = riskCatalog.find((group) => group.id === item.groupId);
+  const itemIndex = groupConfig?.items.findIndex((label) => label === item.itemLabel) ?? -1;
+  const itemLetter = itemIndex >= 0 ? String.fromCharCode(97 + itemIndex) : "";
+  const withNumbering = (shortLabel) =>
+    itemLetter
+      ? `${groupNumber}. ${groupPrefix} - ${itemLetter}. ${shortLabel}`
+      : `${groupNumber}. ${groupPrefix}`;
 
   const shortItemMap = new Map([
     [
@@ -3512,15 +3491,23 @@ function getShortRiskSummaryLabel(item) {
   ]);
 
   if (groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen") {
-    return `Bijzondere categorieën ${itemLabel}`;
+    return withNumbering(`Bijzondere categorieën ${itemLabel}`);
   }
 
   if (shortItemMap.has(itemLabel)) {
     const shortLabel = shortItemMap.get(itemLabel);
-    return shortLabel ? `${groupPrefix} - ${shortLabel}` : groupPrefix;
+    if (
+      shortLabel &&
+      shortLabel.startsWith(`${groupPrefix} - `)
+    ) {
+      return itemLetter
+        ? `${groupNumber}. ${shortLabel.replace(`${groupPrefix} - `, `${groupPrefix} - ${itemLetter}. `)}`
+        : shortLabel;
+    }
+    return shortLabel ? withNumbering(shortLabel) : `${groupNumber}. ${groupPrefix}`;
   }
 
-  return `${groupPrefix} - ${itemLabel}`;
+  return withNumbering(itemLabel);
 }
 
 function collectApplicabilitySummaryData(assessment, options = {}) {
@@ -3530,6 +3517,8 @@ function collectApplicabilitySummaryData(assessment, options = {}) {
   const notDescribedApplicable = [];
   const notApplicable = [];
   const formatRiskLabel = options.formatRiskLabel || ((item) => `${item.groupTitle} - ${item.itemLabel}`);
+  const formatSupplementalLabel =
+    options.formatSupplementalLabel || ((riskLabel, prompt) => `${riskLabel} - ${prompt}`);
 
   const inventoryItems = riskCatalog.flatMap((group) =>
     group.items.map((itemLabel) => getRiskItemState(group.id, group.title, itemLabel))
@@ -3549,7 +3538,7 @@ function collectApplicabilitySummaryData(assessment, options = {}) {
             );
 
             if (config) {
-              supplementedApplicable.push(`${label} - ${config.prompt}`);
+              supplementedApplicable.push(formatSupplementalLabel(label, config.prompt, item));
             }
           }
         }
