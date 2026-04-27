@@ -3478,14 +3478,18 @@ function getShortRiskSummaryLabel(item) {
   const groupMatch = item.groupTitle.match(/^(\d+)\.\s*(.*)$/);
   const groupNumber = groupMatch?.[1] || "";
   const groupPrefix = groupMatch?.[2]?.trim() || item.groupTitle.trim();
+  const summaryGroupPrefix =
+    groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen"
+      ? "Bijzondere categorieën werknemers"
+      : groupPrefix;
   const itemLabel = item.itemLabel.trim();
   const groupConfig = riskCatalog.find((group) => group.id === item.groupId);
   const itemIndex = groupConfig?.items.findIndex((label) => label === item.itemLabel) ?? -1;
   const itemLetter = itemIndex >= 0 ? String.fromCharCode(97 + itemIndex) : "";
   const withNumbering = (shortLabel) =>
     itemLetter
-      ? `${groupNumber}. ${groupPrefix} - ${itemLetter}. ${shortLabel}`
-      : `${groupNumber}. ${groupPrefix}`;
+      ? `${groupNumber}. ${summaryGroupPrefix} - ${itemLetter}. ${shortLabel}`
+      : `${groupNumber}. ${summaryGroupPrefix}`;
 
   const shortItemMap = new Map([
     [
@@ -3535,7 +3539,7 @@ function getShortRiskSummaryLabel(item) {
   ]);
 
   if (groupPrefix === "Bijzondere categorieën werknemers die mogelijk extra risico lopen") {
-    return withNumbering(`Bijzondere categorieën werknemers - ${itemLabel}`);
+    return withNumbering(itemLabel);
   }
 
   if (shortItemMap.has(itemLabel)) {
