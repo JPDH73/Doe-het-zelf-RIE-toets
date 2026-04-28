@@ -229,7 +229,11 @@ h1 {
 
 .profile-grid {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 18px;
+  gap: 24px 18px;
+}
+
+.profile-grid .field span {
+  margin-top: 6pt;
 }
 
 .document-grid {
