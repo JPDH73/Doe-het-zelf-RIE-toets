@@ -566,6 +566,34 @@ function clearAllAnswers() {
     detail.open = false;
   }
 
+  if (profileSectionContent) {
+    profileSectionContent.hidden = true;
+  }
+
+  if (scopeSectionContent) {
+    scopeSectionContent.hidden = true;
+  }
+
+  if (step3SectionContent) {
+    step3SectionContent.hidden = true;
+  }
+
+  if (summaryRiskOutput) {
+    summaryRiskOutput.hidden = true;
+  }
+
+  if (summaryQuestionOutput) {
+    summaryQuestionOutput.hidden = true;
+  }
+
+  if (summaryPlanOutput) {
+    summaryPlanOutput.hidden = true;
+  }
+
+  if (reportOutput) {
+    reportOutput.hidden = true;
+  }
+
   try {
     localStorage.removeItem(DRAFT_STORAGE_KEY);
   } catch (error) {
@@ -574,6 +602,9 @@ function clearAllAnswers() {
 
   renderAssessment();
   updateToggleAllButtonLabel();
+  updateSummarySectionToggleLabels();
+  updatePanelSectionToggleLabels();
+  updateReportToggleButtonLabel();
   updateDraftStatus("Concept is gewist op deze computer.");
 }
 
