@@ -2370,7 +2370,7 @@ function buildRelevantRiskInventoryReportLines() {
 function buildRelevantReportPdfText() {
   const assessment = computeAssessment();
   const lines = [
-    "RI&E pre-toets rapport",
+    "RI&E toetsklaar-rapport",
     `Gegenereerd op ${new Intl.DateTimeFormat("nl-NL", {
       dateStyle: "long",
       timeStyle: "short",
@@ -3119,7 +3119,7 @@ function buildPrintableReportHtml() {
     <html lang="nl">
       <head>
         <meta charset="utf-8">
-        <title>RI&E pre-toets rapport</title>
+        <title>RI&E toetsklaar-rapport</title>
         <style>
           :root {
             color-scheme: light;
@@ -3250,7 +3250,7 @@ function buildPrintableReportHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 8px; font-size: 18pt;">RI&E pre-toets rapport</h1>
+            <h1 style="margin: 0 0 8px; font-size: 18pt;">RI&E toetsklaar-rapport</h1>
             <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
           </header>
 
@@ -3369,7 +3369,7 @@ function buildSummaryWordHtml() {
     <html lang="nl">
       <head>
         <meta charset="utf-8">
-        <title>RI&E pre-toets samenvatting</title>
+        <title>RI&E toetsklaar-samenvatting</title>
         <style>
           @page {
             margin: 2cm 1.6cm 1.8cm 1.6cm;
@@ -3423,7 +3423,7 @@ function buildSummaryWordHtml() {
       <body>
         <main class="report-page">
           <header class="report-header">
-            <h1 style="margin: 0 0 6px; font-size: 16pt;">RI&E pre-toets samenvatting</h1>
+            <h1 style="margin: 0 0 6px; font-size: 16pt;">RI&E toetsklaar-samenvatting</h1>
             <p style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
               generatedAt
             )}</p>
@@ -3532,7 +3532,7 @@ function buildSummaryPdfText() {
   });
 
   const lines = [
-    "RI&E pre-toets samenvatting",
+    "RI&E toetsklaar-samenvatting",
     `Gegenereerd op ${generatedAt}`,
     "",
     "Bedrijfsprofiel",
@@ -3786,7 +3786,7 @@ function generatePdfReport() {
 function generateRelevantReportPdf() {
   const reportText = buildRelevantReportPdfText();
   const blob = buildPdfBlobFromText(reportText);
-  downloadBlob(blob, `${getReportFileBaseName()}-rapport.pdf`);
+  downloadBlob(blob, `RI&E toetsklaar-rapport.pdf`);
 }
 
 function generateWordReport() {
@@ -3794,7 +3794,7 @@ function generateWordReport() {
   const blob = new Blob([html], {
     type: "application/msword;charset=utf-8",
   });
-  downloadBlob(blob, `${getReportFileBaseName()}.doc`);
+  downloadBlob(blob, `RI&E toetsklaar-rapport.doc`);
 }
 
 function generateSummaryWordReport() {
@@ -3802,13 +3802,13 @@ function generateSummaryWordReport() {
   const blob = new Blob([html], {
     type: "application/msword;charset=utf-8",
   });
-  downloadBlob(blob, `${getReportFileBaseName()}-samenvatting.doc`);
+  downloadBlob(blob, `RI&E toetsklaar-samenvatting.doc`);
 }
 
 function generateSummaryPdfReport() {
   const reportText = buildSummaryPdfText();
   const blob = buildPdfBlobFromText(reportText);
-  downloadBlob(blob, `${getReportFileBaseName()}-samenvatting.pdf`);
+  downloadBlob(blob, `RI&E toetsklaar-samenvatting.pdf`);
 }
 
 function updateScoreRing(readiness) {
