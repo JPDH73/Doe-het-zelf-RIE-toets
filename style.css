@@ -85,7 +85,7 @@ textarea {
 }
 
 .hero-card {
-  padding: 24px 28px;
+  padding: 20px 24px;
   background: linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(242, 233, 217, 0.94));
   display: grid;
   grid-template-columns: 1fr;
@@ -141,6 +141,14 @@ h1 {
   font-size: 1.06rem;
   line-height: 1.72;
   text-wrap: pretty;
+}
+
+.intro p {
+  margin: 0 0 12px;
+}
+
+.intro p:last-child {
+  margin-bottom: 0;
 }
 
 .intro-meta {
@@ -203,6 +211,19 @@ h1 {
 
 .panel-head.compact {
   margin-bottom: 14px;
+}
+
+.panel:has(> #profileSectionContent[hidden]),
+.panel:has(> #scopeSectionContent[hidden]),
+.panel:has(> #step3SectionContent[hidden]) {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.panel:has(> #profileSectionContent[hidden]) .panel-head,
+.panel:has(> #scopeSectionContent[hidden]) .panel-head,
+.panel:has(> #step3SectionContent[hidden]) .panel-head {
+  margin-bottom: 0;
 }
 
 .draft-status {
