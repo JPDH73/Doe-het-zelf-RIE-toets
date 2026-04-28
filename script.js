@@ -3530,6 +3530,7 @@ function buildSummaryPdfText() {
     formatRiskLabel: getShortRiskSummaryLabel,
     formatSupplementalLabel: getShortSupplementalSummaryLabel,
   });
+  const supplementalStatusItems = collectSupplementalStatusSummaryData();
 
   const lines = [
     "RI&E toetsklaar-samenvatting",
