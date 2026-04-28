@@ -861,6 +861,10 @@ h1 {
   justify-content: flex-start;
 }
 
+.report-action-spacer {
+  flex: 1 1 auto;
+}
+
 .report-summary-head {
   display: grid;
   gap: 6px;
