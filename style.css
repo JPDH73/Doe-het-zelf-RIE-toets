@@ -115,6 +115,11 @@ textarea {
   margin-bottom: 0;
 }
 
+.hero-card-intro {
+  margin: 12px 0 4px;
+  color: var(--ink);
+}
+
 h1,
 h2,
 h3,
