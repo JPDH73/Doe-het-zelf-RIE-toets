@@ -484,15 +484,6 @@ function createExecutionParticipantRow(index, values = {}) {
         value="${escapeHtml(values.role || "")}"
       />
     </label>
-    <label class="field">
-      <span>Gebruikte RI&amp;E-methode of methoden</span>
-      <input
-        type="text"
-        name="${getExecutionParticipantFieldName(index, "method")}"
-        placeholder="Beschrijf welke RI&amp;E-methode of methoden zijn gebruikt"
-        value="${escapeHtml(values.method || "")}"
-      />
-    </label>
   `;
 
   const nameInput = row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "name"))}"]`);
@@ -526,12 +517,9 @@ function getExecutionParticipantData(includeEmpty = false) {
         role: getPlainValue(
           row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "role"))}"]`)?.value || ""
         ),
-        method: getPlainValue(
-          row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "method"))}"]`)?.value || ""
-        ),
       };
     })
-    .filter((item) => includeEmpty || item.name || item.role || item.method);
+    .filter((item) => includeEmpty || item.name || item.role);
 }
 
 function syncExecutionDescription() {
@@ -544,7 +532,6 @@ function syncExecutionDescription() {
       const parts = [];
       if (participant.name) parts.push(`Naam: ${participant.name}`);
       if (participant.role) parts.push(`Functie: ${participant.role}`);
-      if (participant.method) parts.push(`RI&E-methode(n): ${participant.method}`);
       return parts.join(" | ");
     })
     .filter(Boolean);
@@ -569,12 +556,12 @@ function ensureExecutionParticipantTrailingRow() {
     return;
   }
 
-  if (lastRowData.name || lastRowData.role || lastRowData.method) {
+  if (lastRowData.name || lastRowData.role) {
     executionParticipantRows.append(createExecutionParticipantRow(rows.length));
   }
 }
 
-function resetExecutionParticipantRows(rows = [{ name: "", role: "", method: "" }]) {
+function resetExecutionParticipantRows(rows = [{ name: "", role: "" }]) {
   if (!executionParticipantRows) {
     return;
   }
@@ -583,6 +570,7 @@ function resetExecutionParticipantRows(rows = [{ name: "", role: "", method: "" 
   rows.forEach((row, index) => executionParticipantRows.append(createExecutionParticipantRow(index, row)));
   ensureExecutionParticipantTrailingRow();
   syncExecutionDescription();
+  refreshExecutionParticipantSelects();
 }
 
 function slugify(text) {
@@ -776,7 +764,7 @@ function restoreDraftFromLocalStorage() {
     const fields = draftState.fields || {};
     const executionRowIndexes = Object.keys(fields)
       .map((name) => {
-        const match = name.match(/^executionParticipant-(\d+)-(name|role|method)$/);
+        const match = name.match(/^executionParticipant-(\d+)-(name|role)$/);
         return match ? Number(match[1]) : null;
       })
       .filter((value) => value !== null);
@@ -787,7 +775,6 @@ function restoreDraftFromLocalStorage() {
         Array.from({ length: maxIndex + 1 }, (_, index) => ({
           name: fields[getExecutionParticipantFieldName(index, "name")] || "",
           role: fields[getExecutionParticipantFieldName(index, "role")] || "",
-          method: fields[getExecutionParticipantFieldName(index, "method")] || "",
         }))
       );
     } else {
@@ -825,6 +812,7 @@ function restoreDraftFromLocalStorage() {
 
     ensureExecutionParticipantTrailingRow();
     syncExecutionDescription();
+    refreshExecutionParticipantSelects();
 
     const openDetails = new Set(draftState.openDetails || []);
     for (const detail of document.querySelectorAll("details")) {
@@ -1389,6 +1377,79 @@ function createRiskTextField(name, labelText, placeholderText) {
   return field;
 }
 
+function createRiskSelectField(name, labelText, optionsList) {
+  const field = document.createElement("label");
+  field.className = "risk-evidence";
+  field.hidden = true;
+
+  const select = document.createElement("select");
+  select.name = name;
+  select.className = "risk-select";
+  select.dataset.participantSelect = "true";
+  select.innerHTML = `<option value="">Kies een persoon</option>`;
+
+  for (const option of optionsList) {
+    const optionElement = document.createElement("option");
+    optionElement.value = option;
+    optionElement.textContent = option;
+    select.append(optionElement);
+  }
+
+  const label = document.createElement("span");
+  label.className = "risk-evidence-label";
+  label.textContent = labelText;
+
+  field.append(label, select);
+  return field;
+}
+
+function createRiskMethodHelp() {
+  const helpToggle = document.createElement("details");
+  helpToggle.className = "question-help-toggle";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "Toelichting op methoden";
+
+  const paragraph = document.createElement("p");
+  paragraph.textContent =
+    "Beschrijf hier welke onderzoeksmethode, beoordelingswijze of verdiepende analyse is gebruikt om dit risico te inventariseren. Afhankelijk van het onderwerp kunnen verschillende methoden zijn toegepast, zoals interviews, werkplekobservaties, metingen, dossieronderzoek, trendanalyses of taakgerichte beoordelingen.";
+
+  helpToggle.append(summary, paragraph);
+  return helpToggle;
+}
+
+function getExecutionParticipantOptions() {
+  return getExecutionParticipantData()
+    .map((participant) => {
+      if (participant.name && participant.role) {
+        return `${participant.name} (${participant.role})`;
+      }
+
+      return participant.name || participant.role || "";
+    })
+    .filter(Boolean);
+}
+
+function refreshExecutionParticipantSelects() {
+  const options = getExecutionParticipantOptions();
+
+  for (const select of document.querySelectorAll('select[data-participant-select="true"]')) {
+    const previousValue = select.value;
+    select.innerHTML = `<option value="">Kies een persoon</option>`;
+
+    for (const option of options) {
+      const optionElement = document.createElement("option");
+      optionElement.value = option;
+      optionElement.textContent = option;
+      select.append(optionElement);
+    }
+
+    if (options.includes(previousValue)) {
+      select.value = previousValue;
+    }
+  }
+}
+
 function getRiskGroupState(groupId) {
   return {
     applicable: getAnswerValue(`risk-group-${groupId}-applicable`),
@@ -1919,10 +1980,10 @@ function renderRiskInventory(container) {
       described.classList.add("conditional-block");
       described.dataset.when = "applicable-yes";
       described.append(
-        createRiskTextField(
+        createRiskSelectField(
           `risk-${itemId}-assessor`,
           "Wie heeft dit risico beoordeeld?",
-          "Omschrijf hier wie dit risico heeft beoordeeld."
+          getExecutionParticipantOptions()
         )
       );
       described.append(
@@ -1932,6 +1993,7 @@ function renderRiskInventory(container) {
           "Omschrijf hier welke methode is gebruikt om dit risico te inventariseren."
         )
       );
+      described.append(createRiskMethodHelp());
       described.append(
         createRiskTextField(
           `risk-${itemId}-evaluation-method`,
@@ -5804,6 +5866,7 @@ survey.addEventListener("input", () => {
 executionParticipantRows?.addEventListener("input", () => {
   ensureExecutionParticipantTrailingRow();
   syncExecutionDescription();
+  refreshExecutionParticipantSelects();
 });
 copyReport.addEventListener("click", copyReportToClipboard);
 toggleReportOutput?.addEventListener("click", toggleReportOutputVisibility);

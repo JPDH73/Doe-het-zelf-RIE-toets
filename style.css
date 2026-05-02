@@ -447,7 +447,7 @@ h1 {
 
 .execution-participant-row {
   display: grid;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(180px, 0.8fr) minmax(220px, 1.4fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr);
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(31, 29, 26, 0.08);
@@ -819,7 +819,22 @@ h1 {
   resize: vertical;
 }
 
+.risk-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 250, 244, 0.82);
+  color: var(--ink);
+}
+
 .risk-note:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.risk-select:focus {
   outline: 2px solid var(--accent-soft);
   border-color: var(--accent);
 }
