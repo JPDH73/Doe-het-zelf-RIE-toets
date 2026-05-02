@@ -1625,35 +1625,37 @@ function renderRiskInventory(container) {
     const content = document.createElement("div");
     content.className = "risk-group-content";
 
-    const groupApplicability = document.createElement("div");
-    groupApplicability.className = "risk-question-block risk-group-applicability";
-    groupApplicability.dataset.groupId = group.id;
+    if (group.id !== "biologische-agentia") {
+      const groupApplicability = document.createElement("div");
+      groupApplicability.className = "risk-question-block risk-group-applicability";
+      groupApplicability.dataset.groupId = group.id;
 
-    const groupApplicabilityQuestion = document.createElement("p");
-    groupApplicabilityQuestion.className = "risk-question";
-    groupApplicabilityQuestion.textContent = `Is ${group.title.toLowerCase()} als hoofdthema van toepassing op de organisatie?`;
+      const groupApplicabilityQuestion = document.createElement("p");
+      groupApplicabilityQuestion.className = "risk-question";
+      groupApplicabilityQuestion.textContent = `Is ${group.title.toLowerCase()} als hoofdthema van toepassing op de organisatie?`;
 
-    const groupApplicabilityOptions = createBinaryOptions(
-      `risk-group-${group.id}-applicable`,
-      [
-        { value: "yes", label: "Van toepassing" },
-        { value: "no", label: "Niet van toepassing" },
-      ],
-      null
-    );
+      const groupApplicabilityOptions = createBinaryOptions(
+        `risk-group-${group.id}-applicable`,
+        [
+          { value: "yes", label: "Van toepassing" },
+          { value: "no", label: "Niet van toepassing" },
+        ],
+        null
+      );
 
-    const groupApplicabilityNote = createEvidenceField(
-      `risk-group-${group.id}-applicable-note`,
-      "Beschrijf hier waarom dit hoofdthema niet van toepassing is binnen de organisatie of waarom dit hoofdthema buiten de scope van deze RI&E valt."
-    );
-    groupApplicabilityNote.hidden = true;
+      const groupApplicabilityNote = createEvidenceField(
+        `risk-group-${group.id}-applicable-note`,
+        "Beschrijf hier waarom dit hoofdthema niet van toepassing is binnen de organisatie of waarom dit hoofdthema buiten de scope van deze RI&E valt."
+      );
+      groupApplicabilityNote.hidden = true;
 
-    groupApplicability.append(
-      groupApplicabilityQuestion,
-      groupApplicabilityOptions,
-      groupApplicabilityNote
-    );
-    content.append(groupApplicability);
+      groupApplicability.append(
+        groupApplicabilityQuestion,
+        groupApplicabilityOptions,
+        groupApplicabilityNote
+      );
+      content.append(groupApplicability);
+    }
 
     const head = document.createElement("div");
     head.className = "risk-table-head";
@@ -1818,10 +1820,7 @@ function renderSupplementalRequirementsQuestion(container) {
     const title = document.createElement("h4");
     title.className = "risk-group-title";
     title.textContent = group.title;
-    const count = document.createElement("span");
-    count.className = "risk-group-count";
-    count.textContent = `${group.items.length} deelrisico's`;
-    summaryCopy.append(title, count);
+    summaryCopy.append(title);
 
     const chevron = document.createElement("span");
     chevron.className = "risk-group-chevron";
@@ -1973,10 +1972,7 @@ function renderGroundCausesQuestion(container) {
     const title = document.createElement("h4");
     title.className = "risk-group-title";
     title.textContent = group.title;
-    const count = document.createElement("span");
-    count.className = "risk-group-count";
-    count.textContent = `${group.items.length} deelrisico's`;
-    summaryCopy.append(title, count);
+    summaryCopy.append(title);
 
     const chevron = document.createElement("span");
     chevron.className = "risk-group-chevron";
