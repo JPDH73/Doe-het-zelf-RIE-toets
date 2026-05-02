@@ -6068,6 +6068,10 @@ cancelReset?.addEventListener("click", (event) => {
 });
 confirmReset?.addEventListener("click", (event) => {
   event.preventDefault();
+  const sure = window.confirm("Weet u het zeker?");
+  if (!sure) {
+    return;
+  }
   clearAllAnswers();
   closeResetModal();
 });
