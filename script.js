@@ -370,6 +370,7 @@ const simpleCompletenessOptions = [
 
 const questionGroupsRisk = document.querySelector("#questionGroupsRisk");
 const questionGroupsCauses = document.querySelector("#questionGroupsCauses");
+const questionGroupsSupplemental = document.querySelector("#questionGroupsSupplemental");
 const questionGroupsRegular = document.querySelector("#questionGroupsRegular");
 const questionGroupsPlan = document.querySelector("#questionGroupsPlan");
 const template = document.querySelector("#questionTemplate");
@@ -406,6 +407,7 @@ const profileSectionContent = document.querySelector("#profileSectionContent");
 const scopeSectionContent = document.querySelector("#scopeSectionContent");
 const step3SectionContent = document.querySelector("#step3SectionContent");
 const causesStepSectionContent = document.querySelector("#causesStepSectionContent");
+const supplementalStepSectionContent = document.querySelector("#supplementalStepSectionContent");
 const regularStepSectionContent = document.querySelector("#regularStepSectionContent");
 const planStepSectionContent = document.querySelector("#planStepSectionContent");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
@@ -424,6 +426,7 @@ const confirmReset = document.querySelector("#confirmReset");
 const toggleAllSections = document.querySelector("#toggleAllSections");
 const toggleRiskInventoryQuestion = document.querySelector("#toggleRiskInventoryQuestion");
 const toggleCauseQuestions = document.querySelector("#toggleCauseQuestions");
+const toggleSupplementalQuestions = document.querySelector("#toggleSupplementalQuestions");
 const toggleRegularQuestions = document.querySelector("#toggleRegularQuestions");
 const togglePlanQuestions = document.querySelector("#togglePlanQuestions");
 const toggleSummaryRiskOutput = document.querySelector("#toggleSummaryRiskOutput");
@@ -443,7 +446,7 @@ const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-targe
 const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
-const TOTAL_WIZARD_STEPS = 7;
+const TOTAL_WIZARD_STEPS = 8;
 let currentWizardStep = 0;
 
 function slugify(text) {
@@ -495,15 +498,19 @@ function setPanelContentOpenForStep(step) {
     causesStepSectionContent.hidden = false;
   }
 
-  if (step === 5 && regularStepSectionContent) {
+  if (step === 5 && supplementalStepSectionContent) {
+    supplementalStepSectionContent.hidden = false;
+  }
+
+  if (step === 6 && regularStepSectionContent) {
     regularStepSectionContent.hidden = false;
   }
 
-  if (step === 6 && planStepSectionContent) {
+  if (step === 7 && planStepSectionContent) {
     planStepSectionContent.hidden = false;
   }
 
-  if (step === 7) {
+  if (step === 8) {
     if (summaryRiskOutput) {
       summaryRiskOutput.hidden = false;
     }
@@ -693,6 +700,10 @@ function clearAllAnswers() {
 
   if (causesStepSectionContent) {
     causesStepSectionContent.hidden = true;
+  }
+
+  if (supplementalStepSectionContent) {
+    supplementalStepSectionContent.hidden = true;
   }
 
   if (regularStepSectionContent) {
@@ -1751,7 +1762,111 @@ function renderRiskInventory(container) {
       );
       item.append(whyNot);
 
-      for (const config of getSupplementalRequirementConfigs(group.id, itemLabel)) {
+      content.append(item);
+    }
+
+    groupCard.append(content);
+    inventory.append(groupCard);
+  }
+
+  container.append(inventory);
+}
+
+function renderSupplementalRequirementsQuestion(container) {
+  const card = document.createElement("details");
+  card.className = "question-card question-card-wide";
+  card.dataset.questionId = "supplemental-requirements";
+
+  const summary = document.createElement("summary");
+  summary.className = "question-card-toggle";
+  summary.innerHTML = `
+    <div class="question-summary-copy">
+      <p class="question-category">1.1 Volledigheid</p>
+      <h3 class="question-title">Is per relevant hoofd- en deelrisico invulling gegeven aan de nadere voorschriften?</h3>
+    </div>
+    <span class="question-card-chevron">⌄</span>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "question-body";
+
+  const copy = document.createElement("div");
+  copy.className = "question-copy";
+  copy.innerHTML = `
+    <p class="question-help">
+      Beoordeel hier per relevant hoofd- en deelrisico of invulling is gegeven aan de toepasselijke
+      nadere voorschriften. Hoofdthema’s of deelrisico’s die in het risicoprofiel als niet van
+      toepassing zijn beoordeeld, hoeft u hier niet verder in te vullen.
+    </p>
+  `;
+
+  const optionGroup = document.createElement("div");
+  optionGroup.className = "question-options";
+
+  const inventory = document.createElement("div");
+  inventory.className = "risk-inventory";
+
+  for (const group of riskCatalog) {
+    const groupCard = document.createElement("details");
+    groupCard.className = "risk-group supplemental-group";
+    groupCard.dataset.groupId = group.id;
+
+    const groupSummary = document.createElement("summary");
+    groupSummary.className = "risk-group-toggle";
+
+    const summaryCopy = document.createElement("div");
+    const title = document.createElement("h4");
+    title.className = "risk-group-title";
+    title.textContent = group.title;
+    const count = document.createElement("span");
+    count.className = "risk-group-count";
+    count.textContent = `${group.items.length} deelrisico's`;
+    summaryCopy.append(title, count);
+
+    const chevron = document.createElement("span");
+    chevron.className = "risk-group-chevron";
+    chevron.textContent = "⌄";
+
+    groupSummary.append(summaryCopy, chevron);
+    groupCard.append(groupSummary);
+
+    const content = document.createElement("div");
+    content.className = "risk-group-content";
+
+    const statusNote = document.createElement("p");
+    statusNote.className = "risk-group-disabled-note";
+    statusNote.hidden = true;
+    content.append(statusNote);
+
+    for (const [itemIndex, itemLabel] of group.items.entries()) {
+      const itemId = `${group.id}-${slugify(itemLabel)}`;
+      const configs = getSupplementalRequirementConfigs(group.id, itemLabel);
+      if (configs.length === 0) {
+        continue;
+      }
+
+      const item = document.createElement("article");
+      item.className = "risk-item supplemental-item";
+      item.dataset.itemId = itemId;
+      item.dataset.groupId = group.id;
+      item.dataset.itemLabel = itemLabel;
+      item.hidden = true;
+
+      const header = document.createElement("div");
+      header.className = "risk-item-header";
+
+      const label = document.createElement("p");
+      label.className = "risk-item-label";
+      label.textContent = `${getAlphabeticLabel(itemIndex)}. ${itemLabel}`;
+      header.append(label);
+
+      const sub = document.createElement("p");
+      sub.className = "risk-item-sub";
+      sub.textContent = "Beoordeel hier of invulling is gegeven aan de toepasselijke nadere voorschriften.";
+      header.append(sub);
+      item.append(header);
+
+      for (const config of configs) {
         const supplementalBlock = createRiskColumn(
           config.prompt,
           config.key,
@@ -1763,8 +1878,6 @@ function renderRiskInventory(container) {
           itemId,
           config.helpLink ? { url: config.helpLink, text: config.helpLink } : null
         );
-        supplementalBlock.classList.add("conditional-block");
-        supplementalBlock.dataset.when = "described-yes";
         appendRiskEvidenceField(
           supplementalBlock,
           `risk-${itemId}-${config.key}-note`,
@@ -1780,7 +1893,10 @@ function renderRiskInventory(container) {
     inventory.append(groupCard);
   }
 
-  container.append(inventory);
+  optionGroup.append(inventory);
+  body.append(copy, optionGroup);
+  card.append(summary, body);
+  container.append(card);
 }
 
 function renderGroundCausesQuestion(container) {
@@ -1943,6 +2059,10 @@ function renderQuestions() {
     questionGroupsCauses.textContent = "";
   }
 
+  if (questionGroupsSupplemental) {
+    questionGroupsSupplemental.textContent = "";
+  }
+
   if (questionGroupsRegular) {
     questionGroupsRegular.textContent = "";
   }
@@ -2074,6 +2194,10 @@ function renderQuestions() {
 
   if (questionGroupsCauses) {
     renderGroundCausesQuestion(questionGroupsCauses);
+  }
+
+  if (questionGroupsSupplemental) {
+    renderSupplementalRequirementsQuestion(questionGroupsSupplemental);
   }
 }
 
@@ -4302,61 +4426,49 @@ function updateGroundCauseVisibility() {
     const groupId = groupCard.dataset.groupId || "";
     const groupState = getRiskGroupState(groupId);
     const statusNote = groupCard.querySelector(".risk-group-disabled-note");
-    let visibleCount = 0;
 
-    if (noneState.answer === "yes") {
+    if (groupState.applicable === "no") {
+      groupCard.hidden = true;
+      continue;
+    }
+
+    groupCard.hidden = false;
+
+    const disableInputs = noneState.answer === "yes";
+
+    if (disableInputs) {
       groupCard.classList.add("is-disabled");
       if (statusNote) {
         statusNote.hidden = false;
         statusNote.textContent =
           "Voor deze stap is algemeen aangegeven dat op geen van de relevante deelrisico’s grondoorzaken zijn benoemd.";
       }
-      for (const item of groupCard.querySelectorAll(".cause-item")) {
-        item.hidden = true;
-      }
-      groupCard.hidden = false;
-      continue;
-    }
-
-    if (groupState.applicable === "no") {
-      groupCard.classList.add("is-disabled");
+    } else {
+      groupCard.classList.remove("is-disabled");
       if (statusNote) {
-        statusNote.hidden = false;
-        statusNote.textContent =
-          "Dit hoofdthema is in het risicoprofiel als niet van toepassing beoordeeld.";
+        statusNote.hidden = true;
+        statusNote.textContent = "";
       }
-      for (const item of groupCard.querySelectorAll(".cause-item")) {
-        item.hidden = true;
-      }
-      groupCard.hidden = false;
-      continue;
-    }
-
-    groupCard.classList.remove("is-disabled");
-    if (statusNote) {
-      statusNote.hidden = true;
-      statusNote.textContent = "";
     }
 
     for (const item of groupCard.querySelectorAll(".cause-item")) {
       const itemId = item.dataset.itemId;
-      const applicable = getAnswerValue(`risk-${itemId}-applicable`);
-      const described = getAnswerValue(`risk-${itemId}-described`);
       const causes = getAnswerValue(`risk-${itemId}-causes`);
       const causesBlock = item.querySelector('[data-field="causes"]');
 
-      const visible = applicable === "yes" && described === "yes";
-      item.hidden = !visible;
+      item.hidden = false;
 
-      if (!visible) {
-        continue;
+      for (const control of item.querySelectorAll("input, textarea")) {
+        control.disabled = disableInputs;
       }
-
-      visibleCount += 1;
 
       const causesFields = causesBlock?.querySelectorAll(".risk-evidence") || [];
       for (const field of causesFields) {
         field.hidden = true;
+      }
+
+      if (disableInputs) {
+        continue;
       }
 
       if (causes === "yes" && causesFields[0]) {
@@ -4367,8 +4479,52 @@ function updateGroundCauseVisibility() {
         causesFields[1].hidden = false;
       }
     }
+  }
+}
 
-    groupCard.hidden = visibleCount === 0;
+function updateSupplementalVisibility() {
+  const groupCards = document.querySelectorAll(".supplemental-group");
+
+  for (const groupCard of groupCards) {
+    const groupId = groupCard.dataset.groupId || "";
+    const groupState = getRiskGroupState(groupId);
+    const statusNote = groupCard.querySelector(".risk-group-disabled-note");
+    let visibleCount = 0;
+
+    if (groupState.applicable === "no") {
+      groupCard.hidden = true;
+      continue;
+    }
+
+    groupCard.hidden = false;
+    groupCard.classList.remove("is-disabled");
+    if (statusNote) {
+      statusNote.hidden = true;
+      statusNote.textContent = "";
+    }
+
+    for (const item of groupCard.querySelectorAll(".supplemental-item")) {
+      const itemId = item.dataset.itemId;
+      const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+      const configs = getSupplementalRequirementConfigs(groupId, item.dataset.itemLabel || "");
+      const visible = applicable === "yes" && configs.length > 0;
+
+      item.hidden = !visible;
+      if (!visible) {
+        continue;
+      }
+
+      visibleCount += 1;
+    }
+
+    if (visibleCount === 0) {
+      groupCard.classList.add("is-disabled");
+      if (statusNote) {
+        statusNote.hidden = false;
+        statusNote.textContent =
+          "Binnen dit hoofdthema zijn op dit moment geen relevante deelrisico’s geselecteerd waarvoor nadere voorschriften ingevuld hoeven te worden.";
+      }
+    }
   }
 }
 
@@ -4403,6 +4559,7 @@ function updateQuestionEvidenceVisibility() {
 function renderAssessment() {
   updateRiskInventoryVisibility();
   updateGroundCauseVisibility();
+  updateSupplementalVisibility();
   updateQuestionEvidenceVisibility();
 
   const assessment = computeAssessment();
@@ -4978,6 +5135,12 @@ function getCauseQuestionCards() {
   return Array.from(document.querySelectorAll('.question-card[data-question-id="ground-causes"]'));
 }
 
+function getSupplementalQuestionCards() {
+  return Array.from(
+    document.querySelectorAll('.question-card[data-question-id="supplemental-requirements"]')
+  );
+}
+
 function getRegularQuestionCards() {
   return Array.from(document.querySelectorAll(".question-card")).filter((card) => {
     const questionId = card.dataset.questionId || "";
@@ -5037,6 +5200,12 @@ function updateQuestionSectionToggleLabels() {
     "Grondoorzaken dichtklappen"
   );
   updateSectionToggleButtonLabel(
+    toggleSupplementalQuestions,
+    getSupplementalQuestionCards(),
+    "Nadere voorschriften openklappen",
+    "Nadere voorschriften dichtklappen"
+  );
+  updateSectionToggleButtonLabel(
     toggleRegularQuestions,
     getRegularQuestionCards(),
     "RI&E-kwaliteit openklappen",
@@ -5081,6 +5250,11 @@ function toggleRegularQuestionSection() {
 
 function toggleCauseQuestionSection() {
   toggleQuestionCardCollection(getCauseQuestionCards());
+  updateQuestionSectionToggleLabels();
+}
+
+function toggleSupplementalQuestionSection() {
+  toggleQuestionCardCollection(getSupplementalQuestionCards());
   updateQuestionSectionToggleLabels();
 }
 
@@ -5182,6 +5356,7 @@ generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
 toggleRiskInventoryQuestion?.addEventListener("click", toggleRiskInventoryQuestionCard);
 toggleCauseQuestions?.addEventListener("click", toggleCauseQuestionSection);
+toggleSupplementalQuestions?.addEventListener("click", toggleSupplementalQuestionSection);
 toggleRegularQuestions?.addEventListener("click", toggleRegularQuestionSection);
 togglePlanQuestions?.addEventListener("click", togglePlanQuestionSection);
 wizardPrev?.addEventListener("click", goToPreviousWizardStep);

@@ -66,7 +66,7 @@
                 <h2>Doorloop de stappen</h2>
                 <p class="section-note">Werk stap voor stap door de voorbereiding en ga daarna naar de samenvatting en rapporten.</p>
               </div>
-                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 7</strong>
+                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 8</strong>
               </div>
               <div class="wizard-step-buttons">
               <button class="secondary-button wizard-step-button" id="wizardStepButton1" type="button" data-step-target="1">
@@ -82,13 +82,16 @@
                 4. Grondoorzaken
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton5" type="button" data-step-target="5">
-                5. RI&amp;E-kwaliteit
+                5. Nadere voorschriften
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton6" type="button" data-step-target="6">
-                6. Plan van aanpak
+                6. RI&amp;E-kwaliteit
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton7" type="button" data-step-target="7">
-                7. Uitkomsten en rapporten
+                7. Plan van aanpak
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton8" type="button" data-step-target="8">
+                8. Uitkomsten en rapporten
               </button>
             </div>
             <div class="button-row wizard-progress-actions">
@@ -346,6 +349,24 @@
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 5</p>
+                  <h2>Nadere voorschriften</h2>
+                </div>
+              </div>
+
+              <div id="supplementalStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
+                  <button id="toggleSupplementalQuestions" class="secondary-button" type="button">
+                    Nadere voorschriften openklappen
+                  </button>
+                </div>
+                <div id="questionGroupsSupplemental" class="question-groups"></div>
+              </div>
+            </section>
+
+            <section class="panel" data-step-panel="6" hidden>
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 6</p>
                   <h2>RI&amp;E-kwaliteit</h2>
                 </div>
               </div>
@@ -360,10 +381,10 @@
               </div>
             </section>
 
-            <section class="panel" data-step-panel="6" hidden>
+            <section class="panel" data-step-panel="7" hidden>
               <div class="panel-head">
                 <div>
-                  <p class="section-kicker">Stap 6</p>
+                  <p class="section-kicker">Stap 7</p>
                   <h2>Plan van aanpak</h2>
                 </div>
               </div>
@@ -379,7 +400,7 @@
             </section>
           </form>
         </div>
-        <aside class="results" id="resultsSection" data-step-panel="7" hidden>
+        <aside class="results" id="resultsSection" data-step-panel="8" hidden>
           <section class="panel sticky">
             <div class="panel-head compact">
               <div>
