@@ -388,6 +388,7 @@ const assessmentDate = document.querySelector("#assessmentDate");
 const rieName = document.querySelector("#rieName");
 const scopeDescription = document.querySelector("#scopeDescription");
 const executionDescription = document.querySelector("#executionDescription");
+const executionParticipantRows = document.querySelector("#executionParticipantRows");
 const rieDate = document.querySelector("#rieDate");
 const rieDocuments = document.querySelector("#rieDocuments");
 const statusBadge = document.querySelector("#statusBadge");
@@ -455,6 +456,134 @@ const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
 const TOTAL_WIZARD_STEPS = 8;
 let currentWizardStep = 0;
+
+function getExecutionParticipantFieldName(index, field) {
+  return `executionParticipant-${index}-${field}`;
+}
+
+function createExecutionParticipantRow(index, values = {}) {
+  const row = document.createElement("div");
+  row.className = "execution-participant-row";
+  row.dataset.rowIndex = String(index);
+  row.innerHTML = `
+    <label class="field">
+      <span>Naam</span>
+      <input
+        type="text"
+        name="${getExecutionParticipantFieldName(index, "name")}"
+        placeholder="Vul de naam van de betrokkene in"
+        value="${escapeHtml(values.name || "")}"
+      />
+    </label>
+    <label class="field">
+      <span>Functie</span>
+      <input
+        type="text"
+        name="${getExecutionParticipantFieldName(index, "role")}"
+        placeholder="Vul de functie of rol in"
+        value="${escapeHtml(values.role || "")}"
+      />
+    </label>
+    <label class="field">
+      <span>Gebruikte RI&amp;E-methode of methoden</span>
+      <input
+        type="text"
+        name="${getExecutionParticipantFieldName(index, "method")}"
+        placeholder="Beschrijf welke RI&amp;E-methode of methoden zijn gebruikt"
+        value="${escapeHtml(values.method || "")}"
+      />
+    </label>
+  `;
+
+  const nameInput = row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "name"))}"]`);
+  nameInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    ensureExecutionParticipantTrailingRow();
+    const nextRow = row.nextElementSibling;
+    const nextNameField = nextRow?.querySelector('input[name*="-name"]');
+    nextNameField?.focus();
+  });
+
+  return row;
+}
+
+function getExecutionParticipantData(includeEmpty = false) {
+  if (!executionParticipantRows) {
+    return [];
+  }
+
+  return Array.from(executionParticipantRows.querySelectorAll(".execution-participant-row"))
+    .map((row) => {
+      const index = row.dataset.rowIndex || "0";
+      return {
+        name: getPlainValue(
+          row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "name"))}"]`)?.value || ""
+        ),
+        role: getPlainValue(
+          row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "role"))}"]`)?.value || ""
+        ),
+        method: getPlainValue(
+          row.querySelector(`[name="${CSS.escape(getExecutionParticipantFieldName(index, "method"))}"]`)?.value || ""
+        ),
+      };
+    })
+    .filter((item) => includeEmpty || item.name || item.role || item.method);
+}
+
+function syncExecutionDescription() {
+  if (!executionDescription) {
+    return;
+  }
+
+  const lines = getExecutionParticipantData()
+    .map((participant) => {
+      const parts = [];
+      if (participant.name) parts.push(`Naam: ${participant.name}`);
+      if (participant.role) parts.push(`Functie: ${participant.role}`);
+      if (participant.method) parts.push(`RI&E-methode(n): ${participant.method}`);
+      return parts.join(" | ");
+    })
+    .filter(Boolean);
+
+  executionDescription.value = lines.join("\n");
+}
+
+function ensureExecutionParticipantTrailingRow() {
+  if (!executionParticipantRows) {
+    return;
+  }
+
+  const rows = Array.from(executionParticipantRows.querySelectorAll(".execution-participant-row"));
+  if (rows.length === 0) {
+    executionParticipantRows.append(createExecutionParticipantRow(0));
+    return;
+  }
+
+  const lastRowData = getExecutionParticipantData(true).at(-1);
+  if (!lastRowData) {
+    executionParticipantRows.append(createExecutionParticipantRow(rows.length));
+    return;
+  }
+
+  if (lastRowData.name || lastRowData.role || lastRowData.method) {
+    executionParticipantRows.append(createExecutionParticipantRow(rows.length));
+  }
+}
+
+function resetExecutionParticipantRows(rows = [{ name: "", role: "", method: "" }]) {
+  if (!executionParticipantRows) {
+    return;
+  }
+
+  executionParticipantRows.textContent = "";
+  rows.forEach((row, index) => executionParticipantRows.append(createExecutionParticipantRow(index, row)));
+  ensureExecutionParticipantTrailingRow();
+  syncExecutionDescription();
+}
 
 function slugify(text) {
   return text
@@ -638,12 +767,33 @@ function restoreDraftFromLocalStorage() {
   try {
     const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (!raw) {
+      resetExecutionParticipantRows();
       updateDraftStatus("Concept wordt lokaal opgeslagen in deze browser.");
       return;
     }
 
     const draftState = JSON.parse(raw);
     const fields = draftState.fields || {};
+    const executionRowIndexes = Object.keys(fields)
+      .map((name) => {
+        const match = name.match(/^executionParticipant-(\d+)-(name|role|method)$/);
+        return match ? Number(match[1]) : null;
+      })
+      .filter((value) => value !== null);
+
+    if (executionRowIndexes.length > 0) {
+      const maxIndex = Math.max(...executionRowIndexes);
+      resetExecutionParticipantRows(
+        Array.from({ length: maxIndex + 1 }, (_, index) => ({
+          name: fields[getExecutionParticipantFieldName(index, "name")] || "",
+          role: fields[getExecutionParticipantFieldName(index, "role")] || "",
+          method: fields[getExecutionParticipantFieldName(index, "method")] || "",
+        }))
+      );
+    } else {
+      resetExecutionParticipantRows();
+    }
+
     currentWizardStep = Math.min(
       TOTAL_WIZARD_STEPS,
       Math.max(0, Number(draftState.currentWizardStep) || 0)
@@ -673,6 +823,9 @@ function restoreDraftFromLocalStorage() {
       field.value = value;
     }
 
+    ensureExecutionParticipantTrailingRow();
+    syncExecutionDescription();
+
     const openDetails = new Set(draftState.openDetails || []);
     for (const detail of document.querySelectorAll("details")) {
       const key = getDetailStorageKey(detail);
@@ -690,6 +843,8 @@ function restoreDraftFromLocalStorage() {
 
 function clearAllAnswers() {
   survey.reset();
+
+  resetExecutionParticipantRows();
 
   for (const input of survey.querySelectorAll('input[type="radio"]')) {
     input.checked = false;
@@ -2463,6 +2618,19 @@ function areSectionFieldsFilled(container) {
   return fields.length > 0 && fields.every((field) => getPlainValue(field.value) !== "");
 }
 
+function isScopeStepComplete() {
+  if (!rieName.value || !scopeDescription.value || !rieDate.value || !rieDocuments.value) {
+    return false;
+  }
+
+  const participants = getExecutionParticipantData();
+  if (participants.length === 0) {
+    return false;
+  }
+
+  return participants.every((participant) => participant.name && participant.role && participant.method);
+}
+
 function isRiskProfileStepComplete() {
   for (const group of riskCatalog) {
     const hasGroupApplicability = group.id !== "biologische-agentia";
@@ -2606,7 +2774,7 @@ function isWizardStepComplete(step) {
   }
 
   if (step === 2) {
-    return areSectionFieldsFilled(scopeSectionContent);
+    return isScopeStepComplete();
   }
 
   if (step === 3) {
@@ -5614,6 +5782,7 @@ function goToNextWizardStep() {
 }
 
 renderQuestions();
+resetExecutionParticipantRows();
 restoreDraftFromLocalStorage();
 renderAssessment();
 updateWizardVisibility();
@@ -5631,6 +5800,10 @@ survey.addEventListener("change", () => {
 survey.addEventListener("input", () => {
   renderAssessment();
   saveDraftToLocalStorage();
+});
+executionParticipantRows?.addEventListener("input", () => {
+  ensureExecutionParticipantTrailingRow();
+  syncExecutionDescription();
 });
 copyReport.addEventListener("click", copyReportToClipboard);
 toggleReportOutput?.addEventListener("click", toggleReportOutputVisibility);

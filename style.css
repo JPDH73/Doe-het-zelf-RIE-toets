@@ -420,6 +420,49 @@ h1 {
   resize: vertical;
 }
 
+.execution-team-builder {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.execution-team-head {
+  display: grid;
+  gap: 6px;
+}
+
+.execution-team-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.execution-participant-rows {
+  display: grid;
+  gap: 12px;
+}
+
+.execution-participant-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(180px, 0.8fr) minmax(220px, 1.4fr);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(31, 29, 26, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 250, 244, 0.76);
+}
+
+.execution-participant-row .field {
+  gap: 6px;
+}
+
+.execution-participant-row .field span {
+  font-size: 0.9rem;
+}
+
 .field input:focus,
 .field textarea:focus,
 .field select:focus,
