@@ -427,6 +427,8 @@ const resetApp = document.querySelector("#resetApp");
 const resultsContent = document.querySelector("#resultsContent");
 const toggleResultsContent = document.querySelector("#toggleResultsContent");
 const resetModal = document.querySelector("#resetModal");
+const resetModalTitle = document.querySelector("#resetModalTitle");
+const resetModalMessage = document.querySelector("#resetModalMessage");
 const cancelReset = document.querySelector("#cancelReset");
 const confirmReset = document.querySelector("#confirmReset");
 const toggleAllSections = document.querySelector("#toggleAllSections");
@@ -456,6 +458,7 @@ const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
 const TOTAL_WIZARD_STEPS = 8;
 let currentWizardStep = 0;
+let resetConfirmationStep = 1;
 
 function getExecutionParticipantFieldName(index, field) {
   return `executionParticipant-${index}-${field}`;
@@ -922,6 +925,19 @@ function openResetModal() {
     return;
   }
 
+  resetConfirmationStep = 1;
+  if (resetModalTitle) {
+    resetModalTitle.textContent = "Weet u het zeker?";
+  }
+  if (resetModalMessage) {
+    resetModalMessage.textContent = "Wilt u alle ingevulde gegevens en het opgeslagen concept wissen?";
+  }
+  if (cancelReset) {
+    cancelReset.textContent = "Annuleren";
+  }
+  if (confirmReset) {
+    confirmReset.textContent = "Reset bevestigen";
+  }
   resetModal.classList.add("is-open");
   resetModal.setAttribute("aria-hidden", "false");
 }
@@ -6068,8 +6084,20 @@ cancelReset?.addEventListener("click", (event) => {
 });
 confirmReset?.addEventListener("click", (event) => {
   event.preventDefault();
-  const sure = window.confirm("Weet u het zeker?");
-  if (!sure) {
+  if (resetConfirmationStep === 1) {
+    resetConfirmationStep = 2;
+    if (resetModalTitle) {
+      resetModalTitle.textContent = "Weet u het zeker?";
+    }
+    if (resetModalMessage) {
+      resetModalMessage.textContent = "Weet u het zeker?";
+    }
+    if (cancelReset) {
+      cancelReset.textContent = "Nee";
+    }
+    if (confirmReset) {
+      confirmReset.textContent = "Ja";
+    }
     return;
   }
   clearAllAnswers();
