@@ -368,7 +368,9 @@ const simpleCompletenessOptions = [
   },
 ];
 
-const questionGroups = document.querySelector("#questionGroups");
+const questionGroupsRisk = document.querySelector("#questionGroupsRisk");
+const questionGroupsRegular = document.querySelector("#questionGroupsRegular");
+const questionGroupsPlan = document.querySelector("#questionGroupsPlan");
 const template = document.querySelector("#questionTemplate");
 const survey = document.querySelector("#survey");
 const companyName = document.querySelector("#companyName");
@@ -402,6 +404,8 @@ const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
 const profileSectionContent = document.querySelector("#profileSectionContent");
 const scopeSectionContent = document.querySelector("#scopeSectionContent");
 const step3SectionContent = document.querySelector("#step3SectionContent");
+const regularStepSectionContent = document.querySelector("#regularStepSectionContent");
+const planStepSectionContent = document.querySelector("#planStepSectionContent");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
 const planStatusMatrix = document.querySelector("#planStatusMatrix");
 const scoreRing = document.querySelector(".score-ring");
@@ -425,6 +429,8 @@ const toggleSummaryPlanOutput = document.querySelector("#toggleSummaryPlanOutput
 const toggleProfileSection = document.querySelector("#toggleProfileSection");
 const toggleScopeSection = document.querySelector("#toggleScopeSection");
 const toggleStep3Section = document.querySelector("#toggleStep3Section");
+const toggleRegularStepSection = document.querySelector("#toggleRegularStepSection");
+const togglePlanStepSection = document.querySelector("#togglePlanStepSection");
 const draftStatus = document.querySelector("#draftStatus");
 const resultsSection = document.querySelector("#resultsSection");
 const wizardStepStatus = document.querySelector("#wizardStepStatus");
@@ -434,7 +440,7 @@ const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-targe
 const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
-const TOTAL_WIZARD_STEPS = 4;
+const TOTAL_WIZARD_STEPS = 6;
 let currentWizardStep = 1;
 
 function slugify(text) {
@@ -481,6 +487,14 @@ function setPanelContentOpenForStep(step) {
   if (step === 3 && step3SectionContent) {
     step3SectionContent.hidden = false;
   }
+
+  if (step === 4 && regularStepSectionContent) {
+    regularStepSectionContent.hidden = false;
+  }
+
+  if (step === 5 && planStepSectionContent) {
+    planStepSectionContent.hidden = false;
+  }
 }
 
 function updateWizardStepButtons() {
@@ -510,7 +524,7 @@ function updateWizardVisibility() {
     panel.hidden = step !== currentWizardStep;
   }
 
-  if (currentWizardStep !== 4) {
+  if (currentWizardStep !== 6) {
     setPanelContentOpenForStep(currentWizardStep);
   }
 
@@ -647,6 +661,14 @@ function clearAllAnswers() {
 
   if (step3SectionContent) {
     step3SectionContent.hidden = true;
+  }
+
+  if (regularStepSectionContent) {
+    regularStepSectionContent.hidden = true;
+  }
+
+  if (planStepSectionContent) {
+    planStepSectionContent.hidden = true;
   }
 
   if (summaryRiskOutput) {
@@ -1703,23 +1725,19 @@ function renderRiskInventory(container) {
 }
 
 function renderQuestions() {
-  questionGroups.textContent = "";
+  if (questionGroupsRisk) {
+    questionGroupsRisk.textContent = "";
+  }
+
+  if (questionGroupsRegular) {
+    questionGroupsRegular.textContent = "";
+  }
+
+  if (questionGroupsPlan) {
+    questionGroupsPlan.textContent = "";
+  }
 
   for (const question of questions) {
-    if (question.id === "1-1-2" && toggleRegularQuestions) {
-      const regularToggleRow = document.createElement("div");
-      regularToggleRow.className = "button-row section-toggle-actions section-toggle-inline";
-      regularToggleRow.append(toggleRegularQuestions);
-      questionGroups.append(regularToggleRow);
-    }
-
-    if (question.id === "2-1" && togglePlanQuestions) {
-      const planToggleRow = document.createElement("div");
-      planToggleRow.className = "button-row section-toggle-actions section-toggle-inline";
-      planToggleRow.append(togglePlanQuestions);
-      questionGroups.append(planToggleRow);
-    }
-
     const fragment = template.content.cloneNode(true);
     const card = fragment.querySelector(".question-card");
     const copy = fragment.querySelector(".question-copy");
@@ -1829,7 +1847,15 @@ function renderQuestions() {
       }
     }
 
-    questionGroups.append(fragment);
+    let targetGroup = questionGroupsRegular;
+
+    if (question.id === "1-1-1") {
+      targetGroup = questionGroupsRisk;
+    } else if (question.id.startsWith("2-")) {
+      targetGroup = questionGroupsPlan;
+    }
+
+    targetGroup?.append(fragment);
   }
 }
 
@@ -2191,7 +2217,7 @@ function buildRegularQuestionReportLines(sectionTitle, items) {
 }
 
 function buildRiskInventoryReportLines() {
-  const lines = ["Uitkomst vraag 1.1.1", ""];
+  const lines = ["Uitkomst systeemtoets risicoprofiel", ""];
 
   for (const group of riskCatalog) {
     const groupLines = [];
@@ -2506,7 +2532,7 @@ function buildRelevantReportPdfText() {
 
   const riskLines = buildRelevantRiskInventoryReportLines();
   const regularLines = buildRelevantRegularQuestionReportLines(
-    "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+    "Uitkomst systeemtoets RI&E-kwaliteit",
     [
       ...getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
       ...getQuestionStatusItems().filter(
@@ -2561,7 +2587,7 @@ function buildReport(assessment) {
     "",
     ...buildRiskInventoryReportLines(),
     ...buildRegularQuestionReportLines(
-      "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+      "Uitkomst systeemtoets RI&E-kwaliteit",
       getQuestionStatusItems()
     ),
     ...buildRegularQuestionReportLines("Uitkomsten plan van aanpak", getPlanStatusItems()),
@@ -2575,8 +2601,8 @@ function buildReportPreviewHtml(reportText) {
     "Samenvatting",
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
-    "Uitkomst vraag 1.1.1",
-    "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+    "Uitkomst systeemtoets risicoprofiel",
+    "Uitkomst systeemtoets RI&E-kwaliteit",
     "Uitkomsten plan van aanpak",
   ]);
 
@@ -2826,9 +2852,9 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
   return `
     ${getWordPageBreakHtml()}
     <section class="report-section">
-      <h2 style="margin: 0 0 8px; font-size: 9pt;">Samenvatting uitkomst</h2>
+      <h2 style="margin: 0 0 8px; font-size: 9pt;">Uitkomsten en rapporten</h2>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst vraag 1.1.1</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst systeemtoets risicoprofiel</h3>
         <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing</strong></p>
         <ul class="report-list">${renderList(
           applicable,
@@ -2856,7 +2882,7 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
         )}</ul>
       </div>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst systeemtoets RI&E-kwaliteit</h3>
         ${groupedQuestionHtml}
       </div>
       <div class="report-subsection">
@@ -3362,7 +3388,7 @@ function buildPrintableReportHtml() {
           ${getGeneralFieldsReportHtml()}
           ${getRelevantRiskInventoryReportHtml()}
           ${getRelevantRegularQuestionReportSection(
-            "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+            "Uitkomst systeemtoets RI&E-kwaliteit",
             [...completenessItems, ...actualityAndReliabilityItems]
           )}
           ${getRelevantRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
@@ -3557,7 +3583,7 @@ function buildSummaryWordHtml() {
           ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
           ${spacer(10, 12)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst vraag 1.1.1</b></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst systeemtoets risicoprofiel</b></p>
           ${spacer(9, 11)}
           <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
           ${renderListParagraphs(
@@ -3592,7 +3618,7 @@ function buildSummaryWordHtml() {
           ${spacer(9, 11)}
           ${spacer(11, 13)}
           ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomsten vragen 1.1.2 t/m 1.4.1</b></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst systeemtoets RI&E-kwaliteit</b></p>
           ${spacer(9, 11)}
           ${groupedQuestions
             .map((group, index) => renderQuestionGroup(group.title, group.items, index === 1))
@@ -3661,9 +3687,9 @@ function buildSummaryPdfText() {
     "Documenten die behoren tot de te toetsen RI&E:",
     getPlainValue(rieDocuments.value),
     "",
-    "SAMENVATTING UITKOMST",
+    "UITKOMSTEN EN RAPPORTEN",
     "",
-    "Uitkomst vraag 1.1.1",
+    "Uitkomst systeemtoets risicoprofiel",
     "Van toepassing",
     ...(summaryData.applicable.length
       ? summaryData.applicable.map((item) => `• ${item}`)
@@ -3689,7 +3715,7 @@ function buildSummaryPdfText() {
       ? supplementalStatusItems.map((item) => `• ${item}`)
       : ["• Nog geen relevante nadere voorschriften."]),
     "",
-    "Uitkomsten vragen 1.1.2 t/m 1.4.1",
+    "Uitkomst systeemtoets RI&E-kwaliteit",
   ];
 
   const groupedQuestions = [
@@ -4249,7 +4275,7 @@ function renderPlanStatusMatrix() {
 
   const heading = document.createElement("h4");
   heading.className = "status-matrix-group-title";
-  heading.textContent = "Uitkomst plan van aanpak";
+  heading.textContent = "Uitkomsten plan van aanpak";
   section.append(heading);
 
   for (const question of getPlanStatusItems()) {
@@ -4677,14 +4703,14 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     toggleRiskInventoryQuestion,
     riskInventoryCard ? [riskInventoryCard] : [],
-    "Vraag 1.1.1 openklappen",
-    "Vraag 1.1.1 dichtklappen"
+    "Systeemtoets risicoprofiel openklappen",
+    "Systeemtoets risicoprofiel dichtklappen"
   );
   updateSectionToggleButtonLabel(
     toggleRegularQuestions,
     getRegularQuestionCards(),
-    "Vragen 1.1.2 t/m 1.4.1 openklappen",
-    "Vragen 1.1.2 t/m 1.4.1 dichtklappen"
+    "Systeemtoets RI&E-kwaliteit openklappen",
+    "Systeemtoets RI&E-kwaliteit dichtklappen"
   );
   updateSectionToggleButtonLabel(
     togglePlanQuestions,
@@ -4746,6 +4772,8 @@ function updatePanelSectionToggleLabels() {
   updateSummarySectionToggleButtonLabel(toggleProfileSection, profileSectionContent);
   updateSummarySectionToggleButtonLabel(toggleScopeSection, scopeSectionContent);
   updateSummarySectionToggleButtonLabel(toggleStep3Section, step3SectionContent);
+  updateSummarySectionToggleButtonLabel(toggleRegularStepSection, regularStepSectionContent);
+  updateSummarySectionToggleButtonLabel(togglePlanStepSection, planStepSectionContent);
 }
 
 function toggleSummarySection(target, button) {
@@ -4845,6 +4873,12 @@ toggleScopeSection?.addEventListener("click", () =>
 );
 toggleStep3Section?.addEventListener("click", () =>
   toggleSummarySection(step3SectionContent, toggleStep3Section)
+);
+toggleRegularStepSection?.addEventListener("click", () =>
+  toggleSummarySection(regularStepSectionContent, toggleRegularStepSection)
+);
+togglePlanStepSection?.addEventListener("click", () =>
+  toggleSummarySection(planStepSectionContent, togglePlanStepSection)
 );
 cancelReset?.addEventListener("click", (event) => {
   event.preventDefault();

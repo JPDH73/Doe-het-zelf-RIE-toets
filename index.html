@@ -16,12 +16,11 @@
         <div class="content-column">
           <section class="hero">
             <div class="hero-copy">
-              <p class="eyebrow">Deze app is bedoeld voor gebruik op de computer en minder geschikt voor invullen op de telefoon.</p>
               <h1>Maak uw RI&amp;E toetsklaar</h1>
               <div class="intro">
                 <p>
-                  Met deze app controleert u zelf alvast of uw RI&amp;E en plan van
-                  aanpak compleet, actueel en goed onderbouwd zijn. De app helpt u
+                  Met deze website controleert u zelf alvast of uw RI&amp;E en plan van
+                  aanpak compleet, actueel en goed onderbouwd zijn. De website helpt u
                   om de verplichte onderdelen, aanvullende aandachtspunten en
                   geïnventariseerde risico’s gestructureerd na te lopen.
                 </p>
@@ -38,7 +37,7 @@
                   onnodig herstelwerk en een efficiëntere formele toetsing.
                 </p>
                 <p>
-                  De app biedt een praktische doe-het-zelfvoorbereiding en
+                  De website biedt een praktische doe-het-zelfvoorbereiding en
                   vervangt niet de formele toetsing door een bevoegde
                   arbokerndeskundige.
                 </p>
@@ -49,8 +48,8 @@
             </div>
 
             <aside class="hero-card">
-              <p class="hero-label">Wat kunt u met de app?</p>
-              <p class="hero-card-intro">Met de app kunt u:</p>
+              <p class="hero-label">Wat kunt u met de website?</p>
+              <p class="hero-card-intro">Met de website kunt u:</p>
               <ul class="hero-list">
                 <li>uw bedrijfsprofiel vastleggen;</li>
                 <li>de scope, uitvoering en documentgegevens van uw RI&amp;E structureren;</li>
@@ -68,9 +67,9 @@
                 <h2>Doorloop de stappen</h2>
                 <p class="section-note">Werk stap voor stap door de voorbereiding en ga daarna naar de samenvatting en rapporten.</p>
               </div>
-              <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 4</strong>
-            </div>
-            <div class="wizard-step-buttons">
+                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 6</strong>
+              </div>
+              <div class="wizard-step-buttons">
               <button class="secondary-button wizard-step-button is-active" id="wizardStepButton1" type="button" data-step-target="1">
                 1. Bedrijfsprofiel
               </button>
@@ -78,10 +77,16 @@
                 2. Afbakening
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton3" type="button" data-step-target="3">
-                3. Toetsing
+                3. Systeemtoets risicoprofiel
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton4" type="button" data-step-target="4">
-                4. Samenvatting
+                4. Systeemtoets RI&amp;E-kwaliteit
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton5" type="button" data-step-target="5">
+                5. Plan van aanpak
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton6" type="button" data-step-target="6">
+                6. Uitkomsten en rapporten
               </button>
             </div>
             <div class="button-row wizard-progress-actions">
@@ -123,7 +128,7 @@
                     id="contactName"
                     name="contactName"
                     type="text"
-                    placeholder="Vul de naam van de invuller van deze app in"
+                    placeholder="Vul de naam van de invuller van deze website in"
                   />
                 </label>
 
@@ -306,7 +311,7 @@
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 3</p>
-                  <h2>Toetsing van de RI&amp;E en het plan van aanpak</h2>
+                  <h2>Systeemtoets risicoprofiel</h2>
                 </div>
                 <div class="button-row">
                   <button id="toggleStep3Section" class="secondary-button" type="button">
@@ -327,30 +332,64 @@
                   </p>
                   <div class="button-row section-toggle-actions">
                     <button id="toggleRiskInventoryQuestion" class="secondary-button" type="button">
-                      Vraag 1.1.1 openklappen
+                      Systeemtoets risicoprofiel openklappen
                     </button>
                   </div>
                 </div>
 
-                <div id="questionGroups" class="question-groups"></div>
-                <div style="display: none;">
+                <div id="questionGroupsRisk" class="question-groups"></div>
+              </div>
+            </section>
+
+            <section class="panel" data-step-panel="4" hidden>
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 4</p>
+                  <h2>Systeemtoets RI&amp;E-kwaliteit</h2>
+                </div>
+                <button id="toggleRegularStepSection" class="secondary-button" type="button">
+                  Klap dicht
+                </button>
+              </div>
+
+              <div id="regularStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
                   <button id="toggleRegularQuestions" class="secondary-button" type="button">
-                    Vragen 1.1.2 t/m 1.4.1 openklappen
+                    Systeemtoets RI&amp;E-kwaliteit openklappen
                   </button>
+                </div>
+                <div id="questionGroupsRegular" class="question-groups"></div>
+              </div>
+            </section>
+
+            <section class="panel" data-step-panel="5" hidden>
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 5</p>
+                  <h2>Toetsing plan van aanpak</h2>
+                </div>
+                <button id="togglePlanStepSection" class="secondary-button" type="button">
+                  Klap dicht
+                </button>
+              </div>
+
+              <div id="planStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
                   <button id="togglePlanQuestions" class="secondary-button" type="button">
                     Vragen plan van aanpak openklappen
                   </button>
                 </div>
+                <div id="questionGroupsPlan" class="question-groups"></div>
               </div>
             </section>
           </form>
         </div>
-        <aside class="results" id="resultsSection" data-step-panel="4" hidden>
+        <aside class="results" id="resultsSection" data-step-panel="6" hidden>
           <section class="panel sticky">
             <div class="panel-head compact">
               <div>
                 <p class="section-kicker">Live resultaat</p>
-                <h2>Samenvatting uitkomst</h2>
+                <h2>Uitkomsten en rapporten</h2>
                 <div class="button-row summary-export-action">
                   <button id="generateSummaryPdf" class="secondary-button" type="button">
                     Samenvatting PDF
@@ -371,7 +410,7 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Uitkomst vraag 1.1.1</h3>
+                <h3>Uitkomst systeemtoets risicoprofiel</h3>
                 <button id="toggleSummaryRiskOutput" class="secondary-button" type="button">
                   Klap open
                 </button>
@@ -390,7 +429,7 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Uitkomsten vragen 1.1.2 t/m 1.4.1</h3>
+                <h3>Uitkomst systeemtoets RI&amp;E-kwaliteit</h3>
                 <button id="toggleSummaryQuestionOutput" class="secondary-button" type="button">
                   Klap open
                 </button>
@@ -402,7 +441,7 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Uitkomsten vragen 2.1 t/m 2.9</h3>
+                <h3>Uitkomsten plan van aanpak</h3>
                 <button id="toggleSummaryPlanOutput" class="secondary-button" type="button">
                   Klap open
                 </button>
@@ -414,7 +453,7 @@
 
             <section class="summary">
               <div class="report-summary-head">
-                <h3 class="report-summary-title">Volledig rapport</h3>
+                <h3 class="report-summary-title">Volledig overzicht</h3>
                 <div class="report-action-stack">
                   <div class="button-row report-action-row">
                     <button id="toggleReportOutput" class="secondary-button" type="button">
@@ -428,6 +467,7 @@
                       Reset
                     </button>
                   </div>
+                  <p class="report-print-label">Rapporten afdrukken</p>
                   <div class="button-row report-action-row">
                     <button id="generateReportPdf" class="secondary-button" type="button">
                       Rapport PDF

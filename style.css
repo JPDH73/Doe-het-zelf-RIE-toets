@@ -45,7 +45,7 @@ textarea {
 }
 
 .page {
-  width: min(1760px, calc(100% - clamp(24px, 3vw, 56px)));
+  width: min(1920px, calc(100% - clamp(20px, 2.6vw, 44px)));
   margin: clamp(16px, 2vw, 24px) auto 48px;
 }
 
@@ -63,13 +63,13 @@ textarea {
 .content-column {
   display: grid;
   gap: 22px;
-  max-width: 1180px;
+  max-width: none;
 }
 
 .page-wizard .content-column,
 .page-wizard .results {
   width: 100%;
-  max-width: 1180px;
+  max-width: none;
 }
 
 .page-wizard .sticky {
@@ -199,9 +199,12 @@ h1 {
 
 .wizard-progress-panel {
   padding: 22px 24px;
+  width: 100%;
 }
 
 .wizard-progress-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
 }
 
@@ -290,6 +293,10 @@ h1 {
   color: var(--muted);
   font-size: 0.96rem;
   line-height: 1.45;
+}
+
+.wizard-progress-panel .section-note {
+  max-width: none;
 }
 
 .grid.two {
@@ -928,6 +935,13 @@ h1 {
   line-height: 1.15;
 }
 
+.report-print-label {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #172033;
+}
+
 .hero-actions {
   margin-top: 12px;
 }
@@ -1105,6 +1119,11 @@ h1 {
 }
 
 @media (min-width: 1200px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.95fr);
+    align-items: start;
+  }
+
   .hero-copy {
     padding: 40px 42px;
   }
