@@ -98,6 +98,7 @@ textarea {
   background:
     linear-gradient(135deg, rgba(255, 251, 245, 0.96), rgba(245, 237, 224, 0.88)),
     radial-gradient(circle at top right, rgba(15, 118, 110, 0.1), transparent 34%);
+  height: 100%;
 }
 
 .hero-card {
@@ -957,6 +958,13 @@ h1 {
   display: grid;
   gap: 8px;
   margin-top: 14px;
+}
+
+.result-list-block-card {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .result-list {
