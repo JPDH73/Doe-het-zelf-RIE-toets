@@ -679,6 +679,7 @@ h1 {
 }
 
 .risk-group-applicability .binary-options {
+  grid-template-columns: repeat(2, max-content);
   justify-content: end;
 }
 
@@ -878,9 +879,10 @@ h1 {
 
 .result-list-item {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 .result-list-item-group-start {
@@ -890,6 +892,8 @@ h1 {
 .result-list-text {
   color: var(--muted);
   line-height: 1.45;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .status-matrix {
@@ -929,6 +933,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   min-width: 76px;
   padding: 5px 10px;
   border-radius: 999px;

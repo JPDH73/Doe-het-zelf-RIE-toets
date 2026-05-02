@@ -521,30 +521,6 @@ function setPanelContentOpenForStep(step) {
     if (resultsContent) {
       resultsContent.hidden = false;
     }
-
-    if (summaryRiskOutput) {
-      summaryRiskOutput.hidden = false;
-    }
-
-    if (summaryGroundCausesOutput) {
-      summaryGroundCausesOutput.hidden = false;
-    }
-
-    if (summarySupplementalOutput) {
-      summarySupplementalOutput.hidden = false;
-    }
-
-    if (summaryQuestionOutput) {
-      summaryQuestionOutput.hidden = false;
-    }
-
-    if (summaryPlanOutput) {
-      summaryPlanOutput.hidden = false;
-    }
-
-    if (reportOutput) {
-      reportOutput.hidden = false;
-    }
   }
 }
 
@@ -1686,7 +1662,7 @@ function renderRiskInventory(container) {
 
       const groupApplicabilityQuestion = document.createElement("p");
       groupApplicabilityQuestion.className = "risk-question";
-      groupApplicabilityQuestion.textContent = `Is ${group.title.toLowerCase()} als hoofdthema van toepassing op de organisatie?`;
+      groupApplicabilityQuestion.textContent = `Is ${group.title} als hoofdthema van toepassing op de organisatie?`;
 
       const groupApplicabilityOptions = createBinaryOptions(
         `risk-group-${group.id}-applicable`,
@@ -5180,6 +5156,12 @@ function getRiskInventoryQuestionCard() {
   return document.querySelector('.question-card[data-question-id="1-1-1"]');
 }
 
+function getRiskInventoryExpandableSections() {
+  const card = getRiskInventoryQuestionCard();
+  const groups = Array.from(document.querySelectorAll("#questionGroupsRisk .risk-group"));
+  return [card, ...groups].filter(Boolean);
+}
+
 function getCauseQuestionCards() {
   return Array.from(document.querySelectorAll('.question-card[data-question-id="ground-causes"]'));
 }
@@ -5235,12 +5217,11 @@ function updateToggleAllButtonLabel() {
 }
 
 function updateQuestionSectionToggleLabels() {
-  const riskInventoryCard = getRiskInventoryQuestionCard();
   updateSectionToggleButtonLabel(
     toggleRiskInventoryQuestion,
-    riskInventoryCard ? [riskInventoryCard] : [],
-    "Risicoprofiel openklappen",
-    "Risicoprofiel dichtklappen"
+    getRiskInventoryExpandableSections(),
+    "Klap alle vragen open",
+    "Klap alle vragen dicht"
   );
   updateSectionToggleButtonLabel(
     toggleCauseQuestions,
@@ -5257,8 +5238,8 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     toggleRegularQuestions,
     getRegularQuestionCards(),
-    "RI&E-kwaliteit openklappen",
-    "RI&E-kwaliteit dichtklappen"
+    "Klap alle vragen open",
+    "Klap alle vragen dicht"
   );
   updateSectionToggleButtonLabel(
     togglePlanQuestions,
@@ -5283,12 +5264,12 @@ function toggleAllExpandableSections() {
 }
 
 function toggleRiskInventoryQuestionCard() {
-  const card = getRiskInventoryQuestionCard();
-  if (!card) {
+  const cards = getRiskInventoryExpandableSections();
+  if (cards.length === 0) {
     return;
   }
 
-  card.open = !card.open;
+  toggleQuestionCardCollection(cards);
   updateQuestionSectionToggleLabels();
 }
 
