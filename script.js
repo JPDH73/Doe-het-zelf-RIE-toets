@@ -426,8 +426,16 @@ const toggleProfileSection = document.querySelector("#toggleProfileSection");
 const toggleScopeSection = document.querySelector("#toggleScopeSection");
 const toggleStep3Section = document.querySelector("#toggleStep3Section");
 const draftStatus = document.querySelector("#draftStatus");
+const resultsSection = document.querySelector("#resultsSection");
+const wizardStepStatus = document.querySelector("#wizardStepStatus");
+const wizardPrev = document.querySelector("#wizardPrev");
+const wizardNext = document.querySelector("#wizardNext");
+const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-target]"));
+const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
+const TOTAL_WIZARD_STEPS = 4;
+let currentWizardStep = 1;
 
 function slugify(text) {
   return text
@@ -461,6 +469,63 @@ function updateDraftStatus(message) {
   draftStatus.textContent = message;
 }
 
+function setPanelContentOpenForStep(step) {
+  if (step === 1 && profileSectionContent) {
+    profileSectionContent.hidden = false;
+  }
+
+  if (step === 2 && scopeSectionContent) {
+    scopeSectionContent.hidden = false;
+  }
+
+  if (step === 3 && step3SectionContent) {
+    step3SectionContent.hidden = false;
+  }
+}
+
+function updateWizardStepButtons() {
+  for (const button of wizardStepButtons) {
+    const step = Number(button.dataset.stepTarget || "0");
+    button.classList.toggle("is-active", step === currentWizardStep);
+  }
+}
+
+function updateWizardNavigation() {
+  if (wizardStepStatus) {
+    wizardStepStatus.textContent = `Stap ${currentWizardStep} van ${TOTAL_WIZARD_STEPS}`;
+  }
+
+  if (wizardPrev) {
+    wizardPrev.disabled = currentWizardStep <= 1;
+  }
+
+  if (wizardNext) {
+    wizardNext.disabled = currentWizardStep >= TOTAL_WIZARD_STEPS;
+  }
+}
+
+function updateWizardVisibility() {
+  for (const panel of wizardPanels) {
+    const step = Number(panel.dataset.stepPanel || "0");
+    panel.hidden = step !== currentWizardStep;
+  }
+
+  if (currentWizardStep !== 4) {
+    setPanelContentOpenForStep(currentWizardStep);
+  }
+
+  updatePanelSectionToggleLabels();
+  updateReportToggleButtonLabel();
+  updateWizardStepButtons();
+  updateWizardNavigation();
+}
+
+function setWizardStep(step) {
+  const nextStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(1, Number(step) || 1));
+  currentWizardStep = nextStep;
+  updateWizardVisibility();
+}
+
 function collectDraftState() {
   const fields = {};
 
@@ -492,6 +557,7 @@ function collectDraftState() {
   return {
     fields,
     openDetails,
+    currentWizardStep,
     savedAt: new Date().toISOString(),
   };
 }
@@ -516,6 +582,10 @@ function restoreDraftFromLocalStorage() {
 
     const draftState = JSON.parse(raw);
     const fields = draftState.fields || {};
+    currentWizardStep = Math.min(
+      TOTAL_WIZARD_STEPS,
+      Math.max(1, Number(draftState.currentWizardStep) || 1)
+    );
 
     for (const [name, value] of Object.entries(fields)) {
       const field = survey.querySelector(`[name="${CSS.escape(name)}"]`);
@@ -549,6 +619,7 @@ function restoreDraftFromLocalStorage() {
       }
     }
 
+    updateWizardVisibility();
     updateDraftStatus("Opgeslagen concept is teruggezet op deze computer.");
   } catch (error) {
     updateDraftStatus("Het opgeslagen concept kon niet worden teruggezet.");
@@ -594,6 +665,8 @@ function clearAllAnswers() {
     reportOutput.hidden = true;
   }
 
+  currentWizardStep = 1;
+
   try {
     localStorage.removeItem(DRAFT_STORAGE_KEY);
   } catch (error) {
@@ -603,6 +676,7 @@ function clearAllAnswers() {
   renderAssessment();
   updateToggleAllButtonLabel();
   updateSummarySectionToggleLabels();
+  updateWizardVisibility();
   updatePanelSectionToggleLabels();
   updateReportToggleButtonLabel();
   updateDraftStatus("Concept is gewist op deze computer.");
@@ -4700,9 +4774,28 @@ function toggleReportOutputVisibility() {
   updateReportToggleButtonLabel();
 }
 
+function goToPreviousWizardStep() {
+  if (currentWizardStep <= 1) {
+    return;
+  }
+
+  setWizardStep(currentWizardStep - 1);
+  saveDraftToLocalStorage();
+}
+
+function goToNextWizardStep() {
+  if (currentWizardStep >= TOTAL_WIZARD_STEPS) {
+    return;
+  }
+
+  setWizardStep(currentWizardStep + 1);
+  saveDraftToLocalStorage();
+}
+
 renderQuestions();
 restoreDraftFromLocalStorage();
 renderAssessment();
+updateWizardVisibility();
 updateToggleAllButtonLabel();
 updateQuestionSectionToggleLabels();
 updateSummarySectionToggleLabels();
@@ -4727,6 +4820,14 @@ resetApp?.addEventListener("click", handleResetClick);
 toggleRiskInventoryQuestion?.addEventListener("click", toggleRiskInventoryQuestionCard);
 toggleRegularQuestions?.addEventListener("click", toggleRegularQuestionSection);
 togglePlanQuestions?.addEventListener("click", togglePlanQuestionSection);
+wizardPrev?.addEventListener("click", goToPreviousWizardStep);
+wizardNext?.addEventListener("click", goToNextWizardStep);
+for (const button of wizardStepButtons) {
+  button.addEventListener("click", () => {
+    setWizardStep(Number(button.dataset.stepTarget || "1"));
+    saveDraftToLocalStorage();
+  });
+}
 toggleSummaryRiskOutput?.addEventListener("click", () =>
   toggleSummarySection(summaryRiskOutput, toggleSummaryRiskOutput)
 );

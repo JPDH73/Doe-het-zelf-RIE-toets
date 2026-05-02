@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <main class="page">
+    <main class="page page-wizard">
       <section class="workspace">
         <div class="content-column">
           <section class="hero">
@@ -61,8 +61,41 @@
             </aside>
           </section>
 
+          <section class="panel wizard-progress-panel">
+            <div class="panel-head compact wizard-progress-head">
+              <div>
+                <p class="section-kicker">Navigatie</p>
+                <h2>Doorloop de stappen</h2>
+                <p class="section-note">Werk stap voor stap door de voorbereiding en ga daarna naar de samenvatting en rapporten.</p>
+              </div>
+              <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 4</strong>
+            </div>
+            <div class="wizard-step-buttons">
+              <button class="secondary-button wizard-step-button is-active" id="wizardStepButton1" type="button" data-step-target="1">
+                1. Bedrijfsprofiel
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton2" type="button" data-step-target="2">
+                2. Afbakening
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton3" type="button" data-step-target="3">
+                3. Toetsing
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton4" type="button" data-step-target="4">
+                4. Samenvatting
+              </button>
+            </div>
+            <div class="button-row wizard-progress-actions">
+              <button id="wizardPrev" class="secondary-button" type="button">
+                Vorige stap
+              </button>
+              <button id="wizardNext" class="secondary-button" type="button">
+                Volgende stap
+              </button>
+            </div>
+          </section>
+
           <form class="survey" id="survey">
-            <section class="panel">
+            <section class="panel" data-step-panel="1">
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 1</p>
@@ -171,7 +204,7 @@
               </div>
             </section>
 
-            <section class="panel">
+            <section class="panel" data-step-panel="2">
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 2</p>
@@ -269,7 +302,7 @@
               </div>
             </section>
 
-            <section class="panel">
+            <section class="panel" data-step-panel="3">
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 3</p>
@@ -312,7 +345,7 @@
             </section>
           </form>
         </div>
-        <aside class="results">
+        <aside class="results" id="resultsSection" data-step-panel="4" hidden>
           <section class="panel sticky">
             <div class="panel-head compact">
               <div>

@@ -56,9 +56,24 @@ textarea {
   align-items: start;
 }
 
+.page-wizard .workspace {
+  grid-template-columns: 1fr;
+}
+
 .content-column {
   display: grid;
   gap: 22px;
+  max-width: 1180px;
+}
+
+.page-wizard .content-column,
+.page-wizard .results {
+  width: 100%;
+  max-width: 1180px;
+}
+
+.page-wizard .sticky {
+  position: static;
 }
 
 .hero {
@@ -180,6 +195,42 @@ h1 {
 .survey {
   display: grid;
   gap: 22px;
+}
+
+.wizard-progress-panel {
+  padding: 22px 24px;
+}
+
+.wizard-progress-head {
+  align-items: end;
+}
+
+.wizard-step-status {
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.wizard-step-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.wizard-step-button {
+  justify-content: center;
+  text-align: center;
+}
+
+.wizard-step-button.is-active {
+  border-color: rgba(15, 118, 110, 0.28);
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.wizard-progress-actions {
+  margin-top: 14px;
+  justify-content: space-between;
 }
 
 .panel {
