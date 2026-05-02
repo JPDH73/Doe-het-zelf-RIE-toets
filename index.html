@@ -95,7 +95,7 @@
               <button class="secondary-button wizard-step-button" id="wizardStepButton7" type="button" data-step-target="7">
                 7. Plan van aanpak
               </button>
-              <button class="secondary-button wizard-step-button" id="wizardStepButton8" type="button" data-step-target="8">
+              <button class="secondary-button wizard-step-button wizard-step-button-results" id="wizardStepButton8" type="button" data-step-target="8">
                 8. Uitkomsten en rapporten
               </button>
             </div>
@@ -411,6 +411,10 @@
               <div>
                 <p class="section-kicker">Live resultaat</p>
                 <h2>Uitkomsten en rapporten</h2>
+                <button id="toggleResultsContent" class="summary-toggle-button" type="button" aria-expanded="true">
+                  <span>Uitkomsten tonen</span>
+                  <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                </button>
                 <div class="button-row summary-export-action">
                   <button id="generateSummaryPdf" class="secondary-button" type="button">
                     Samenvatting PDF
@@ -422,75 +426,95 @@
               </div>
             </div>
 
-            <div class="score-grid">
-              <article class="metric">
-                <span class="metric-label">Invulgraad</span>
-                <strong id="progressValue">0%</strong>
-              </article>
+            <div id="resultsContent">
+              <div class="score-grid">
+                <article class="metric">
+                  <span class="metric-label">Invulgraad</span>
+                  <strong id="progressValue">0%</strong>
+                </article>
+              </div>
+
+              <section class="summary">
+                <div class="summary-head">
+                  <h3>Uitkomst risicoprofiel</h3>
+                </div>
+                <div id="summaryRiskOutput" hidden>
+                  <div class="result-list-block">
+                    <strong>Hoofd- en deelrisico's</strong>
+                    <ul id="riskOverviewItems" class="result-list"></ul>
+                  </div>
+                </div>
+              </section>
+
+              <section class="summary">
+                <div class="summary-head">
+                  <h3>Uitkomst grondoorzaken</h3>
+                </div>
+                <div id="summaryGroundCausesOutput" hidden>
+                  <div class="result-list-block">
+                    <ul id="groundCausesOverviewItems" class="result-list"></ul>
+                  </div>
+                </div>
+              </section>
+
+              <section class="summary">
+                <div class="summary-head">
+                  <h3>Uitkomst nadere voorschriften</h3>
+                </div>
+                <div id="summarySupplementalOutput" hidden>
+                  <div class="result-list-block">
+                    <ul id="supplementedApplicableItems" class="result-list"></ul>
+                  </div>
+                </div>
+              </section>
+
+              <section class="summary">
+                <div class="summary-head">
+                  <h3>Uitkomst RI&amp;E-kwaliteit</h3>
+                </div>
+                <div id="summaryQuestionOutput" hidden>
+                  <div id="questionStatusMatrix" class="status-matrix"></div>
+                </div>
+              </section>
+
+              <section class="summary">
+                <div class="summary-head">
+                  <h3>Uitkomsten plan van aanpak</h3>
+                </div>
+                <div id="summaryPlanOutput" hidden>
+                  <div id="planStatusMatrix" class="status-matrix"></div>
+                </div>
+              </section>
+
+              <section class="summary">
+                <div class="report-summary-head">
+                  <h3 class="report-summary-title">Volledig overzicht</h3>
+                  <div class="report-action-stack">
+                    <div class="button-row report-action-row">
+                      <button id="copyReport" class="secondary-button" type="button">
+                        Kopieer
+                      </button>
+                    </div>
+                    <p class="report-print-label">Rapporten afdrukken</p>
+                    <div class="button-row report-action-row">
+                      <button id="generateReportPdf" class="secondary-button" type="button">
+                        Rapport PDF
+                      </button>
+                      <button id="generateWord" class="secondary-button" type="button">
+                        Rapport WORD
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div id="reportOutput" class="report-output report-output-rich" hidden></div>
+              </section>
+
+              <footer class="app-meta">
+                <p>Ontwikkeld door: Support at Work</p>
+                <p>Op basis van: Staatscourant 2024-39674</p>
+                <p>Versiedatum: 26 april 2026</p>
+              </footer>
             </div>
-
-            <section class="summary">
-              <div class="summary-head">
-                <h3>Uitkomst risicoprofiel</h3>
-              </div>
-              <div id="summaryRiskOutput" hidden>
-                <div class="result-list-block">
-                  <strong>Hoofd- en deelrisico's</strong>
-                  <ul id="riskOverviewItems" class="result-list"></ul>
-                </div>
-                <div class="result-list-block">
-                  <strong>Nadere voorschriften</strong>
-                  <ul id="supplementedApplicableItems" class="result-list"></ul>
-                </div>
-              </div>
-            </section>
-
-            <section class="summary">
-              <div class="summary-head">
-                <h3>Uitkomst RI&amp;E-kwaliteit</h3>
-              </div>
-              <div id="summaryQuestionOutput" hidden>
-                <div id="questionStatusMatrix" class="status-matrix"></div>
-              </div>
-            </section>
-
-            <section class="summary">
-              <div class="summary-head">
-                <h3>Uitkomsten plan van aanpak</h3>
-              </div>
-              <div id="summaryPlanOutput" hidden>
-                <div id="planStatusMatrix" class="status-matrix"></div>
-              </div>
-            </section>
-
-            <section class="summary">
-              <div class="report-summary-head">
-                <h3 class="report-summary-title">Volledig overzicht</h3>
-                <div class="report-action-stack">
-                  <div class="button-row report-action-row">
-                    <button id="copyReport" class="secondary-button" type="button">
-                      Kopieer
-                    </button>
-                  </div>
-                  <p class="report-print-label">Rapporten afdrukken</p>
-                  <div class="button-row report-action-row">
-                    <button id="generateReportPdf" class="secondary-button" type="button">
-                      Rapport PDF
-                    </button>
-                    <button id="generateWord" class="secondary-button" type="button">
-                      Rapport WORD
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div id="reportOutput" class="report-output report-output-rich" hidden></div>
-            </section>
-
-            <footer class="app-meta">
-              <p>Ontwikkeld door: Support at Work</p>
-              <p>Op basis van: Staatscourant 2024-39674</p>
-              <p>Versiedatum: 26 april 2026</p>
-            </footer>
           </section>
         </aside>
       </section>

@@ -399,8 +399,11 @@ const priorityList = document.querySelector("#priorityList");
 const summaryText = document.querySelector("#summaryText");
 const reportOutput = document.querySelector("#reportOutput");
 const riskOverviewItems = document.querySelector("#riskOverviewItems");
+const groundCausesOverviewItems = document.querySelector("#groundCausesOverviewItems");
 const supplementedApplicableItems = document.querySelector("#supplementedApplicableItems");
 const summaryRiskOutput = document.querySelector("#summaryRiskOutput");
+const summaryGroundCausesOutput = document.querySelector("#summaryGroundCausesOutput");
+const summarySupplementalOutput = document.querySelector("#summarySupplementalOutput");
 const summaryQuestionOutput = document.querySelector("#summaryQuestionOutput");
 const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
 const profileSectionContent = document.querySelector("#profileSectionContent");
@@ -420,6 +423,8 @@ const generateWord = document.querySelector("#generateWord");
 const generateSummaryPdf = document.querySelector("#generateSummaryPdf");
 const generateSummaryWord = document.querySelector("#generateSummaryWord");
 const resetApp = document.querySelector("#resetApp");
+const resultsContent = document.querySelector("#resultsContent");
+const toggleResultsContent = document.querySelector("#toggleResultsContent");
 const resetModal = document.querySelector("#resetModal");
 const cancelReset = document.querySelector("#cancelReset");
 const confirmReset = document.querySelector("#confirmReset");
@@ -511,8 +516,20 @@ function setPanelContentOpenForStep(step) {
   }
 
   if (step === 8) {
+    if (resultsContent) {
+      resultsContent.hidden = false;
+    }
+
     if (summaryRiskOutput) {
       summaryRiskOutput.hidden = false;
+    }
+
+    if (summaryGroundCausesOutput) {
+      summaryGroundCausesOutput.hidden = false;
+    }
+
+    if (summarySupplementalOutput) {
+      summarySupplementalOutput.hidden = false;
     }
 
     if (summaryQuestionOutput) {
@@ -567,6 +584,7 @@ function updateWizardVisibility() {
   updateReportToggleButtonLabel();
   updateWizardStepButtons();
   updateWizardNavigation();
+  updateResultsContentToggleButtonLabel();
 }
 
 function setWizardStep(step) {
@@ -718,12 +736,24 @@ function clearAllAnswers() {
     summaryRiskOutput.hidden = true;
   }
 
+  if (summaryGroundCausesOutput) {
+    summaryGroundCausesOutput.hidden = true;
+  }
+
+  if (summarySupplementalOutput) {
+    summarySupplementalOutput.hidden = true;
+  }
+
   if (summaryQuestionOutput) {
     summaryQuestionOutput.hidden = true;
   }
 
   if (summaryPlanOutput) {
     summaryPlanOutput.hidden = true;
+  }
+
+  if (resultsContent) {
+    resultsContent.hidden = true;
   }
 
   if (reportOutput) {
@@ -4940,44 +4970,84 @@ function collectSupplementalStatusSummaryData() {
     .filter(Boolean);
 }
 
+function collectGroundCausesStatusSummaryData() {
+  return riskCatalog
+    .flatMap((group) =>
+      group.items.flatMap((itemLabel) => {
+        const item = getRiskItemState(group.id, group.title, itemLabel);
+        if (!(item.applicable === "yes" && item.described === "yes")) {
+          return [];
+        }
+
+        let status = { label: "nog niet beantwoord", className: "status-chip-empty" };
+
+        if (item.causes === "yes") {
+          status = { label: "benoemd", className: "status-chip-yes" };
+        } else if (item.causes === "no") {
+          status = { label: "niet benoemd", className: "status-chip-no" };
+        }
+
+        return [
+          {
+            label: getShortRiskSummaryLabel(item),
+            status,
+          },
+        ];
+      })
+    )
+    .filter(Boolean);
+}
+
+function renderResultStatusList(target, items, emptyText, groupPrefixSelector) {
+  if (!target) {
+    return;
+  }
+
+  target.innerHTML = "";
+
+  if (items.length === 0) {
+    const entry = document.createElement("li");
+    entry.textContent = emptyText;
+    target.append(entry);
+    return;
+  }
+
+  let previousGroupPrefix = "";
+
+  for (const item of items) {
+    const entry = document.createElement("li");
+    entry.className = "result-list-item";
+    const groupPrefix = groupPrefixSelector(item.label);
+    if (previousGroupPrefix && groupPrefix !== previousGroupPrefix) {
+      entry.classList.add("result-list-item-group-start");
+    }
+
+    const text = document.createElement("span");
+    text.className = "result-list-text";
+    text.textContent = item.label;
+
+    const chip = document.createElement("span");
+    chip.className = `status-chip ${item.status.className}`;
+    chip.textContent = item.status.label;
+
+    entry.append(text, chip);
+    target.append(entry);
+    previousGroupPrefix = groupPrefix;
+  }
+}
+
 function renderApplicabilityLists(assessment) {
-  if (!riskOverviewItems || !supplementedApplicableItems) {
+  if (
+    !riskOverviewItems ||
+    !groundCausesOverviewItems ||
+    !supplementedApplicableItems
+  ) {
     return;
   }
 
   riskOverviewItems.innerHTML = "";
+  groundCausesOverviewItems.innerHTML = "";
   supplementedApplicableItems.innerHTML = "";
-
-  const renderList = (target, items, emptyText, statusConfig = null) => {
-    if (items.length === 0) {
-      const entry = document.createElement("li");
-      entry.textContent = emptyText;
-      target.append(entry);
-      return;
-    }
-
-    for (const item of items) {
-      const entry = document.createElement("li");
-      if (!statusConfig) {
-        entry.textContent = item;
-        target.append(entry);
-        continue;
-      }
-
-      entry.className = "result-list-item";
-
-      const text = document.createElement("span");
-      text.className = "result-list-text";
-      text.textContent = item;
-
-      const chip = document.createElement("span");
-      chip.className = `status-chip ${statusConfig.className}`;
-      chip.textContent = statusConfig.label;
-
-      entry.append(text, chip);
-      target.append(entry);
-    }
-  };
 
   const overviewItems = riskCatalog
     .flatMap((group) =>
@@ -5011,37 +5081,21 @@ function renderApplicabilityLists(assessment) {
     )
     .filter(Boolean);
 
-  renderList(
+  renderResultStatusList(
     riskOverviewItems,
-    overviewItems.map((item) => item.label),
-    "Nog geen hoofd- en deelrisico's beoordeeld."
+    overviewItems,
+    "Nog geen hoofd- en deelrisico's beoordeeld.",
+    (label) => label.split(" - ")[0] || ""
   );
 
-  if (overviewItems.length > 0) {
-    riskOverviewItems.innerHTML = "";
-    let previousGroupPrefix = "";
+  const groundCauseOverviewItems = collectGroundCausesStatusSummaryData();
 
-    for (const item of overviewItems) {
-      const entry = document.createElement("li");
-      entry.className = "result-list-item";
-      const groupPrefix = item.label.split(" - ")[0] || "";
-      if (previousGroupPrefix && groupPrefix !== previousGroupPrefix) {
-        entry.classList.add("result-list-item-group-start");
-      }
-
-      const text = document.createElement("span");
-      text.className = "result-list-text";
-      text.textContent = item.label;
-
-      const chip = document.createElement("span");
-      chip.className = `status-chip ${item.status.className}`;
-      chip.textContent = item.status.label;
-
-      entry.append(text, chip);
-      riskOverviewItems.append(entry);
-      previousGroupPrefix = groupPrefix;
-    }
-  }
+  renderResultStatusList(
+    groundCausesOverviewItems,
+    groundCauseOverviewItems,
+    "Nog geen relevante grondoorzaken beoordeeld.",
+    (label) => label.split(" - ")[0] || ""
+  );
 
   const supplementalOverviewItems = riskCatalog
     .flatMap((group) =>
@@ -5073,38 +5127,12 @@ function renderApplicabilityLists(assessment) {
     )
     .filter(Boolean);
 
-  if (supplementalOverviewItems.length === 0) {
-    renderList(
-      supplementedApplicableItems,
-      [],
-      "Nog geen relevante nadere voorschriften."
-    );
-    return;
-  }
-
-  supplementedApplicableItems.innerHTML = "";
-  let previousSupplementalGroupPrefix = "";
-
-  for (const item of supplementalOverviewItems) {
-    const entry = document.createElement("li");
-    entry.className = "result-list-item";
-    const groupPrefix = item.label.split(" - ").slice(0, 2).join(" - ") || item.label;
-    if (previousSupplementalGroupPrefix && groupPrefix !== previousSupplementalGroupPrefix) {
-      entry.classList.add("result-list-item-group-start");
-    }
-
-    const text = document.createElement("span");
-    text.className = "result-list-text";
-    text.textContent = item.label;
-
-    const chip = document.createElement("span");
-    chip.className = `status-chip ${item.status.className}`;
-    chip.textContent = item.status.label;
-
-    entry.append(text, chip);
-    supplementedApplicableItems.append(entry);
-    previousSupplementalGroupPrefix = groupPrefix;
-  }
+  renderResultStatusList(
+    supplementedApplicableItems,
+    supplementalOverviewItems,
+    "Nog geen relevante nadere voorschriften.",
+    (label) => label.split(" - ").slice(0, 2).join(" - ") || label
+  );
 }
 
 async function copyReportToClipboard() {
@@ -5299,6 +5327,28 @@ function updateReportToggleButtonLabel() {
   toggleReportOutput.textContent = reportOutput.hidden ? "Klap open" : "Klap dicht";
 }
 
+function updateResultsContentToggleButtonLabel() {
+  if (!toggleResultsContent || !resultsContent) {
+    return;
+  }
+
+  const expanded = !resultsContent.hidden;
+  toggleResultsContent.setAttribute("aria-expanded", expanded ? "true" : "false");
+  const label = toggleResultsContent.querySelector("span");
+  if (label) {
+    label.textContent = expanded ? "Uitkomsten inklappen" : "Uitkomsten uitklappen";
+  }
+}
+
+function toggleResultsContentVisibility() {
+  if (!resultsContent) {
+    return;
+  }
+
+  resultsContent.hidden = !resultsContent.hidden;
+  updateResultsContentToggleButtonLabel();
+}
+
 function toggleReportOutputVisibility() {
   if (!reportOutput) {
     return;
@@ -5335,6 +5385,7 @@ updateQuestionSectionToggleLabels();
 updateSummarySectionToggleLabels();
 updatePanelSectionToggleLabels();
 updateReportToggleButtonLabel();
+updateResultsContentToggleButtonLabel();
 
 survey.addEventListener("change", () => {
   renderAssessment();
@@ -5351,6 +5402,7 @@ generateWord?.addEventListener("click", generateWordReport);
 generateSummaryPdf?.addEventListener("click", generateSummaryPdfReport);
 generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
+toggleResultsContent?.addEventListener("click", toggleResultsContentVisibility);
 toggleRiskInventoryQuestion?.addEventListener("click", toggleRiskInventoryQuestionCard);
 toggleCauseQuestions?.addEventListener("click", toggleCauseQuestionSection);
 toggleSupplementalQuestions?.addEventListener("click", toggleSupplementalQuestionSection);
