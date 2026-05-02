@@ -42,13 +42,11 @@
                   arbokerndeskundige.
                 </p>
               </div>
-              <div class="intro-meta">
-                <p id="draftStatus" class="draft-status">Concept wordt lokaal opgeslagen in deze browser.</p>
-              </div>
             </div>
 
             <aside class="hero-card">
-              <p class="hero-label">Wat kunt u met de website?</p>
+              <p class="hero-label">Overzicht</p>
+              <h2 class="hero-card-title">Wat kunt u met de website?</h2>
               <p class="hero-card-intro">Met de website kunt u:</p>
               <ul class="hero-list">
                 <li>uw bedrijfsprofiel vastleggen;</li>
@@ -57,6 +55,7 @@
                 <li>direct zien welke onderdelen compleet zijn en waar nog aandacht nodig is;</li>
                 <li>een duidelijke samenvatting en rapportage genereren voor uzelf en de arbokerndeskundige.</li>
               </ul>
+              <p id="draftStatus" class="draft-status hero-card-status">Concept wordt lokaal opgeslagen in deze browser.</p>
             </aside>
           </section>
 
@@ -67,7 +66,7 @@
                 <h2>Doorloop de stappen</h2>
                 <p class="section-note">Werk stap voor stap door de voorbereiding en ga daarna naar de samenvatting en rapporten.</p>
               </div>
-                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 6</strong>
+                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 7</strong>
               </div>
               <div class="wizard-step-buttons">
               <button class="secondary-button wizard-step-button" id="wizardStepButton1" type="button" data-step-target="1">
@@ -77,16 +76,19 @@
                 2. Afbakening
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton3" type="button" data-step-target="3">
-                3. Systeemtoets risicoprofiel
+                3. Risicoprofiel
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton4" type="button" data-step-target="4">
-                4. Systeemtoets RI&amp;E-kwaliteit
+                4. Grondoorzaken
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton5" type="button" data-step-target="5">
-                5. Plan van aanpak
+                5. RI&amp;E-kwaliteit
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton6" type="button" data-step-target="6">
-                6. Uitkomsten en rapporten
+                6. Plan van aanpak
+              </button>
+              <button class="secondary-button wizard-step-button" id="wizardStepButton7" type="button" data-step-target="7">
+                7. Uitkomsten en rapporten
               </button>
             </div>
             <div class="button-row wizard-progress-actions">
@@ -305,20 +307,15 @@
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 3</p>
-                  <h2>Systeemtoets risicoprofiel</h2>
+                  <h2>Risicoprofiel</h2>
                 </div>
               </div>
 
               <div id="step3SectionContent" hidden>
                 <div class="risk-table-legend">
-                  <strong>Toelichting vraag 1.1.1</strong>
-                  <p>
-                    De hoofdrisico’s zijn opgebouwd uit deelrisico’s. Per deelrisico beantwoordt u
-                    de vraag en kunt u bewijsnotities of een toelichting toevoegen.
-                  </p>
                   <div class="button-row section-toggle-actions">
                     <button id="toggleRiskInventoryQuestion" class="secondary-button" type="button">
-                      Systeemtoets risicoprofiel openklappen
+                      Risicoprofiel openklappen
                     </button>
                   </div>
                 </div>
@@ -331,17 +328,17 @@
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 4</p>
-                  <h2>Systeemtoets RI&amp;E-kwaliteit</h2>
+                  <h2>Grondoorzaken</h2>
                 </div>
               </div>
 
-              <div id="regularStepSectionContent" hidden>
+              <div id="causesStepSectionContent" hidden>
                 <div class="button-row section-toggle-actions section-toggle-inline">
-                  <button id="toggleRegularQuestions" class="secondary-button" type="button">
-                    Systeemtoets RI&amp;E-kwaliteit openklappen
+                  <button id="toggleCauseQuestions" class="secondary-button" type="button">
+                    Grondoorzaken openklappen
                   </button>
                 </div>
-                <div id="questionGroupsRegular" class="question-groups"></div>
+                <div id="questionGroupsCauses" class="question-groups"></div>
               </div>
             </section>
 
@@ -349,7 +346,25 @@
               <div class="panel-head">
                 <div>
                   <p class="section-kicker">Stap 5</p>
-                  <h2>Toetsing plan van aanpak</h2>
+                  <h2>RI&amp;E-kwaliteit</h2>
+                </div>
+              </div>
+
+              <div id="regularStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
+                  <button id="toggleRegularQuestions" class="secondary-button" type="button">
+                    RI&amp;E-kwaliteit openklappen
+                  </button>
+                </div>
+                <div id="questionGroupsRegular" class="question-groups"></div>
+              </div>
+            </section>
+
+            <section class="panel" data-step-panel="6" hidden>
+              <div class="panel-head">
+                <div>
+                  <p class="section-kicker">Stap 6</p>
+                  <h2>Plan van aanpak</h2>
                 </div>
               </div>
 
@@ -364,7 +379,7 @@
             </section>
           </form>
         </div>
-        <aside class="results" id="resultsSection" data-step-panel="6" hidden>
+        <aside class="results" id="resultsSection" data-step-panel="7" hidden>
           <section class="panel sticky">
             <div class="panel-head compact">
               <div>
@@ -390,7 +405,7 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Uitkomst systeemtoets risicoprofiel</h3>
+                <h3>Uitkomst risicoprofiel</h3>
               </div>
               <div id="summaryRiskOutput" hidden>
                 <div class="result-list-block">
@@ -406,7 +421,7 @@
 
             <section class="summary">
               <div class="summary-head">
-                <h3>Uitkomst systeemtoets RI&amp;E-kwaliteit</h3>
+                <h3>Uitkomst RI&amp;E-kwaliteit</h3>
               </div>
               <div id="summaryQuestionOutput" hidden>
                 <div id="questionStatusMatrix" class="status-matrix"></div>

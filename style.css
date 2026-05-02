@@ -105,9 +105,10 @@ textarea {
   background: linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(242, 233, 217, 0.94));
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
   align-items: start;
   height: 100%;
+  align-content: start;
 }
 
 .eyebrow,
@@ -133,8 +134,15 @@ textarea {
 }
 
 .hero-card-intro {
-  margin: 12px 0 4px;
+  margin: 0;
   color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.hero-card-title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.1;
 }
 
 h1,
@@ -288,6 +296,12 @@ h1 {
   font-size: 0.94rem;
   line-height: 1.45;
   font-style: italic;
+}
+
+.hero-card-status {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(31, 29, 26, 0.1);
 }
 
 .section-note {
@@ -576,10 +590,25 @@ h1 {
   transform: rotate(180deg);
 }
 
+.risk-group.is-disabled {
+  opacity: 0.72;
+}
+
 .risk-group-content {
   display: grid;
   gap: 12px;
   padding: 16px;
+}
+
+.risk-group-disabled-note {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed rgba(31, 29, 26, 0.18);
+  border-radius: 14px;
+  background: rgba(244, 238, 229, 0.72);
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.5;
 }
 
 .risk-table-head {
@@ -639,6 +668,10 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(170px, max-content));
   align-items: stretch;
   justify-content: start;
+}
+
+.binary-options-stacked {
+  grid-template-columns: 1fr;
 }
 
 .binary-pill {

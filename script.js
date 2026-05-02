@@ -369,6 +369,7 @@ const simpleCompletenessOptions = [
 ];
 
 const questionGroupsRisk = document.querySelector("#questionGroupsRisk");
+const questionGroupsCauses = document.querySelector("#questionGroupsCauses");
 const questionGroupsRegular = document.querySelector("#questionGroupsRegular");
 const questionGroupsPlan = document.querySelector("#questionGroupsPlan");
 const template = document.querySelector("#questionTemplate");
@@ -404,6 +405,7 @@ const summaryPlanOutput = document.querySelector("#summaryPlanOutput");
 const profileSectionContent = document.querySelector("#profileSectionContent");
 const scopeSectionContent = document.querySelector("#scopeSectionContent");
 const step3SectionContent = document.querySelector("#step3SectionContent");
+const causesStepSectionContent = document.querySelector("#causesStepSectionContent");
 const regularStepSectionContent = document.querySelector("#regularStepSectionContent");
 const planStepSectionContent = document.querySelector("#planStepSectionContent");
 const questionStatusMatrix = document.querySelector("#questionStatusMatrix");
@@ -421,6 +423,7 @@ const cancelReset = document.querySelector("#cancelReset");
 const confirmReset = document.querySelector("#confirmReset");
 const toggleAllSections = document.querySelector("#toggleAllSections");
 const toggleRiskInventoryQuestion = document.querySelector("#toggleRiskInventoryQuestion");
+const toggleCauseQuestions = document.querySelector("#toggleCauseQuestions");
 const toggleRegularQuestions = document.querySelector("#toggleRegularQuestions");
 const togglePlanQuestions = document.querySelector("#togglePlanQuestions");
 const toggleSummaryRiskOutput = document.querySelector("#toggleSummaryRiskOutput");
@@ -440,7 +443,7 @@ const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-targe
 const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
-const TOTAL_WIZARD_STEPS = 6;
+const TOTAL_WIZARD_STEPS = 7;
 let currentWizardStep = 0;
 
 function slugify(text) {
@@ -488,15 +491,19 @@ function setPanelContentOpenForStep(step) {
     step3SectionContent.hidden = false;
   }
 
-  if (step === 4 && regularStepSectionContent) {
+  if (step === 4 && causesStepSectionContent) {
+    causesStepSectionContent.hidden = false;
+  }
+
+  if (step === 5 && regularStepSectionContent) {
     regularStepSectionContent.hidden = false;
   }
 
-  if (step === 5 && planStepSectionContent) {
+  if (step === 6 && planStepSectionContent) {
     planStepSectionContent.hidden = false;
   }
 
-  if (step === 6) {
+  if (step === 7) {
     if (summaryRiskOutput) {
       summaryRiskOutput.hidden = false;
     }
@@ -684,6 +691,10 @@ function clearAllAnswers() {
     step3SectionContent.hidden = true;
   }
 
+  if (causesStepSectionContent) {
+    causesStepSectionContent.hidden = true;
+  }
+
   if (regularStepSectionContent) {
     regularStepSectionContent.hidden = true;
   }
@@ -825,6 +836,10 @@ function requiresEvidenceWithoutNA(question) {
 }
 
 function hasCollapsibleHelp(question) {
+  if (question.id === "1-1-1") {
+    return false;
+  }
+
   return [
     "1.1 Volledigheid",
     "1.2 Actualiteit",
@@ -1180,6 +1195,21 @@ function createRiskTextField(name, labelText, placeholderText) {
     ></textarea>
   `;
   return field;
+}
+
+function getRiskGroupState(groupId) {
+  return {
+    applicable: getAnswerValue(`risk-group-${groupId}-applicable`),
+    note:
+      survey.querySelector(`[name="risk-group-${groupId}-applicable-note"]`)?.value.trim() || "",
+  };
+}
+
+function getGroundCausesNoneState() {
+  return {
+    answer: getAnswerValue("ground-causes-none"),
+    note: survey.querySelector('[name="ground-causes-none-note"]')?.value.trim() || "",
+  };
 }
 
 function getQuestionEvidencePlaceholder(question) {
@@ -1548,7 +1578,8 @@ function renderRiskInventory(container) {
     <p>
       Eerst bepaalt u of het risico van toepassing is. Alleen als het risico van toepassing is,
       volgt de vraag of het is beschreven in de RI&E. Daarna verschijnt afhankelijk van uw antwoord
-      de vraag over verantwoording of de inventarisatie van achterliggende grondoorzaken.
+      de vraag over verantwoording. In de volgende stap beoordeelt u per relevant deelrisico of de
+      grondoorzaken zijn geïnventariseerd.
     </p>
   `;
   inventory.append(intro);
@@ -1556,6 +1587,7 @@ function renderRiskInventory(container) {
   for (const group of riskCatalog) {
     const groupCard = document.createElement("details");
     groupCard.className = "risk-group";
+    groupCard.dataset.groupId = group.id;
 
     const summary = document.createElement("summary");
     summary.className = "risk-group-toggle";
@@ -1582,6 +1614,36 @@ function renderRiskInventory(container) {
     const content = document.createElement("div");
     content.className = "risk-group-content";
 
+    const groupApplicability = document.createElement("div");
+    groupApplicability.className = "risk-question-block risk-group-applicability";
+    groupApplicability.dataset.groupId = group.id;
+
+    const groupApplicabilityQuestion = document.createElement("p");
+    groupApplicabilityQuestion.className = "risk-question";
+    groupApplicabilityQuestion.textContent = `Is ${group.title.toLowerCase()} als hoofdthema van toepassing op de organisatie?`;
+
+    const groupApplicabilityOptions = createBinaryOptions(
+      `risk-group-${group.id}-applicable`,
+      [
+        { value: "yes", label: "Van toepassing" },
+        { value: "no", label: "Niet van toepassing" },
+      ],
+      null
+    );
+
+    const groupApplicabilityNote = createEvidenceField(
+      `risk-group-${group.id}-applicable-note`,
+      "Beschrijf hier waarom dit hoofdthema niet van toepassing is binnen de organisatie of waarom dit hoofdthema buiten de scope van deze RI&E valt."
+    );
+    groupApplicabilityNote.hidden = true;
+
+    groupApplicability.append(
+      groupApplicabilityQuestion,
+      groupApplicabilityOptions,
+      groupApplicabilityNote
+    );
+    content.append(groupApplicability);
+
     const head = document.createElement("div");
     head.className = "risk-table-head";
     head.innerHTML = `
@@ -1589,7 +1651,6 @@ function renderRiskInventory(container) {
       <div>Van toepassing?</div>
       <div>Beschreven in RI&E?</div>
       <div>Waarom niet beschreven?</div>
-      <div>Grondoorzaken geïnventariseerd?</div>
       <div>Bewijs / toelichting</div>
     `;
     content.append(head);
@@ -1690,29 +1751,6 @@ function renderRiskInventory(container) {
       );
       item.append(whyNot);
 
-      const causes = createRiskColumn(
-        "Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?",
-        "causes",
-        [
-          { value: "yes", label: "Ja" },
-          { value: "no", label: "Nee" },
-        ],
-        itemId
-      );
-      causes.classList.add("conditional-block");
-      causes.dataset.when = "described-yes";
-      appendRiskEvidenceField(
-        causes,
-        `risk-${itemId}-causes-yes-note`,
-        "Beschrijf hier waaruit blijkt dat de grondoorzaken van dit risico zijn geïnventariseerd."
-      );
-      appendRiskEvidenceField(
-        causes,
-        `risk-${itemId}-causes-no-note`,
-        "Licht hier toe waarom de grondoorzaken van dit risico niet zijn geïnventariseerd."
-      );
-      item.append(causes);
-
       for (const config of getSupplementalRequirementConfigs(group.id, itemLabel)) {
         const supplementalBlock = createRiskColumn(
           config.prompt,
@@ -1745,9 +1783,164 @@ function renderRiskInventory(container) {
   container.append(inventory);
 }
 
+function renderGroundCausesQuestion(container) {
+  const card = document.createElement("details");
+  card.className = "question-card question-card-wide";
+  card.dataset.questionId = "ground-causes";
+
+  const summary = document.createElement("summary");
+  summary.className = "question-card-toggle";
+  summary.innerHTML = `
+    <div class="question-summary-copy">
+      <p class="question-category">1.1 Volledigheid</p>
+      <h3 class="question-title">Zijn per relevant deelrisico de grondoorzaken in de RI&amp;E geïnventariseerd?</h3>
+    </div>
+    <span class="question-card-chevron">⌄</span>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "question-body";
+
+  const copy = document.createElement("div");
+  copy.className = "question-copy";
+  copy.innerHTML = `
+    <p class="question-help">
+      Beoordeel per hoofd- en deelrisico of de grondoorzaken in de RI&amp;E zijn geïnventariseerd.
+      Deze stap is alleen relevant voor deelrisico’s die in het risicoprofiel als van toepassing en
+      beschreven zijn aangemerkt.
+    </p>
+  `;
+
+  const optionGroup = document.createElement("div");
+  optionGroup.className = "question-options";
+
+  const inventory = document.createElement("div");
+  inventory.className = "risk-inventory";
+
+  const generalBlock = document.createElement("div");
+  generalBlock.className = "risk-intro";
+  generalBlock.innerHTML = `
+    <strong>Algemene keuze grondoorzaken</strong>
+    <p>
+      Geef hieronder aan als op geen van de relevante deelrisico’s grondoorzaken zijn benoemd. Dan
+      hoeft u de afzonderlijke deelrisico’s in deze stap niet meer één voor één in te vullen.
+    </p>
+  `;
+
+  const generalOptions = createBinaryOptions(
+    "ground-causes-none",
+    [
+      { value: "yes", label: "Op geen van de relevante deelrisico's zijn grondoorzaken benoemd" },
+    ],
+    null
+  );
+  generalOptions.classList.add("binary-options-stacked");
+  generalBlock.append(generalOptions);
+
+  const generalNote = createEvidenceField(
+    "ground-causes-none-note",
+    "Licht hier toe waarom op geen van de relevante deelrisico's grondoorzaken zijn benoemd."
+  );
+  generalNote.hidden = true;
+  generalBlock.append(generalNote);
+  inventory.append(generalBlock);
+
+  for (const group of riskCatalog) {
+    const groupCard = document.createElement("details");
+    groupCard.className = "risk-group cause-group";
+    groupCard.dataset.groupId = group.id;
+
+    const groupSummary = document.createElement("summary");
+    groupSummary.className = "risk-group-toggle";
+
+    const summaryCopy = document.createElement("div");
+    const title = document.createElement("h4");
+    title.className = "risk-group-title";
+    title.textContent = group.title;
+    const count = document.createElement("span");
+    count.className = "risk-group-count";
+    count.textContent = `${group.items.length} deelrisico's`;
+    summaryCopy.append(title, count);
+
+    const chevron = document.createElement("span");
+    chevron.className = "risk-group-chevron";
+    chevron.textContent = "⌄";
+
+    groupSummary.append(summaryCopy, chevron);
+    groupCard.append(groupSummary);
+
+    const content = document.createElement("div");
+    content.className = "risk-group-content";
+
+    const statusNote = document.createElement("p");
+    statusNote.className = "risk-group-disabled-note";
+    statusNote.hidden = true;
+    content.append(statusNote);
+
+    for (const [itemIndex, itemLabel] of group.items.entries()) {
+      const itemId = `${group.id}-${slugify(itemLabel)}`;
+      const item = document.createElement("article");
+      item.className = "risk-item cause-item";
+      item.dataset.itemId = itemId;
+      item.dataset.groupId = group.id;
+      item.dataset.itemLabel = itemLabel;
+      item.hidden = true;
+
+      const header = document.createElement("div");
+      header.className = "risk-item-header";
+
+      const label = document.createElement("p");
+      label.className = "risk-item-label";
+      label.textContent = `${getAlphabeticLabel(itemIndex)}. ${itemLabel}`;
+      header.append(label);
+
+      const sub = document.createElement("p");
+      sub.className = "risk-item-sub";
+      sub.textContent = "Beoordeel hier of de grondoorzaken van dit deelrisico in de RI&E zijn geïnventariseerd.";
+      header.append(sub);
+      item.append(header);
+
+      const causes = createRiskColumn(
+        "Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?",
+        "causes",
+        [
+          { value: "yes", label: "Ja" },
+          { value: "no", label: "Nee" },
+        ],
+        itemId
+      );
+      appendRiskEvidenceField(
+        causes,
+        `risk-${itemId}-causes-yes-note`,
+        "Beschrijf hier waaruit blijkt dat de grondoorzaken van dit risico zijn geïnventariseerd."
+      );
+      appendRiskEvidenceField(
+        causes,
+        `risk-${itemId}-causes-no-note`,
+        "Licht hier toe waarom de grondoorzaken van dit risico niet zijn geïnventariseerd."
+      );
+      item.append(causes);
+
+      content.append(item);
+    }
+
+    groupCard.append(content);
+    inventory.append(groupCard);
+  }
+
+  optionGroup.append(inventory);
+  body.append(copy, optionGroup);
+  card.append(summary, body);
+  container.append(card);
+}
+
 function renderQuestions() {
   if (questionGroupsRisk) {
     questionGroupsRisk.textContent = "";
+  }
+
+  if (questionGroupsCauses) {
+    questionGroupsCauses.textContent = "";
   }
 
   if (questionGroupsRegular) {
@@ -1878,6 +2071,10 @@ function renderQuestions() {
 
     targetGroup?.append(fragment);
   }
+
+  if (questionGroupsCauses) {
+    renderGroundCausesQuestion(questionGroupsCauses);
+  }
 }
 
 function getAnswerValue(questionId) {
@@ -1887,16 +2084,25 @@ function getAnswerValue(questionId) {
 
 function getRiskItemState(groupId, groupTitle, itemLabel) {
   const itemId = `${groupId}-${slugify(itemLabel)}`;
-  const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+  const groupState = getRiskGroupState(groupId);
+  const globalCausesState = getGroundCausesNoneState();
+  const itemApplicable = getAnswerValue(`risk-${itemId}-applicable`);
+  const applicable = groupState.applicable === "no" ? "no" : itemApplicable;
   const described = getAnswerValue(`risk-${itemId}-described`);
   const justified = getAnswerValue(`risk-${itemId}-justified`);
-  const causes = getAnswerValue(`risk-${itemId}-causes`);
+  const rawCauses = getAnswerValue(`risk-${itemId}-causes`);
+  const causes =
+    applicable === "yes" && described === "yes" && globalCausesState.answer === "yes"
+      ? "no"
+      : rawCauses;
   const supplementalConfigs = getSupplementalRequirementConfigs(groupId, itemLabel);
   const supplementalAnswers = Object.fromEntries(
     supplementalConfigs.map((config) => [config.key, getAnswerValue(`risk-${itemId}-${config.key}`)])
   );
   const applicabilityNote =
-    survey.querySelector(`[name="risk-${itemId}-applicable-note"]`)?.value.trim() || "";
+    groupState.applicable === "no"
+      ? groupState.note
+      : survey.querySelector(`[name="risk-${itemId}-applicable-note"]`)?.value.trim() || "";
   const describedYesNote =
     survey.querySelector(`[name="risk-${itemId}-described-yes-note"]`)?.value.trim() || "";
   const assessorNote =
@@ -1910,7 +2116,9 @@ function getRiskItemState(groupId, groupTitle, itemLabel) {
   const causesYesNote =
     survey.querySelector(`[name="risk-${itemId}-causes-yes-note"]`)?.value.trim() || "";
   const causesNoNote =
-    survey.querySelector(`[name="risk-${itemId}-causes-no-note"]`)?.value.trim() || "";
+    globalCausesState.answer === "yes"
+      ? globalCausesState.note
+      : survey.querySelector(`[name="risk-${itemId}-causes-no-note"]`)?.value.trim() || "";
   const supplementalNotes = Object.fromEntries(
     supplementalConfigs.map((config) => [
       config.key,
@@ -2238,7 +2446,7 @@ function buildRegularQuestionReportLines(sectionTitle, items) {
 }
 
 function buildRiskInventoryReportLines() {
-  const lines = ["Uitkomst systeemtoets risicoprofiel", ""];
+  const lines = ["Uitkomst risicoprofiel", ""];
 
   for (const group of riskCatalog) {
     const groupLines = [];
@@ -2553,7 +2761,7 @@ function buildRelevantReportPdfText() {
 
   const riskLines = buildRelevantRiskInventoryReportLines();
   const regularLines = buildRelevantRegularQuestionReportLines(
-    "Uitkomst systeemtoets RI&E-kwaliteit",
+    "Uitkomst RI&E-kwaliteit",
     [
       ...getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
       ...getQuestionStatusItems().filter(
@@ -2608,7 +2816,7 @@ function buildReport(assessment) {
     "",
     ...buildRiskInventoryReportLines(),
     ...buildRegularQuestionReportLines(
-      "Uitkomst systeemtoets RI&E-kwaliteit",
+      "Uitkomst RI&E-kwaliteit",
       getQuestionStatusItems()
     ),
     ...buildRegularQuestionReportLines("Uitkomsten plan van aanpak", getPlanStatusItems()),
@@ -2622,8 +2830,8 @@ function buildReportPreviewHtml(reportText) {
     "Samenvatting",
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
-    "Uitkomst systeemtoets risicoprofiel",
-    "Uitkomst systeemtoets RI&E-kwaliteit",
+    "Uitkomst risicoprofiel",
+    "Uitkomst RI&E-kwaliteit",
     "Uitkomsten plan van aanpak",
   ]);
 
@@ -2875,7 +3083,7 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
     <section class="report-section">
       <h2 style="margin: 0 0 8px; font-size: 9pt;">Uitkomsten en rapporten</h2>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst systeemtoets risicoprofiel</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst risicoprofiel</h3>
         <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Van toepassing</strong></p>
         <ul class="report-list">${renderList(
           applicable,
@@ -2903,7 +3111,7 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
         )}</ul>
       </div>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst systeemtoets RI&E-kwaliteit</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst RI&E-kwaliteit</h3>
         ${groupedQuestionHtml}
       </div>
       <div class="report-subsection">
@@ -3409,7 +3617,7 @@ function buildPrintableReportHtml() {
           ${getGeneralFieldsReportHtml()}
           ${getRelevantRiskInventoryReportHtml()}
           ${getRelevantRegularQuestionReportSection(
-            "Uitkomst systeemtoets RI&E-kwaliteit",
+            "Uitkomst RI&E-kwaliteit",
             [...completenessItems, ...actualityAndReliabilityItems]
           )}
           ${getRelevantRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
@@ -3604,7 +3812,7 @@ function buildSummaryWordHtml() {
           ${getWordPageBreakHtml()}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
           ${spacer(10, 12)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst systeemtoets risicoprofiel</b></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst risicoprofiel</b></p>
           ${spacer(9, 11)}
           <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
           ${renderListParagraphs(
@@ -3639,7 +3847,7 @@ function buildSummaryWordHtml() {
           ${spacer(9, 11)}
           ${spacer(11, 13)}
           ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst systeemtoets RI&E-kwaliteit</b></p>
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst RI&E-kwaliteit</b></p>
           ${spacer(9, 11)}
           ${groupedQuestions
             .map((group, index) => renderQuestionGroup(group.title, group.items, index === 1))
@@ -3710,7 +3918,7 @@ function buildSummaryPdfText() {
     "",
     "UITKOMSTEN EN RAPPORTEN",
     "",
-    "Uitkomst systeemtoets risicoprofiel",
+    "Uitkomst risicoprofiel",
     "Van toepassing",
     ...(summaryData.applicable.length
       ? summaryData.applicable.map((item) => `• ${item}`)
@@ -3736,7 +3944,7 @@ function buildSummaryPdfText() {
       ? supplementalStatusItems.map((item) => `• ${item}`)
       : ["• Nog geen relevante nadere voorschriften."]),
     "",
-    "Uitkomst systeemtoets RI&E-kwaliteit",
+    "Uitkomst RI&E-kwaliteit",
   ];
 
   const groupedQuestions = [
@@ -3973,17 +4181,34 @@ function updateScoreRing(readiness) {
 }
 
 function updateRiskInventoryVisibility() {
-  const riskItems = document.querySelectorAll(".risk-item");
+  const riskItems = document.querySelectorAll(".risk-item:not(.cause-item)");
+  const riskGroups = document.querySelectorAll(".risk-group:not(.cause-group)");
+
+  for (const groupCard of riskGroups) {
+    const groupId = groupCard.dataset.groupId || "";
+    const groupState = getRiskGroupState(groupId);
+    const applicabilityBlock = groupCard.querySelector(".risk-group-applicability");
+    const noteField = applicabilityBlock?.querySelector(".risk-evidence");
+    const itemCards = groupCard.querySelectorAll(".risk-item");
+
+    groupCard.classList.toggle("is-disabled", groupState.applicable === "no");
+
+    if (noteField) {
+      noteField.hidden = groupState.applicable !== "no";
+    }
+
+    for (const itemCard of itemCards) {
+      itemCard.hidden = groupState.applicable === "no";
+    }
+  }
 
   for (const item of riskItems) {
     const itemId = item.dataset.itemId;
     const applicable = getAnswerValue(`risk-${itemId}-applicable`);
     const described = getAnswerValue(`risk-${itemId}-described`);
-    const causes = getAnswerValue(`risk-${itemId}-causes`);
     const applicabilityBlock = item.querySelector('[data-field="applicable"]');
     const describedBlock = item.querySelector('[data-field="described"]');
     const whyNotBlock = item.querySelector('[data-field="justified"]');
-    const causesBlock = item.querySelector('[data-field="causes"]');
 
     for (const block of item.querySelectorAll(".conditional-block")) {
       let visible = false;
@@ -4029,18 +4254,6 @@ function updateRiskInventoryVisibility() {
       }
     }
 
-    if (applicable === "yes" && described === "yes" && causesBlock) {
-      const causesFields = causesBlock.querySelectorAll(".risk-evidence");
-
-      if (causes === "yes" && causesFields[0]) {
-        causesFields[0].hidden = false;
-      }
-
-      if (causes === "no" && causesFields[1]) {
-        causesFields[1].hidden = false;
-      }
-    }
-
     const plainItemLabel = item.dataset.itemLabel || "";
     const groupId = item.dataset.groupId || "";
 
@@ -4074,6 +4287,91 @@ function updateRiskInventoryVisibility() {
   }
 }
 
+function updateGroundCauseVisibility() {
+  const groupCards = document.querySelectorAll(".cause-group");
+  const noneState = getGroundCausesNoneState();
+  const generalNoteField = questionGroupsCauses?.querySelector('[name="ground-causes-none-note"]')?.closest(
+    ".risk-evidence"
+  );
+
+  if (generalNoteField) {
+    generalNoteField.hidden = noneState.answer !== "yes";
+  }
+
+  for (const groupCard of groupCards) {
+    const groupId = groupCard.dataset.groupId || "";
+    const groupState = getRiskGroupState(groupId);
+    const statusNote = groupCard.querySelector(".risk-group-disabled-note");
+    let visibleCount = 0;
+
+    if (noneState.answer === "yes") {
+      groupCard.classList.add("is-disabled");
+      if (statusNote) {
+        statusNote.hidden = false;
+        statusNote.textContent =
+          "Voor deze stap is algemeen aangegeven dat op geen van de relevante deelrisico’s grondoorzaken zijn benoemd.";
+      }
+      for (const item of groupCard.querySelectorAll(".cause-item")) {
+        item.hidden = true;
+      }
+      groupCard.hidden = false;
+      continue;
+    }
+
+    if (groupState.applicable === "no") {
+      groupCard.classList.add("is-disabled");
+      if (statusNote) {
+        statusNote.hidden = false;
+        statusNote.textContent =
+          "Dit hoofdthema is in het risicoprofiel als niet van toepassing beoordeeld.";
+      }
+      for (const item of groupCard.querySelectorAll(".cause-item")) {
+        item.hidden = true;
+      }
+      groupCard.hidden = false;
+      continue;
+    }
+
+    groupCard.classList.remove("is-disabled");
+    if (statusNote) {
+      statusNote.hidden = true;
+      statusNote.textContent = "";
+    }
+
+    for (const item of groupCard.querySelectorAll(".cause-item")) {
+      const itemId = item.dataset.itemId;
+      const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+      const described = getAnswerValue(`risk-${itemId}-described`);
+      const causes = getAnswerValue(`risk-${itemId}-causes`);
+      const causesBlock = item.querySelector('[data-field="causes"]');
+
+      const visible = applicable === "yes" && described === "yes";
+      item.hidden = !visible;
+
+      if (!visible) {
+        continue;
+      }
+
+      visibleCount += 1;
+
+      const causesFields = causesBlock?.querySelectorAll(".risk-evidence") || [];
+      for (const field of causesFields) {
+        field.hidden = true;
+      }
+
+      if (causes === "yes" && causesFields[0]) {
+        causesFields[0].hidden = false;
+      }
+
+      if (causes === "no" && causesFields[1]) {
+        causesFields[1].hidden = false;
+      }
+    }
+
+    groupCard.hidden = visibleCount === 0;
+  }
+}
+
 function updateQuestionEvidenceVisibility() {
   for (const question of questions) {
     if (!requiresEvidenceField(question) || question.type === "risk-inventory") {
@@ -4104,6 +4402,7 @@ function updateQuestionEvidenceVisibility() {
 
 function renderAssessment() {
   updateRiskInventoryVisibility();
+  updateGroundCauseVisibility();
   updateQuestionEvidenceVisibility();
 
   const assessment = computeAssessment();
@@ -4675,6 +4974,10 @@ function getRiskInventoryQuestionCard() {
   return document.querySelector('.question-card[data-question-id="1-1-1"]');
 }
 
+function getCauseQuestionCards() {
+  return Array.from(document.querySelectorAll('.question-card[data-question-id="ground-causes"]'));
+}
+
 function getRegularQuestionCards() {
   return Array.from(document.querySelectorAll(".question-card")).filter((card) => {
     const questionId = card.dataset.questionId || "";
@@ -4724,14 +5027,20 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     toggleRiskInventoryQuestion,
     riskInventoryCard ? [riskInventoryCard] : [],
-    "Systeemtoets risicoprofiel openklappen",
-    "Systeemtoets risicoprofiel dichtklappen"
+    "Risicoprofiel openklappen",
+    "Risicoprofiel dichtklappen"
+  );
+  updateSectionToggleButtonLabel(
+    toggleCauseQuestions,
+    getCauseQuestionCards(),
+    "Grondoorzaken openklappen",
+    "Grondoorzaken dichtklappen"
   );
   updateSectionToggleButtonLabel(
     toggleRegularQuestions,
     getRegularQuestionCards(),
-    "Systeemtoets RI&E-kwaliteit openklappen",
-    "Systeemtoets RI&E-kwaliteit dichtklappen"
+    "RI&E-kwaliteit openklappen",
+    "RI&E-kwaliteit dichtklappen"
   );
   updateSectionToggleButtonLabel(
     togglePlanQuestions,
@@ -4767,6 +5076,11 @@ function toggleRiskInventoryQuestionCard() {
 
 function toggleRegularQuestionSection() {
   toggleQuestionCardCollection(getRegularQuestionCards());
+  updateQuestionSectionToggleLabels();
+}
+
+function toggleCauseQuestionSection() {
+  toggleQuestionCardCollection(getCauseQuestionCards());
   updateQuestionSectionToggleLabels();
 }
 
@@ -4867,6 +5181,7 @@ generateSummaryPdf?.addEventListener("click", generateSummaryPdfReport);
 generateSummaryWord?.addEventListener("click", generateSummaryWordReport);
 resetApp?.addEventListener("click", handleResetClick);
 toggleRiskInventoryQuestion?.addEventListener("click", toggleRiskInventoryQuestionCard);
+toggleCauseQuestions?.addEventListener("click", toggleCauseQuestionSection);
 toggleRegularQuestions?.addEventListener("click", toggleRegularQuestionSection);
 togglePlanQuestions?.addEventListener("click", togglePlanQuestionSection);
 wizardPrev?.addEventListener("click", goToPreviousWizardStep);
