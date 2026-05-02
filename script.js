@@ -4452,6 +4452,7 @@ function updateGroundCauseVisibility() {
     const groupId = groupCard.dataset.groupId || "";
     const groupState = getRiskGroupState(groupId);
     const statusNote = groupCard.querySelector(".risk-group-disabled-note");
+    let visibleCount = 0;
 
     if (groupState.applicable === "no") {
       groupCard.hidden = true;
@@ -4491,6 +4492,8 @@ function updateGroundCauseVisibility() {
         continue;
       }
 
+      visibleCount += 1;
+
       for (const control of item.querySelectorAll("input, textarea")) {
         control.disabled = disableInputs;
       }
@@ -4512,6 +4515,8 @@ function updateGroundCauseVisibility() {
         causesFields[1].hidden = false;
       }
     }
+
+    groupCard.hidden = visibleCount === 0;
   }
 }
 
@@ -5226,14 +5231,14 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     toggleCauseQuestions,
     getCauseQuestionCards(),
-    "Grondoorzaken openklappen",
-    "Grondoorzaken dichtklappen"
+    "Klap alle vragen open",
+    "Klap alle vragen dicht"
   );
   updateSectionToggleButtonLabel(
     toggleSupplementalQuestions,
     getSupplementalQuestionCards(),
-    "Nadere voorschriften openklappen",
-    "Nadere voorschriften dichtklappen"
+    "Klap alle vragen open",
+    "Klap alle vragen dicht"
   );
   updateSectionToggleButtonLabel(
     toggleRegularQuestions,
@@ -5336,7 +5341,7 @@ function updateReportToggleButtonLabel() {
     return;
   }
 
-  toggleReportOutput.textContent = reportOutput.hidden ? "Klap open" : "Klap dicht";
+  toggleReportOutput.textContent = reportOutput.hidden ? "Klap alles open" : "Klap alles dicht";
 }
 
 function updateResultsContentToggleButtonLabel() {

@@ -1059,6 +1059,7 @@ h1 {
 
 .summary-export-action {
   margin-top: 10px;
+  margin-left: auto;
   justify-content: flex-end;
   width: 100%;
 }

@@ -338,6 +338,11 @@
               </div>
 
               <div id="causesStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
+                  <button id="toggleCauseQuestions" class="secondary-button" type="button">
+                    Klap alle vragen open
+                  </button>
+                </div>
                 <div id="questionGroupsCauses" class="question-groups"></div>
               </div>
             </section>
@@ -351,6 +356,11 @@
               </div>
 
               <div id="supplementalStepSectionContent" hidden>
+                <div class="button-row section-toggle-actions section-toggle-inline">
+                  <button id="toggleSupplementalQuestions" class="secondary-button" type="button">
+                    Klap alle vragen open
+                  </button>
+                </div>
                 <div id="questionGroupsSupplemental" class="question-groups"></div>
               </div>
             </section>
@@ -393,9 +403,6 @@
               <div>
                 <p class="section-kicker">Live resultaat</p>
                 <h2>Uitkomsten en rapporten</h2>
-                <button id="toggleResultsContent" class="summary-toggle-button summary-toggle-button-icon" type="button" aria-expanded="true" aria-label="Uitkomsten inklappen" title="Uitkomsten inklappen">
-                  <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
-                </button>
                 <div class="button-row summary-export-action">
                   <button id="generateSummaryPdf" class="secondary-button" type="button">
                     Samenvatting PDF
@@ -492,6 +499,9 @@
                   <h3 class="report-summary-title">Volledig overzicht</h3>
                   <div class="report-action-stack">
                     <div class="button-row report-action-row">
+                      <button id="toggleReportOutput" class="secondary-button" type="button">
+                        Klap alles open
+                      </button>
                       <button id="copyReport" class="secondary-button" type="button">
                         Kopieer
                       </button>
