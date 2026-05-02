@@ -503,10 +503,22 @@ function setPanelContentOpenForStep(step) {
 
   if (step === 4 && causesStepSectionContent) {
     causesStepSectionContent.hidden = false;
+    for (const card of getCauseQuestionCards()) {
+      card.open = true;
+    }
+    for (const group of document.querySelectorAll("#questionGroupsCauses .risk-group")) {
+      group.open = true;
+    }
   }
 
   if (step === 5 && supplementalStepSectionContent) {
     supplementalStepSectionContent.hidden = false;
+    for (const card of getSupplementalQuestionCards()) {
+      card.open = true;
+    }
+    for (const group of document.querySelectorAll("#questionGroupsSupplemental .risk-group")) {
+      group.open = true;
+    }
   }
 
   if (step === 6 && regularStepSectionContent) {
@@ -521,6 +533,10 @@ function setPanelContentOpenForStep(step) {
     if (resultsContent) {
       resultsContent.hidden = false;
     }
+
+    if (reportOutput) {
+      reportOutput.hidden = false;
+    }
   }
 }
 
@@ -528,6 +544,7 @@ function updateWizardStepButtons() {
   for (const button of wizardStepButtons) {
     const step = Number(button.dataset.stepTarget || "0");
     button.classList.toggle("is-active", step === currentWizardStep);
+    button.classList.toggle("is-complete", isWizardStepComplete(step));
   }
 }
 
@@ -2428,6 +2445,197 @@ function getQuestionResult(question) {
           ]
         : [],
   };
+}
+
+function isNamedFieldFilled(name) {
+  return getPlainValue(survey.querySelector(`[name="${CSS.escape(name)}"]`)?.value || "") !== "";
+}
+
+function areSectionFieldsFilled(container) {
+  if (!container) {
+    return false;
+  }
+
+  const fields = Array.from(container.querySelectorAll("input[name], textarea[name], select[name]")).filter(
+    (field) => field.type !== "radio" && field.type !== "checkbox"
+  );
+
+  return fields.length > 0 && fields.every((field) => getPlainValue(field.value) !== "");
+}
+
+function isRiskProfileStepComplete() {
+  for (const group of riskCatalog) {
+    const hasGroupApplicability = group.id !== "biologische-agentia";
+    const groupState = getRiskGroupState(group.id);
+
+    if (hasGroupApplicability) {
+      if (!groupState.applicable) {
+        return false;
+      }
+
+      if (groupState.applicable === "no") {
+        if (!groupState.note) {
+          return false;
+        }
+        continue;
+      }
+    }
+
+    for (const itemLabel of group.items) {
+      const item = getRiskItemState(group.id, group.title, itemLabel);
+
+      if (!item.applicable) {
+        return false;
+      }
+
+      if (item.applicable === "no") {
+        if (!item.applicabilityNote) {
+          return false;
+        }
+        continue;
+      }
+
+      if (!item.described) {
+        return false;
+      }
+
+      if (item.described === "yes") {
+        if (!item.describedYesNote || !item.assessorNote || !item.assessmentMethodNote || !item.evaluationMethodNote) {
+          return false;
+        }
+      }
+
+      if (item.described === "no") {
+        if (!item.justified || !item.describedNoNote) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+function getRelevantGroundCauseItems() {
+  return riskCatalog.flatMap((group) =>
+    group.items
+      .map((itemLabel) => getRiskItemState(group.id, group.title, itemLabel))
+      .filter((item) => item.applicable === "yes" && item.described === "yes")
+  );
+}
+
+function isGroundCausesStepComplete() {
+  const noneState = getGroundCausesNoneState();
+  if (noneState.answer === "yes") {
+    return noneState.note !== "";
+  }
+
+  const items = getRelevantGroundCauseItems();
+  if (items.length === 0) {
+    return true;
+  }
+
+  return items.every((item) => {
+    if (!item.causes) {
+      return false;
+    }
+
+    if (item.causes === "yes") {
+      return item.causesYesNote !== "";
+    }
+
+    if (item.causes === "no") {
+      return item.causesNoNote !== "";
+    }
+
+    return false;
+  });
+}
+
+function getRelevantSupplementalConfigs() {
+  return riskCatalog.flatMap((group) =>
+    group.items.flatMap((itemLabel) => {
+      const item = getRiskItemState(group.id, group.title, itemLabel);
+      if (!(item.applicable === "yes" && item.described === "yes")) {
+        return [];
+      }
+
+      return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => ({
+        item,
+        config,
+      }));
+    })
+  );
+}
+
+function isSupplementalStepComplete() {
+  const entries = getRelevantSupplementalConfigs();
+  if (entries.length === 0) {
+    return true;
+  }
+
+  return entries.every(({ item, config }) => {
+    const answer = item.supplementalAnswers?.[config.key];
+    const note = item.supplementalNotes?.[config.key] || "";
+    return Boolean(answer) && note !== "";
+  });
+}
+
+function isQuestionSetComplete(questionSet) {
+  if (questionSet.length === 0) {
+    return false;
+  }
+
+  return questionSet.every((question) => {
+    const answer = getAnswerValue(question.id);
+    if (!answer) {
+      return false;
+    }
+
+    if (!shouldShowQuestionEvidence(question, answer)) {
+      return true;
+    }
+
+    return isNamedFieldFilled(`question-${question.id}-note`);
+  });
+}
+
+function isWizardStepComplete(step) {
+  if (step === 1) {
+    return areSectionFieldsFilled(profileSectionContent);
+  }
+
+  if (step === 2) {
+    return areSectionFieldsFilled(scopeSectionContent);
+  }
+
+  if (step === 3) {
+    return isRiskProfileStepComplete();
+  }
+
+  if (step === 4) {
+    return isGroundCausesStepComplete();
+  }
+
+  if (step === 5) {
+    return isSupplementalStepComplete();
+  }
+
+  if (step === 6) {
+    return isQuestionSetComplete(
+      questions.filter((question) => question.id !== "1-1-1" && question.id.startsWith("1-"))
+    );
+  }
+
+  if (step === 7) {
+    return isQuestionSetComplete(questions.filter((question) => question.id.startsWith("2-")));
+  }
+
+  if (step === 8) {
+    return [1, 2, 3, 4, 5, 6, 7].every((stepNumber) => isWizardStepComplete(stepNumber));
+  }
+
+  return false;
 }
 
 function computeAssessment() {
@@ -5197,7 +5405,13 @@ function updateSectionToggleButtonLabel(button, cards, openLabel, closeLabel) {
   }
 
   const allOpen = cards.every((card) => card.open);
-  button.textContent = allOpen ? closeLabel : openLabel;
+  button.setAttribute("aria-expanded", allOpen ? "true" : "false");
+  const label = button.querySelector(".summary-toggle-label");
+  if (label) {
+    label.textContent = allOpen ? closeLabel : openLabel;
+  } else {
+    button.textContent = allOpen ? closeLabel : openLabel;
+  }
 }
 
 function toggleQuestionCardCollection(cards) {
@@ -5249,8 +5463,8 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     togglePlanQuestions,
     getPlanQuestionCards(),
-    "Vragen plan van aanpak openklappen",
-    "Vragen plan van aanpak dichtklappen"
+    "Klap alle vragen open",
+    "Klap alle vragen dicht"
   );
 }
 
@@ -5341,7 +5555,14 @@ function updateReportToggleButtonLabel() {
     return;
   }
 
-  toggleReportOutput.textContent = reportOutput.hidden ? "Klap alles open" : "Klap alles dicht";
+  const expanded = !reportOutput.hidden;
+  toggleReportOutput.setAttribute("aria-expanded", expanded ? "true" : "false");
+  const label = toggleReportOutput.querySelector(".summary-toggle-label");
+  if (label) {
+    label.textContent = expanded ? "Inklappen" : "Uitklappen";
+  } else {
+    toggleReportOutput.textContent = expanded ? "Inklappen" : "Uitklappen";
+  }
 }
 
 function updateResultsContentToggleButtonLabel() {
