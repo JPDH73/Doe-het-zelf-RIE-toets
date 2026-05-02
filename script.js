@@ -4506,8 +4506,9 @@ function updateSupplementalVisibility() {
     for (const item of groupCard.querySelectorAll(".supplemental-item")) {
       const itemId = item.dataset.itemId;
       const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+      const described = getAnswerValue(`risk-${itemId}-described`);
       const configs = getSupplementalRequirementConfigs(groupId, item.dataset.itemLabel || "");
-      const visible = applicable === "yes" && configs.length > 0;
+      const visible = applicable === "yes" && described === "yes" && configs.length > 0;
 
       item.hidden = !visible;
       if (!visible) {
@@ -4517,14 +4518,7 @@ function updateSupplementalVisibility() {
       visibleCount += 1;
     }
 
-    if (visibleCount === 0) {
-      groupCard.classList.add("is-disabled");
-      if (statusNote) {
-        statusNote.hidden = false;
-        statusNote.textContent =
-          "Binnen dit hoofdthema zijn op dit moment geen relevante deelrisico’s geselecteerd waarvoor nadere voorschriften ingevuld hoeven te worden.";
-      }
-    }
+    groupCard.hidden = visibleCount === 0;
   }
 }
 
@@ -5363,7 +5357,8 @@ wizardPrev?.addEventListener("click", goToPreviousWizardStep);
 wizardNext?.addEventListener("click", goToNextWizardStep);
 for (const button of wizardStepButtons) {
   button.addEventListener("click", () => {
-    setWizardStep(Number(button.dataset.stepTarget || "1"));
+    const targetStep = Number(button.dataset.stepTarget || "1");
+    setWizardStep(currentWizardStep === targetStep ? 0 : targetStep);
     saveDraftToLocalStorage();
   });
 }
