@@ -1162,6 +1162,7 @@ function getCollapsibleHelpText(question) {
 function requiresEvidenceField(question) {
   return [
     "1.1 Volledigheid",
+    "1.2 Actualiteit",
     "1.3 Actuele inzichten",
     "1.4 Betrouwbaarheid",
     "2. Plan van aanpak",
@@ -1260,6 +1261,10 @@ function getQuestionEvidencePlaceholder(question) {
     return "Omschrijf hier de onderbouwing waaruit blijkt dat de gegevens van verzuimanalyses om inzicht te krijgen in de arbeidsgerelateerde oorzaken van het verzuim zijn meegenomen als input bij de RI&E.";
   }
 
+  if (question.id === "1-2-1") {
+    return "Omschrijf hier dat blijkt dat dit onderdeel is uitgevoerd en hoe dit aantoonbaar is uitgewerkt in de RI&E.";
+  }
+
   return null;
 }
 
@@ -1305,6 +1310,23 @@ function getQuestionEvidenceConfig(question, selectedValue) {
       label: "Controleerbaar bewijs of toelichting",
       placeholder:
         "Omschrijf hier waaruit blijkt dat dit onderdeel is uitgevoerd en hoe dit aantoonbaar is uitgewerkt in het plan van aanpak.",
+    };
+  }
+
+  if (question.category === "1.2 Actualiteit" && question.type !== "risk-inventory") {
+    if (selectedValue === "yes" || selectedValue === "partial") {
+      return {
+        label: "Controleerbaar bewijs of toelichting",
+        placeholder:
+          question.id === "1-2-1"
+            ? "Omschrijf hier dat blijkt dat dit onderdeel is uitgevoerd en hoe dit aantoonbaar is uitgewerkt in de RI&E."
+            : "Omschrijf hier waaruit blijkt dat dit onderdeel is uitgevoerd en hoe dit aantoonbaar is uitgewerkt in de RI&E.",
+      };
+    }
+
+    return {
+      label: "Controleerbaar bewijs of toelichting",
+      placeholder: getQuestionEvidencePlaceholder(question),
     };
   }
 
@@ -5297,7 +5319,7 @@ function updateSummarySectionToggleButtonLabel(button, target) {
 
   const expanded = !target.hidden;
   button.setAttribute("aria-expanded", expanded ? "true" : "false");
-  const label = button.querySelector("span");
+  const label = button.querySelector(".summary-toggle-label");
   if (label) {
     label.textContent = expanded ? "Inklappen" : "Uitklappen";
   }
@@ -5343,10 +5365,9 @@ function updateResultsContentToggleButtonLabel() {
 
   const expanded = !resultsContent.hidden;
   toggleResultsContent.setAttribute("aria-expanded", expanded ? "true" : "false");
-  const label = toggleResultsContent.querySelector("span");
-  if (label) {
-    label.textContent = expanded ? "Uitkomsten inklappen" : "Uitkomsten uitklappen";
-  }
+  const description = expanded ? "Uitkomsten inklappen" : "Uitkomsten uitklappen";
+  toggleResultsContent.setAttribute("aria-label", description);
+  toggleResultsContent.setAttribute("title", description);
 }
 
 function toggleResultsContentVisibility() {

@@ -987,6 +987,10 @@ h1 {
   margin-left: auto;
 }
 
+.summary-toggle-button-icon {
+  margin-top: 8px;
+}
+
 .summary-toggle-button:hover {
   transform: none;
   text-decoration: underline;
@@ -1051,6 +1055,7 @@ h1 {
 .summary-export-action {
   margin-top: 10px;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .priority-list {

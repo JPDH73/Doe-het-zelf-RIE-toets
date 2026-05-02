@@ -320,14 +320,6 @@
               </div>
 
               <div id="step3SectionContent" hidden>
-                <div class="risk-table-legend">
-                  <div class="button-row section-toggle-actions">
-                    <button id="toggleRiskInventoryQuestion" class="secondary-button" type="button">
-                      Risicoprofiel openklappen
-                    </button>
-                  </div>
-                </div>
-
                 <div id="questionGroupsRisk" class="question-groups"></div>
               </div>
             </section>
@@ -341,11 +333,6 @@
               </div>
 
               <div id="causesStepSectionContent" hidden>
-                <div class="button-row section-toggle-actions section-toggle-inline">
-                  <button id="toggleCauseQuestions" class="secondary-button" type="button">
-                    Grondoorzaken openklappen
-                  </button>
-                </div>
                 <div id="questionGroupsCauses" class="question-groups"></div>
               </div>
             </section>
@@ -359,11 +346,6 @@
               </div>
 
               <div id="supplementalStepSectionContent" hidden>
-                <div class="button-row section-toggle-actions section-toggle-inline">
-                  <button id="toggleSupplementalQuestions" class="secondary-button" type="button">
-                    Nadere voorschriften openklappen
-                  </button>
-                </div>
                 <div id="questionGroupsSupplemental" class="question-groups"></div>
               </div>
             </section>
@@ -377,11 +359,6 @@
               </div>
 
               <div id="regularStepSectionContent" hidden>
-                <div class="button-row section-toggle-actions section-toggle-inline">
-                  <button id="toggleRegularQuestions" class="secondary-button" type="button">
-                    RI&amp;E-kwaliteit openklappen
-                  </button>
-                </div>
                 <div id="questionGroupsRegular" class="question-groups"></div>
               </div>
             </section>
@@ -395,11 +372,6 @@
               </div>
 
               <div id="planStepSectionContent" hidden>
-                <div class="button-row section-toggle-actions section-toggle-inline">
-                  <button id="togglePlanQuestions" class="secondary-button" type="button">
-                    Vragen plan van aanpak openklappen
-                  </button>
-                </div>
                 <div id="questionGroupsPlan" class="question-groups"></div>
               </div>
             </section>
@@ -411,6 +383,9 @@
               <div>
                 <p class="section-kicker">Live resultaat</p>
                 <h2>Uitkomsten en rapporten</h2>
+                <button id="toggleResultsContent" class="summary-toggle-button summary-toggle-button-icon" type="button" aria-expanded="true" aria-label="Uitkomsten inklappen" title="Uitkomsten inklappen">
+                  <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                </button>
                 <div class="button-row summary-export-action">
                   <button id="generateSummaryPdf" class="secondary-button" type="button">
                     Samenvatting PDF
@@ -434,7 +409,7 @@
                 <div class="summary-head">
                   <h3>Uitkomst risicoprofiel</h3>
                   <button id="toggleSummaryRiskOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
-                    <span>Inklappen</span>
+                    <span class="summary-toggle-label">Inklappen</span>
                     <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
@@ -450,7 +425,7 @@
                 <div class="summary-head">
                   <h3>Uitkomst grondoorzaken</h3>
                   <button id="toggleSummaryGroundCausesOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
-                    <span>Inklappen</span>
+                    <span class="summary-toggle-label">Inklappen</span>
                     <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
@@ -465,7 +440,7 @@
                 <div class="summary-head">
                   <h3>Uitkomst nadere voorschriften</h3>
                   <button id="toggleSummarySupplementalOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
-                    <span>Inklappen</span>
+                    <span class="summary-toggle-label">Inklappen</span>
                     <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
@@ -480,7 +455,7 @@
                 <div class="summary-head">
                   <h3>Uitkomst RI&amp;E-kwaliteit</h3>
                   <button id="toggleSummaryQuestionOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
-                    <span>Inklappen</span>
+                    <span class="summary-toggle-label">Inklappen</span>
                     <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
@@ -493,7 +468,7 @@
                 <div class="summary-head">
                   <h3>Uitkomsten plan van aanpak</h3>
                   <button id="toggleSummaryPlanOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
-                    <span>Inklappen</span>
+                    <span class="summary-toggle-label">Inklappen</span>
                     <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
