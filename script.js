@@ -2532,7 +2532,7 @@ function isGroundCausesStepComplete() {
 
   const items = getRelevantGroundCauseItems();
   if (items.length === 0) {
-    return true;
+    return false;
   }
 
   return items.every((item) => {
@@ -2571,7 +2571,7 @@ function getRelevantSupplementalConfigs() {
 function isSupplementalStepComplete() {
   const entries = getRelevantSupplementalConfigs();
   if (entries.length === 0) {
-    return true;
+    return false;
   }
 
   return entries.every(({ item, config }) => {

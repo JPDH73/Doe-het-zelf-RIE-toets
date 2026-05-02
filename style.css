@@ -268,12 +268,12 @@ h1 {
 }
 
 .wizard-progress-actions {
-  margin-top: 14px;
+  margin-top: 10px;
   justify-content: space-between;
 }
 
 .wizard-progress-reset {
-  margin: 14px 0 22px;
+  margin: 10px 0 16px;
   justify-content: flex-end;
 }
 
@@ -1074,6 +1074,10 @@ h1 {
   margin-top: 10px;
   margin-left: auto;
   justify-content: flex-end;
+  width: 100%;
+}
+
+.results .panel-head.compact > div {
   width: 100%;
 }
 
