@@ -829,6 +829,15 @@ h1 {
   color: var(--ink);
 }
 
+.participant-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.participant-picker-row {
+  display: grid;
+}
+
 .risk-note:focus {
   outline: 2px solid var(--accent-soft);
   border-color: var(--accent);

@@ -571,6 +571,7 @@ function resetExecutionParticipantRows(rows = [{ name: "", role: "" }]) {
   ensureExecutionParticipantTrailingRow();
   syncExecutionDescription();
   refreshExecutionParticipantSelects();
+  refreshRiskParticipantPickers();
 }
 
 function slugify(text) {
@@ -813,6 +814,7 @@ function restoreDraftFromLocalStorage() {
     ensureExecutionParticipantTrailingRow();
     syncExecutionDescription();
     refreshExecutionParticipantSelects();
+    refreshRiskParticipantPickers();
 
     const openDetails = new Set(draftState.openDetails || []);
     for (const detail of document.querySelectorAll("details")) {
@@ -1377,6 +1379,76 @@ function createRiskTextField(name, labelText, placeholderText) {
   return field;
 }
 
+function getParticipantPickerValues(input) {
+  const raw = getPlainValue(input?.value || "");
+  return raw ? raw.split(" | ").map((value) => value.trim()).filter(Boolean) : [];
+}
+
+function createParticipantPickerRow(value = "") {
+  const row = document.createElement("div");
+  row.className = "participant-picker-row";
+
+  const select = document.createElement("select");
+  select.className = "risk-select participant-picker-select";
+  select.innerHTML = `<option value="">Kies een persoon</option>`;
+  row.append(select);
+
+  row.dataset.value = value;
+  return row;
+}
+
+function updateParticipantPickerOptions(row, optionsList, selectedValue = "") {
+  const select = row.querySelector(".participant-picker-select");
+  if (!select) {
+    return;
+  }
+
+  select.innerHTML = `<option value="">Kies een persoon</option>`;
+
+  for (const option of optionsList) {
+    const optionElement = document.createElement("option");
+    optionElement.value = option;
+    optionElement.textContent = option;
+    select.append(optionElement);
+  }
+
+  select.value = selectedValue && optionsList.includes(selectedValue) ? selectedValue : "";
+}
+
+function syncParticipantPickerField(field) {
+  const picker = field.querySelector(".participant-picker");
+  const store = field.querySelector(".participant-picker-store");
+  if (!picker || !store) {
+    return;
+  }
+
+  const values = Array.from(picker.querySelectorAll(".participant-picker-select"))
+    .map((select) => getPlainValue(select.value))
+    .filter(Boolean);
+
+  store.value = values.join(" | ");
+}
+
+function ensureParticipantPickerTrailingRow(field) {
+  const picker = field.querySelector(".participant-picker");
+  if (!picker) {
+    return;
+  }
+
+  const rows = Array.from(picker.querySelectorAll(".participant-picker-row"));
+  const lastSelect = rows.at(-1)?.querySelector(".participant-picker-select");
+
+  if (!lastSelect) {
+    return;
+  }
+
+  if (getPlainValue(lastSelect.value) !== "") {
+    const newRow = createParticipantPickerRow("");
+    updateParticipantPickerOptions(newRow, getExecutionParticipantOptions(), "");
+    picker.append(newRow);
+  }
+}
+
 function createRiskSelectField(name, labelText, optionsList) {
   const field = document.createElement("label");
   field.className = "risk-evidence";
@@ -1403,9 +1475,41 @@ function createRiskSelectField(name, labelText, optionsList) {
   return field;
 }
 
+function createRiskParticipantPickerField(name, labelText) {
+  const field = document.createElement("label");
+  field.className = "risk-evidence";
+  field.hidden = true;
+
+  const label = document.createElement("span");
+  label.className = "risk-evidence-label";
+  label.textContent = labelText;
+
+  const picker = document.createElement("div");
+  picker.className = "participant-picker";
+
+  const store = document.createElement("input");
+  store.type = "hidden";
+  store.name = name;
+  store.className = "participant-picker-store";
+
+  const initialRow = createParticipantPickerRow("");
+  updateParticipantPickerOptions(initialRow, getExecutionParticipantOptions(), "");
+  picker.append(initialRow);
+
+  picker.addEventListener("change", () => {
+    syncParticipantPickerField(field);
+    ensureParticipantPickerTrailingRow(field);
+  });
+
+  field.append(label, picker, store);
+  return field;
+}
+
 function createRiskMethodHelp() {
   const helpToggle = document.createElement("details");
   helpToggle.className = "question-help-toggle";
+  helpToggle.hidden = true;
+  helpToggle.dataset.methodHelp = "true";
 
   const summary = document.createElement("summary");
   summary.textContent = "Toelichting op methoden";
@@ -1447,6 +1551,31 @@ function refreshExecutionParticipantSelects() {
     if (options.includes(previousValue)) {
       select.value = previousValue;
     }
+  }
+}
+
+function refreshRiskParticipantPickers() {
+  const participantOptions = getExecutionParticipantOptions();
+
+  for (const field of document.querySelectorAll(".risk-evidence")) {
+    const picker = field.querySelector(".participant-picker");
+    const store = field.querySelector(".participant-picker-store");
+    if (!picker || !store) {
+      continue;
+    }
+
+    const values = getParticipantPickerValues(store);
+    picker.textContent = "";
+
+    const selectedValues = values.length > 0 ? values : [""];
+    for (const value of selectedValues) {
+      const row = createParticipantPickerRow(value);
+      updateParticipantPickerOptions(row, participantOptions, value);
+      picker.append(row);
+    }
+
+    ensureParticipantPickerTrailingRow(field);
+    syncParticipantPickerField(field);
   }
 }
 
@@ -1895,7 +2024,7 @@ function renderRiskInventory(container) {
 
       const groupApplicabilityQuestion = document.createElement("p");
       groupApplicabilityQuestion.className = "risk-question";
-      groupApplicabilityQuestion.textContent = `Is ${group.title} als hoofdthema van toepassing op de organisatie?`;
+      groupApplicabilityQuestion.textContent = `Is ${group.title} als hoofdthema van toepassing op de organisatie binnen de reikwijdte van de RI&E?`;
 
       const groupApplicabilityOptions = createBinaryOptions(
         `risk-group-${group.id}-applicable`,
@@ -1953,7 +2082,7 @@ function renderRiskInventory(container) {
       item.append(header);
 
       const applicability = createRiskColumn(
-        "Is dit hoofd- of deelrisico van toepassing op de organisatie?",
+        "Is dit hoofd- of deelrisico van toepassing op de organisatie binnen de reikwijdte van de RI&E?",
         "applicable",
         [
           { value: "yes", label: "Van toepassing" },
@@ -1980,10 +2109,9 @@ function renderRiskInventory(container) {
       described.classList.add("conditional-block");
       described.dataset.when = "applicable-yes";
       described.append(
-        createRiskSelectField(
+        createRiskParticipantPickerField(
           `risk-${itemId}-assessor`,
-          "Wie heeft dit risico beoordeeld?",
-          getExecutionParticipantOptions()
+          "Wie heeft dit risico beoordeeld?"
         )
       );
       described.append(
@@ -4834,11 +4962,24 @@ function updateRiskInventoryVisibility() {
       for (const field of describedFields || []) {
         field.hidden = false;
       }
+      const methodHelp = describedBlock?.querySelector('[data-method-help="true"]');
+      if (methodHelp) {
+        methodHelp.hidden = false;
+      }
     } else if (applicable === "yes" && described === "no") {
       const whyNotField = whyNotBlock?.querySelector(".risk-evidence");
       const justified = getAnswerValue(`risk-${itemId}-justified`);
       if (whyNotField && justified === "yes") {
         whyNotField.hidden = false;
+      }
+      const methodHelp = describedBlock?.querySelector('[data-method-help="true"]');
+      if (methodHelp) {
+        methodHelp.hidden = true;
+      }
+    } else {
+      const methodHelp = describedBlock?.querySelector('[data-method-help="true"]');
+      if (methodHelp) {
+        methodHelp.hidden = true;
       }
     }
 
@@ -5867,6 +6008,7 @@ executionParticipantRows?.addEventListener("input", () => {
   ensureExecutionParticipantTrailingRow();
   syncExecutionDescription();
   refreshExecutionParticipantSelects();
+  refreshRiskParticipantPickers();
 });
 copyReport.addEventListener("click", copyReportToClipboard);
 toggleReportOutput?.addEventListener("click", toggleReportOutputVisibility);
