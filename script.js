@@ -441,7 +441,7 @@ const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
 const TOTAL_WIZARD_STEPS = 6;
-let currentWizardStep = 1;
+let currentWizardStep = 0;
 
 function slugify(text) {
   return text
@@ -495,6 +495,24 @@ function setPanelContentOpenForStep(step) {
   if (step === 5 && planStepSectionContent) {
     planStepSectionContent.hidden = false;
   }
+
+  if (step === 6) {
+    if (summaryRiskOutput) {
+      summaryRiskOutput.hidden = false;
+    }
+
+    if (summaryQuestionOutput) {
+      summaryQuestionOutput.hidden = false;
+    }
+
+    if (summaryPlanOutput) {
+      summaryPlanOutput.hidden = false;
+    }
+
+    if (reportOutput) {
+      reportOutput.hidden = false;
+    }
+  }
 }
 
 function updateWizardStepButtons() {
@@ -506,7 +524,10 @@ function updateWizardStepButtons() {
 
 function updateWizardNavigation() {
   if (wizardStepStatus) {
-    wizardStepStatus.textContent = `Stap ${currentWizardStep} van ${TOTAL_WIZARD_STEPS}`;
+    wizardStepStatus.textContent =
+      currentWizardStep > 0
+        ? `Stap ${currentWizardStep} van ${TOTAL_WIZARD_STEPS}`
+        : "Kies een stap";
   }
 
   if (wizardPrev) {
@@ -524,7 +545,7 @@ function updateWizardVisibility() {
     panel.hidden = step !== currentWizardStep;
   }
 
-  if (currentWizardStep !== 6) {
+  if (currentWizardStep > 0) {
     setPanelContentOpenForStep(currentWizardStep);
   }
 
@@ -535,7 +556,7 @@ function updateWizardVisibility() {
 }
 
 function setWizardStep(step) {
-  const nextStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(1, Number(step) || 1));
+  const nextStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(0, Number(step) || 0));
   currentWizardStep = nextStep;
   updateWizardVisibility();
 }
@@ -598,7 +619,7 @@ function restoreDraftFromLocalStorage() {
     const fields = draftState.fields || {};
     currentWizardStep = Math.min(
       TOTAL_WIZARD_STEPS,
-      Math.max(1, Number(draftState.currentWizardStep) || 1)
+      Math.max(0, Number(draftState.currentWizardStep) || 0)
     );
 
     for (const [name, value] of Object.entries(fields)) {
@@ -687,7 +708,7 @@ function clearAllAnswers() {
     reportOutput.hidden = true;
   }
 
-  currentWizardStep = 1;
+  currentWizardStep = 0;
 
   try {
     localStorage.removeItem(DRAFT_STORAGE_KEY);
@@ -4816,7 +4837,7 @@ function goToNextWizardStep() {
     return;
   }
 
-  setWizardStep(currentWizardStep + 1);
+  setWizardStep(currentWizardStep === 0 ? 1 : currentWizardStep + 1);
   saveDraftToLocalStorage();
 }
 

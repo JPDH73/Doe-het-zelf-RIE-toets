@@ -70,7 +70,7 @@
                 <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 6</strong>
               </div>
               <div class="wizard-step-buttons">
-              <button class="secondary-button wizard-step-button is-active" id="wizardStepButton1" type="button" data-step-target="1">
+              <button class="secondary-button wizard-step-button" id="wizardStepButton1" type="button" data-step-target="1">
                 1. Bedrijfsprofiel
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton2" type="button" data-step-target="2">
@@ -106,9 +106,6 @@
                   <p class="section-kicker">Stap 1</p>
                   <h2>Bedrijfsprofiel</h2>
                 </div>
-                <button id="toggleProfileSection" class="secondary-button" type="button">
-                  Klap open
-                </button>
               </div>
 
               <div id="profileSectionContent" class="grid profile-grid" hidden>
@@ -215,9 +212,6 @@
                   <p class="section-kicker">Stap 2</p>
                   <h2>Afbakening en documentgegevens van de RI&amp;E</h2>
                 </div>
-                <button id="toggleScopeSection" class="secondary-button" type="button">
-                  Klap open
-                </button>
               </div>
 
               <div id="scopeSectionContent" class="document-grid" hidden>
@@ -313,14 +307,6 @@
                   <p class="section-kicker">Stap 3</p>
                   <h2>Systeemtoets risicoprofiel</h2>
                 </div>
-                <div class="button-row">
-                  <button id="toggleStep3Section" class="secondary-button" type="button">
-                    Klap dicht
-                  </button>
-                  <button id="toggleAllSections" class="secondary-button" type="button">
-                    Klap alles open
-                  </button>
-                </div>
               </div>
 
               <div id="step3SectionContent" hidden>
@@ -347,9 +333,6 @@
                   <p class="section-kicker">Stap 4</p>
                   <h2>Systeemtoets RI&amp;E-kwaliteit</h2>
                 </div>
-                <button id="toggleRegularStepSection" class="secondary-button" type="button">
-                  Klap dicht
-                </button>
               </div>
 
               <div id="regularStepSectionContent" hidden>
@@ -368,9 +351,6 @@
                   <p class="section-kicker">Stap 5</p>
                   <h2>Toetsing plan van aanpak</h2>
                 </div>
-                <button id="togglePlanStepSection" class="secondary-button" type="button">
-                  Klap dicht
-                </button>
               </div>
 
               <div id="planStepSectionContent" hidden>
@@ -411,9 +391,6 @@
             <section class="summary">
               <div class="summary-head">
                 <h3>Uitkomst systeemtoets risicoprofiel</h3>
-                <button id="toggleSummaryRiskOutput" class="secondary-button" type="button">
-                  Klap open
-                </button>
               </div>
               <div id="summaryRiskOutput" hidden>
                 <div class="result-list-block">
@@ -430,9 +407,6 @@
             <section class="summary">
               <div class="summary-head">
                 <h3>Uitkomst systeemtoets RI&amp;E-kwaliteit</h3>
-                <button id="toggleSummaryQuestionOutput" class="secondary-button" type="button">
-                  Klap open
-                </button>
               </div>
               <div id="summaryQuestionOutput" hidden>
                 <div id="questionStatusMatrix" class="status-matrix"></div>
@@ -442,9 +416,6 @@
             <section class="summary">
               <div class="summary-head">
                 <h3>Uitkomsten plan van aanpak</h3>
-                <button id="toggleSummaryPlanOutput" class="secondary-button" type="button">
-                  Klap open
-                </button>
               </div>
               <div id="summaryPlanOutput" hidden>
                 <div id="planStatusMatrix" class="status-matrix"></div>
@@ -456,9 +427,6 @@
                 <h3 class="report-summary-title">Volledig overzicht</h3>
                 <div class="report-action-stack">
                   <div class="button-row report-action-row">
-                    <button id="toggleReportOutput" class="secondary-button" type="button">
-                      Klap open
-                    </button>
                     <button id="copyReport" class="secondary-button" type="button">
                       Kopieer
                     </button>
