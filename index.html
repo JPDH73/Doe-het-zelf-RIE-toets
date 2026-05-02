@@ -411,10 +411,6 @@
               <div>
                 <p class="section-kicker">Live resultaat</p>
                 <h2>Uitkomsten en rapporten</h2>
-                <button id="toggleResultsContent" class="summary-toggle-button" type="button" aria-expanded="true">
-                  <span>Uitkomsten tonen</span>
-                  <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
-                </button>
                 <div class="button-row summary-export-action">
                   <button id="generateSummaryPdf" class="secondary-button" type="button">
                     Samenvatting PDF
@@ -437,6 +433,10 @@
               <section class="summary">
                 <div class="summary-head">
                   <h3>Uitkomst risicoprofiel</h3>
+                  <button id="toggleSummaryRiskOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
+                    <span>Inklappen</span>
+                    <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
                 <div id="summaryRiskOutput" hidden>
                   <div class="result-list-block">
@@ -449,6 +449,10 @@
               <section class="summary">
                 <div class="summary-head">
                   <h3>Uitkomst grondoorzaken</h3>
+                  <button id="toggleSummaryGroundCausesOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
+                    <span>Inklappen</span>
+                    <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
                 <div id="summaryGroundCausesOutput" hidden>
                   <div class="result-list-block">
@@ -460,6 +464,10 @@
               <section class="summary">
                 <div class="summary-head">
                   <h3>Uitkomst nadere voorschriften</h3>
+                  <button id="toggleSummarySupplementalOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
+                    <span>Inklappen</span>
+                    <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
                 <div id="summarySupplementalOutput" hidden>
                   <div class="result-list-block">
@@ -471,6 +479,10 @@
               <section class="summary">
                 <div class="summary-head">
                   <h3>Uitkomst RI&amp;E-kwaliteit</h3>
+                  <button id="toggleSummaryQuestionOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
+                    <span>Inklappen</span>
+                    <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
                 <div id="summaryQuestionOutput" hidden>
                   <div id="questionStatusMatrix" class="status-matrix"></div>
@@ -480,6 +492,10 @@
               <section class="summary">
                 <div class="summary-head">
                   <h3>Uitkomsten plan van aanpak</h3>
+                  <button id="toggleSummaryPlanOutput" class="summary-toggle-button summary-toggle-button-inline" type="button" aria-expanded="true">
+                    <span>Inklappen</span>
+                    <span class="summary-toggle-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
                 <div id="summaryPlanOutput" hidden>
                   <div id="planStatusMatrix" class="status-matrix"></div>

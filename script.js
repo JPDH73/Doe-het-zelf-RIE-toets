@@ -435,6 +435,8 @@ const toggleSupplementalQuestions = document.querySelector("#toggleSupplementalQ
 const toggleRegularQuestions = document.querySelector("#toggleRegularQuestions");
 const togglePlanQuestions = document.querySelector("#togglePlanQuestions");
 const toggleSummaryRiskOutput = document.querySelector("#toggleSummaryRiskOutput");
+const toggleSummaryGroundCausesOutput = document.querySelector("#toggleSummaryGroundCausesOutput");
+const toggleSummarySupplementalOutput = document.querySelector("#toggleSummarySupplementalOutput");
 const toggleSummaryQuestionOutput = document.querySelector("#toggleSummaryQuestionOutput");
 const toggleSummaryPlanOutput = document.querySelector("#toggleSummaryPlanOutput");
 const toggleProfileSection = document.querySelector("#toggleProfileSection");
@@ -5293,11 +5295,18 @@ function updateSummarySectionToggleButtonLabel(button, target) {
     return;
   }
 
-  button.textContent = target.hidden ? "Klap open" : "Klap dicht";
+  const expanded = !target.hidden;
+  button.setAttribute("aria-expanded", expanded ? "true" : "false");
+  const label = button.querySelector("span");
+  if (label) {
+    label.textContent = expanded ? "Inklappen" : "Uitklappen";
+  }
 }
 
 function updateSummarySectionToggleLabels() {
   updateSummarySectionToggleButtonLabel(toggleSummaryRiskOutput, summaryRiskOutput);
+  updateSummarySectionToggleButtonLabel(toggleSummaryGroundCausesOutput, summaryGroundCausesOutput);
+  updateSummarySectionToggleButtonLabel(toggleSummarySupplementalOutput, summarySupplementalOutput);
   updateSummarySectionToggleButtonLabel(toggleSummaryQuestionOutput, summaryQuestionOutput);
   updateSummarySectionToggleButtonLabel(toggleSummaryPlanOutput, summaryPlanOutput);
 }
@@ -5419,6 +5428,12 @@ for (const button of wizardStepButtons) {
 }
 toggleSummaryRiskOutput?.addEventListener("click", () =>
   toggleSummarySection(summaryRiskOutput, toggleSummaryRiskOutput)
+);
+toggleSummaryGroundCausesOutput?.addEventListener("click", () =>
+  toggleSummarySection(summaryGroundCausesOutput, toggleSummaryGroundCausesOutput)
+);
+toggleSummarySupplementalOutput?.addEventListener("click", () =>
+  toggleSummarySection(summarySupplementalOutput, toggleSummarySupplementalOutput)
 );
 toggleSummaryQuestionOutput?.addEventListener("click", () =>
   toggleSummarySection(summaryQuestionOutput, toggleSummaryQuestionOutput)
