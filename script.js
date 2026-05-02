@@ -4453,10 +4453,17 @@ function updateGroundCauseVisibility() {
 
     for (const item of groupCard.querySelectorAll(".cause-item")) {
       const itemId = item.dataset.itemId;
+      const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+      const described = getAnswerValue(`risk-${itemId}-described`);
       const causes = getAnswerValue(`risk-${itemId}-causes`);
       const causesBlock = item.querySelector('[data-field="causes"]');
 
-      item.hidden = false;
+      const visible = applicable === "yes" && described === "yes";
+      item.hidden = !visible;
+
+      if (!visible) {
+        continue;
+      }
 
       for (const control of item.querySelectorAll("input, textarea")) {
         control.disabled = disableInputs;
