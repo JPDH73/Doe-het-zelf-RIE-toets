@@ -776,7 +776,7 @@ h1 {
 
 .binary-pill {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   min-height: 46px;
   padding: 10px 12px;
@@ -787,7 +787,25 @@ h1 {
 }
 
 .binary-pill input {
-  margin: 0;
+  margin: 2px 0 0;
+}
+
+.binary-pill-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.binary-pill-label {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.binary-pill-detail {
+  color: var(--muted);
+  font-size: 0.83rem;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .risk-evidence {

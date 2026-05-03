@@ -303,12 +303,6 @@ const requirementsOptions = [
     score: 2,
     detail: "",
   },
-  {
-    value: "na",
-    label: "N.v.t.",
-    score: 0,
-    detail: "",
-  },
 ];
 
 const yesNoOptions = [
@@ -987,10 +981,23 @@ function createBinaryOptions(name, choices, selectedValue) {
     input.checked = selectedValue === choice.value;
     makeRadioToggleable(input);
 
+    const copy = document.createElement("span");
+    copy.className = "binary-pill-copy";
+
     const text = document.createElement("span");
+    text.className = "binary-pill-label";
     text.textContent = choice.label;
 
-    label.append(input, text);
+    copy.append(text);
+
+    if (choice.detail) {
+      const detail = document.createElement("span");
+      detail.className = "binary-pill-detail";
+      detail.textContent = choice.detail;
+      copy.append(detail);
+    }
+
+    label.append(input, copy);
     wrapper.append(label);
   }
 
@@ -1554,9 +1561,194 @@ function createInlineHelpToggle(content) {
   return helpToggle;
 }
 
+const groundCauseNoReasonOptions = [
+  {
+    value: "systematiek",
+    label: "Niet opgenomen in de gehanteerde beoordelingssystematiek",
+    detail:
+      "De gebruikte methode of werkwijze voorzag niet expliciet in het beoordelen van basisrisicofactoren of achterliggende grondoorzaken.",
+  },
+  {
+    value: "niet-relevant",
+    label: "Niet relevant voor dit deelrisico",
+    detail:
+      "Voor dit deelrisico zijn geen relevante basisrisicofactoren of grondoorzaken van toepassing, omdat het risico voldoende direct en specifiek kan worden beoordeeld.",
+  },
+  {
+    value: "anders",
+    label: "Andere reden",
+    detail:
+      "Er is een andere reden waarom basisrisicofactoren of grondoorzaken niet zijn meegenomen.",
+  },
+];
+
+function getGroundCauseNoReasonLabel(value) {
+  return groundCauseNoReasonOptions.find((option) => option.value === value)?.label || "";
+}
+
+const supplementalNoReasonOptions = [
+  {
+    value: "niet-noodzakelijk",
+    label: "Niet noodzakelijk gezien aard en omvang van het risico",
+    detail:
+      "De aard, hoeveelheid, frequentie of blootstellingsduur is zodanig beperkt dat een nadere inventarisatie of aanvullende beoordeling voor dit deelrisico niet proportioneel of noodzakelijk is.",
+  },
+  {
+    value: "niet-onderkend",
+    label: "Niet onderkend binnen de beoordeling",
+    detail:
+      "De mogelijke verplichting tot nadere inventarisatie of toepassing van aanvullende voorschriften is tijdens de beoordeling niet als zodanig herkend of meegenomen.",
+  },
+  {
+    value: "anders",
+    label: "Andere reden",
+    detail:
+      "Er is een andere reden waarom geen invulling is gegeven aan nadere inventarisatieverplichtingen of aanvullende voorschriften.",
+  },
+];
+
+function getSupplementalNoReasonLabel(value) {
+  return supplementalNoReasonOptions.find((option) => option.value === value)?.label || "";
+}
+
+function createGroundCauseNoReasonField(itemId) {
+  const field = document.createElement("div");
+  field.className = "risk-evidence";
+  field.hidden = true;
+  field.dataset.groundCauseNoReasonField = "true";
+
+  const label = document.createElement("span");
+  label.className = "risk-evidence-label";
+  label.textContent = "Waarom zijn de grondoorzaken niet meegenomen?";
+
+  const options = createBinaryOptions(
+    `risk-${itemId}-causes-no-reason`,
+    groundCauseNoReasonOptions,
+    null
+  );
+  options.classList.add("binary-options-stacked");
+
+  const noteField = createEvidenceField(
+    `risk-${itemId}-causes-no-note`,
+    "Licht hier toe wat de andere reden is waarom basisrisicofactoren of grondoorzaken niet zijn meegenomen."
+  );
+  noteField.hidden = true;
+  noteField.dataset.groundCauseNoReasonNote = "true";
+
+  options.addEventListener("change", () => {
+    const selected = getAnswerValue(`risk-${itemId}-causes-no-reason`);
+    noteField.hidden = selected !== "anders";
+  });
+
+  field.append(label, options, noteField);
+  return field;
+}
+
+function createSupplementalNoReasonField(itemId, configKey) {
+  const field = document.createElement("div");
+  field.className = "risk-evidence";
+  field.hidden = true;
+  field.dataset.supplementalNoReasonField = "true";
+
+  const label = document.createElement("span");
+  label.className = "risk-evidence-label";
+  label.textContent = "Waarom is geen invulling gegeven aan de nadere voorschriften?";
+
+  const options = createBinaryOptions(
+    `risk-${itemId}-${configKey}-no-reason`,
+    supplementalNoReasonOptions,
+    null
+  );
+  options.classList.add("binary-options-stacked");
+
+  const noteField = createEvidenceField(
+    `risk-${itemId}-${configKey}-note`,
+    "Licht hier toe wat de andere reden is waarom geen invulling is gegeven aan nadere inventarisatieverplichtingen of aanvullende voorschriften."
+  );
+  noteField.hidden = true;
+  noteField.dataset.supplementalNoReasonNote = "true";
+
+  options.addEventListener("change", () => {
+    const selected = getAnswerValue(`risk-${itemId}-${configKey}-no-reason`);
+    noteField.hidden = selected !== "anders";
+  });
+
+  field.append(label, options, noteField);
+  return field;
+}
+
 function formatThemeQuestionLabel(title) {
   const withoutNumber = title.replace(/^\d+\.\s*/, "");
   return withoutNumber.charAt(0).toLowerCase() + withoutNumber.slice(1);
+}
+
+function getRiskItemHelpText(itemLabel) {
+  const helpTexts = {
+    Werkdruk:
+      "Dit deelrisico gaat over belasting door werkhoeveelheid, werktempo, deadlines en de mate waarin medewerkers voldoende regelmogelijkheden hebben. Werkdruk wordt een arbeidsrisico wanneer de belasting structureel hoger is dan wat gezond en veilig uitvoerbaar is binnen de beschikbare tijd, middelen en ondersteuning.",
+    "Pesten, seksuele intimidatie, agressie en geweld":
+      "Dit deelrisico gaat over ongewenst gedrag dat kan leiden tot psychische schade, sociale onveiligheid of uitval. Het kan gaan om gedrag van collega’s, leidinggevenden, klanten, cliënten, patiënten, leerlingen of andere derden waarmee medewerkers in het werk te maken hebben.",
+    Discriminatie:
+      "Dit deelrisico gaat over ongelijke behandeling, uitsluiting of benadeling op bijvoorbeeld afkomst, geslacht, leeftijd, geloof, beperking of seksuele gerichtheid. Discriminatie kan leiden tot psychische belasting, onveiligheid, verstoorde samenwerking en een aantasting van gezond en veilig werken.",
+    "Inhoud en organisatie van de arbeid":
+      "Dit deelrisico gaat over de manier waarop werk is ingericht, verdeeld en aangestuurd. Denk aan autonomie, taakeisen, rolonduidelijkheid, monotone arbeid, onvoldoende afwisseling of een onlogische organisatie van werkzaamheden die kan leiden tot overbelasting of verminderde inzetbaarheid.",
+    "Gezondheidsrisico's, zoals carcinogene, mutagene, reprotoxische en sensibiliserende stoffen en procesemissies":
+      "Dit deelrisico gaat over blootstelling aan stoffen die schadelijk kunnen zijn voor de gezondheid via inademing, huidcontact of inslikken. Het kan gaan om acute effecten, maar ook om langetermijneffecten zoals allergieën, longaandoeningen, kanker of effecten op de voortplanting.",
+    "Veiligheidsrisico's, zoals brand, explosie en zware ongevallen bij opslag of gebruik":
+      "Dit deelrisico gaat over situaties waarin gevaarlijke stoffen kunnen leiden tot brand, explosie, plotselinge vrijkomst of andere zware incidenten. Daarbij spelen opslag, gebruik, menging, ontbranding, ventilatie en beheersing van procesomstandigheden een belangrijke rol.",
+    "Micro-organismen, zoals bacteriën, schimmels, virussen, parasieten, infectieuze agentia, toxinen en allergenen":
+      "Dit deelrisico gaat over blootstelling aan biologische agentia die infecties, allergische reacties of toxische effecten kunnen veroorzaken. Relevantie ontstaat vooral wanneer medewerkers werken met mensen, dieren, afval, water, voeding, laboratoria of verontreinigde omgevingen.",
+    "Klimaat, zoals hoge en lage temperaturen, luchtverversing, luchtvochtigheid en tocht":
+      "Dit deelrisico gaat over belasting door warmte, koude, tocht, luchtvochtigheid en ventilatie. Onvoldoende beheersing van het klimaat kan leiden tot hinder, verminderde belastbaarheid, gezondheidsklachten en onveilig functioneren.",
+    "Straling, zoals niet-ioniserende straling, uv-straling en kunstmatige optische straling":
+      "Dit deelrisico gaat over blootstelling aan verschillende vormen van straling die schadelijk kunnen zijn voor huid, ogen of andere lichaamsfuncties. Relevantie ontstaat bijvoorbeeld bij lassen, uv-bronnen, lasers, elektromagnetische velden of andere installaties die straling genereren.",
+    "Verlichting en daglicht":
+      "Dit deelrisico gaat over de kwaliteit en beschikbaarheid van kunstlicht en daglicht op de werkplek. Onvoldoende of ongunstige verlichting kan leiden tot vermoeidheid, fouten, oogklachten, onveilige situaties en een verminderde kwaliteit van het werk.",
+    "Schadelijk of hinderlijk geluid":
+      "Dit deelrisico gaat over blootstelling aan geluid dat schadelijk kan zijn voor het gehoor of hinder kan veroorzaken in het werk. Naast blijvende gehoorschade kan geluid ook leiden tot concentratieverlies, vermoeidheid, stress en verminderde veiligheid.",
+    "Trillingen en schokken":
+      "Dit deelrisico gaat over mechanische trillingen en schokken die via handgereedschap, voertuigen, machines of werkvloeren op het lichaam worden overgedragen. Dit kan leiden tot klachten aan rug, gewrichten, zenuwen of bloedvaten en vraagt om beoordeling van duur, intensiteit en blootstellingsfrequentie.",
+    "Werken onder overdruk":
+      "Dit deelrisico gaat over werkzaamheden in omstandigheden met verhoogde omgevingsdruk, zoals bij duikarbeid of andere overdruksituaties. Door de specifieke fysiologische belasting en veiligheidsrisico’s gelden hierbij bijzondere eisen aan beoordeling, uitvoering en deskundigheid.",
+    "Werk- en rusttijden":
+      "Dit deelrisico gaat over de spreiding en duur van werktijden en rustmomenten. Onvoldoende hersteltijd of ongunstige werktijden kunnen leiden tot vermoeidheid, fouten, gezondheidsklachten en een verhoogde kans op ongevallen.",
+    Ploegendienst:
+      "Dit deelrisico gaat over arbeid in wisselende diensten, waarbij het bioritme en het herstel van medewerkers onder druk kunnen komen te staan. Ploegendienst kan effect hebben op slaap, alertheid, gezondheid, sociale belasting en duurzame inzetbaarheid.",
+    Nachtarbeid:
+      "Dit deelrisico gaat over werken in de nacht, wat een extra belasting vormt voor slaap, herstel en biologische ritmes. Nachtarbeid kan leiden tot vermoeidheid, concentratieverlies, gezondheidsrisico’s en een grotere kans op fouten of incidenten.",
+    "Arbeidsmiddelen: geschiktheid, beschikbaarheid, bevoegd gebruik, keuringen en onderhoud":
+      "Dit deelrisico gaat over de vraag of arbeidsmiddelen geschikt, veilig en beschikbaar zijn voor het werk en of ze op de juiste manier worden gebruikt, onderhouden en gekeurd. Risico’s ontstaan wanneer middelen ondeugdelijk zijn, verkeerd worden gebruikt of niet passend zijn voor de taak of gebruiker.",
+    "Inrichting arbeidsplaatsen, zoals werkruimten, orde en netheid, beveiligingen, signalering, bewegingsruimte, werken op hoogte en noodvoorzieningen":
+      "Dit deelrisico gaat over de fysieke inrichting en veiligheid van de arbeidsplaats. Daarbij gaat het onder meer om ruimte, toegankelijkheid, orde en netheid, valgevaar, afschermingen, signalering en de aanwezigheid en bruikbaarheid van noodvoorzieningen.",
+    "Persoonlijke beschermingsmiddelen: noodzaak, geschiktheid, keuringen en onderhoud":
+      "Dit deelrisico gaat over het gebruik van persoonlijke beschermingsmiddelen wanneer risico’s niet voldoende op een andere manier kunnen worden beheerst. Belangrijk is of PBM’s echt nodig zijn, passend zijn voor het risico, goed worden gebruikt en in goede staat verkeren.",
+    "Fysieke onderbelasting, zoals weinig beweging en lang zitten of staan":
+      "Dit deelrisico gaat over te weinig afwisseling of beweging in het werk, bijvoorbeeld door langdurig zitten of stilstaan. Ook onderbelasting kan leiden tot gezondheidsklachten, verminderde belastbaarheid en een verhoogd risico op musculoskeletale problemen.",
+    "Fysieke overbelasting, zoals tillen, dragen, duwen, trekken, repeterende bewegingen en ongunstige houdingen":
+      "Dit deelrisico gaat over lichamelijke belasting die te zwaar, te langdurig of te eenzijdig is. Relevantie ontstaat bij handmatig verplaatsen van lasten, repeterend werk of werkhoudingen die kunnen leiden tot klachten aan rug, nek, schouders, armen of benen.",
+    Beeldschermwerk:
+      "Dit deelrisico gaat over belasting door langdurig of ongunstig beeldschermwerk. Daarbij spelen onder meer werkhouding, duur van het werk, afwisseling, visuele belasting en de inrichting van de werkplek een rol.",
+    Uitzendkrachten:
+      "Dit deelrisico gaat over extra kwetsbaarheden van uitzendkrachten, bijvoorbeeld door beperkte inwerktijd, minder kennis van het bedrijf of onduidelijkheid over instructies en verantwoordelijkheden. In de RI&E moet blijken of deze groep voldoende is meegenomen.",
+    Stagiaires:
+      "Dit deelrisico gaat over medewerkers in opleiding die vaak minder ervaring hebben en daardoor extra kwetsbaar kunnen zijn voor arbeidsrisico’s. Relevantie ontstaat vooral wanneer begeleiding, instructie of toezicht onvoldoende zijn afgestemd op hun leer- en ervaringsniveau.",
+    Vrijwilligers:
+      "Dit deelrisico gaat over personen die werkzaamheden verrichten zonder reguliere arbeidsovereenkomst, maar wel met blootstelling aan arbeidsrisico’s. Ook voor vrijwilligers moet worden beoordeeld welke risico’s voor hen relevant zijn en hoe die worden beheerst.",
+    Anderstaligen:
+      "Dit deelrisico gaat over medewerkers die instructies, waarschuwingen of procedures mogelijk niet volledig begrijpen door taalbarrières. Dit kan directe gevolgen hebben voor veilig gedrag, naleving van werkinstructies en de effectiviteit van communicatie op de werkvloer.",
+    "Andere personen of derden, zoals bezoekers en voorbijgangers":
+      "Dit deelrisico gaat over personen die geen medewerker zijn, maar wel geraakt kunnen worden door de werkzaamheden van de organisatie. Denk aan bezoekers, klanten, omstanders of voorbijgangers die risico lopen door verkeer, machines, stoffen of andere bedrijfsactiviteiten.",
+    Zwangeren:
+      "Dit deelrisico gaat over extra risico’s voor zwangere medewerkers en medewerkers tijdens de lactatie. Daarbij moet worden beoordeeld of blootstellingen, werkdruk, fysieke belasting, werktijden of andere factoren aanvullende bescherming of aanpassing van het werk vragen.",
+    Jeugdigen:
+      "Dit deelrisico gaat over extra risico’s voor jonge medewerkers, die door leeftijd, ontwikkeling of beperkte ervaring kwetsbaarder kunnen zijn. Voor jeugdigen gelden bovendien specifieke wettelijke regels en beperkingen voor bepaalde werkzaamheden en blootstellingen.",
+    "Werknemers met een beperking of gedeeltelijke arbeidsongeschiktheid":
+      "Dit deelrisico gaat over medewerkers voor wie de standaard inrichting van werk, werkplek of organisatie niet vanzelfsprekend passend is. Het is van belang te beoordelen of aanvullende voorzieningen, aanpassingen of organisatorische maatregelen nodig zijn om gezond en veilig te kunnen werken.",
+    "Werkers die plaats- en tijdonafhankelijk werken":
+      "Dit deelrisico gaat over medewerkers die buiten de gebruikelijke werkplek of werktijden werken, bijvoorbeeld thuis, onderweg of op wisselende locaties. Daarbij kunnen risico’s ontstaan rond ergonomie, werk-privébalans, bereikbaarheid, sociale isolatie en toezicht op veilig werken.",
+  };
+
+  return helpTexts[itemLabel] || "";
 }
 
 function getExecutionParticipantOptions() {
@@ -2131,6 +2323,10 @@ function renderRiskInventory(container) {
       sub.className = "risk-item-sub";
       sub.textContent = "Doorloopt dit risico en voeg eventueel bewijs of opmerkingen toe.";
       header.append(sub);
+      const itemHelpText = getRiskItemHelpText(itemLabel);
+      if (itemHelpText) {
+        header.append(createInlineHelpToggle(itemHelpText));
+      }
       item.append(header);
 
       const applicability = createRiskColumn(
@@ -2331,16 +2527,17 @@ function renderSupplementalRequirementsQuestion(container) {
           [
             { value: "yes", label: "Ja" },
             { value: "no", label: "Nee" },
-            { value: "na", label: "N.v.t." },
           ],
           itemId,
           config.helpLink ? { url: config.helpLink, text: config.helpLink } : null
         );
-        appendRiskEvidenceField(
+        const noteField = appendRiskEvidenceField(
           supplementalBlock,
           `risk-${itemId}-${config.key}-note`,
           config.placeholder
         );
+        noteField.dataset.supplementalNoteField = "true";
+        supplementalBlock.append(createSupplementalNoReasonField(itemId, config.key));
         item.append(supplementalBlock);
       }
 
@@ -2490,11 +2687,7 @@ function renderGroundCausesQuestion(container) {
         `risk-${itemId}-causes-yes-note`,
         "Beschrijf hier waaruit blijkt dat de grondoorzaken van dit risico zijn geïnventariseerd."
       );
-      appendRiskEvidenceField(
-        causes,
-        `risk-${itemId}-causes-no-note`,
-        "Licht hier toe waarom de grondoorzaken van dit risico niet zijn geïnventariseerd."
-      );
+      causes.append(createGroundCauseNoReasonField(itemId));
       item.append(causes);
 
       content.append(item);
@@ -2699,6 +2892,7 @@ function getRiskItemState(groupId, groupTitle, itemLabel) {
     survey.querySelector(`[name="risk-${itemId}-described-no-note"]`)?.value.trim() || "";
   const causesYesNote =
     survey.querySelector(`[name="risk-${itemId}-causes-yes-note"]`)?.value.trim() || "";
+  const causesNoReason = getAnswerValue(`risk-${itemId}-causes-no-reason`);
   const causesNoNote =
     globalCausesState.answer === "yes"
       ? globalCausesState.note
@@ -2707,6 +2901,12 @@ function getRiskItemState(groupId, groupTitle, itemLabel) {
     supplementalConfigs.map((config) => [
       config.key,
       survey.querySelector(`[name="risk-${itemId}-${config.key}-note"]`)?.value.trim() || "",
+    ])
+  );
+  const supplementalNoReasons = Object.fromEntries(
+    supplementalConfigs.map((config) => [
+      config.key,
+      getAnswerValue(`risk-${itemId}-${config.key}-no-reason`),
     ])
   );
 
@@ -2795,8 +2995,10 @@ function getRiskItemState(groupId, groupTitle, itemLabel) {
     evaluationMethodNote,
     describedNoNote,
     causesYesNote,
+    causesNoReason,
     causesNoNote,
     supplementalNotes,
+    supplementalNoReasons,
     complete,
     score,
     issue,
@@ -2975,7 +3177,15 @@ function isGroundCausesStepComplete() {
     }
 
     if (item.causes === "no") {
-      return item.causesNoNote !== "";
+      if (!item.causesNoReason) {
+        return false;
+      }
+
+      if (item.causesNoReason === "anders") {
+        return item.causesNoNote !== "";
+      }
+
+      return true;
     }
 
     return false;
@@ -3007,7 +3217,29 @@ function isSupplementalStepComplete() {
   return entries.every(({ item, config }) => {
     const answer = item.supplementalAnswers?.[config.key];
     const note = item.supplementalNotes?.[config.key] || "";
-    return Boolean(answer) && note !== "";
+    const noReason = item.supplementalNoReasons?.[config.key] || null;
+
+    if (!answer) {
+      return false;
+    }
+
+    if (answer === "yes") {
+      return note !== "";
+    }
+
+    if (answer === "no") {
+      if (!noReason) {
+        return false;
+      }
+
+      if (noReason === "anders") {
+        return note !== "";
+      }
+
+      return true;
+    }
+
+    return false;
   });
 }
 
@@ -3255,6 +3487,7 @@ function buildRiskInventoryReportLines() {
         item.evaluationMethodNote ||
         item.describedNoNote ||
         item.causesYesNote ||
+        item.causesNoReason ||
         item.causesNoNote ||
         Object.values(item.supplementalAnswers || {}).some(Boolean) ||
         Object.values(item.supplementalNotes || {}).some(Boolean);
@@ -3325,16 +3558,28 @@ function buildRiskInventoryReportLines() {
         groupLines.push(`Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?: ${item.causesYesNote}`);
       }
 
-      if (item.causesNoNote) {
-        groupLines.push(`Waarom zijn de grondoorzaken niet geïnventariseerd?: ${item.causesNoNote}`);
+      if (item.causesNoReason) {
+        groupLines.push(
+          `Reden waarom de grondoorzaken niet zijn meegenomen: ${getGroundCauseNoReasonLabel(item.causesNoReason)}`
+        );
+      }
+      if (item.causesNoReason === "anders" && item.causesNoNote) {
+        groupLines.push(`Toelichting andere reden: ${item.causesNoNote}`);
       }
 
       for (const config of supplementalConfigs) {
         const answer = item.supplementalAnswers?.[config.key];
         const note = item.supplementalNotes?.[config.key];
+        const noReason = item.supplementalNoReasons?.[config.key];
 
         if (answer) {
           groupLines.push(`${config.prompt} ${getPlainOptionLabel(requirementsOptions, answer)}`);
+        }
+
+        if (answer === "no" && noReason) {
+          groupLines.push(
+            `Reden waarom geen invulling is gegeven: ${getSupplementalNoReasonLabel(noReason)}`
+          );
         }
 
         if (note) {
@@ -3406,6 +3651,7 @@ function buildRelevantRiskInventoryReportLines() {
         item.evaluationMethodNote ||
         item.describedNoNote ||
         item.causesYesNote ||
+        item.causesNoReason ||
         item.causesNoNote ||
         Object.values(item.supplementalAnswers || {}).some(Boolean) ||
         Object.values(item.supplementalNotes || {}).some(Boolean);
@@ -3470,19 +3716,32 @@ function buildRelevantRiskInventoryReportLines() {
               `${formatReportLabel("Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?")} ${item.causesYesNote}`
             );
           }
-          if (item.causes === "no" && item.causesNoNote) {
-            groupLines.push(
-              `${formatReportLabel("Waarom zijn de grondoorzaken niet geïnventariseerd?")} ${item.causesNoNote}`
-            );
+          if (item.causes === "no") {
+            if (item.causesNoReason) {
+              groupLines.push(
+                `${formatReportLabel("Reden waarom de grondoorzaken niet zijn meegenomen")} ${getGroundCauseNoReasonLabel(item.causesNoReason)}`
+              );
+            }
+            if (item.causesNoReason === "anders" && item.causesNoNote) {
+              groupLines.push(
+                `${formatReportLabel("Toelichting andere reden")} ${item.causesNoNote}`
+              );
+            }
           }
 
           for (const config of supplementalConfigs) {
             const answer = item.supplementalAnswers?.[config.key];
             const note = item.supplementalNotes?.[config.key];
+            const noReason = item.supplementalNoReasons?.[config.key];
             if (!answer && !note) {
               continue;
             }
             groupLines.push(`${formatReportLabel(config.prompt)} ${getPlainOptionLabel(requirementsOptions, answer)}`);
+            if (answer === "no" && noReason) {
+              groupLines.push(
+                `${formatReportLabel("Reden waarom geen invulling is gegeven")} ${getSupplementalNoReasonLabel(noReason)}`
+              );
+            }
             if (note) {
               groupLines.push(`Toelichting: ${note}`);
             }
@@ -3921,11 +4180,17 @@ function getRiskInventoryReportHtml() {
             .map((config) => {
               const answer = item.supplementalAnswers?.[config.key];
               const note = item.supplementalNotes?.[config.key] || "";
+              const noReason = item.supplementalNoReasons?.[config.key] || null;
 
               return `
                 <li style="margin-top: 6px; line-height: 1.3; font-size: 9pt;">
                   <strong>${escapeHtml(config.prompt)}</strong><br>
                   Antwoord: ${escapeHtml(getOptionLabel(requirementsOptions, answer))}<br>
+                  ${
+                    answer === "no" && noReason
+                      ? `Reden waarom geen invulling is gegeven: ${escapeHtml(getSupplementalNoReasonLabel(noReason))}<br>`
+                      : ""
+                  }
                   Toelichting: ${formatOptionalValue(note)}
                 </li>
               `;
@@ -3947,7 +4212,8 @@ function getRiskInventoryReportHtml() {
                 <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Reden waarom dit risico niet is opgenomen:</strong> ${formatOptionalValue(item.describedNoNote)}</p>
                 <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?:</strong> ${escapeHtml(getOptionLabel(yesNoOptions, item.causes))}</p>
                 <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?:</strong> ${formatOptionalValue(item.causesYesNote)}</p>
-                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(item.causesNoNote)}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Reden waarom de grondoorzaken niet zijn meegenomen:</strong> ${formatOptionalValue(getGroundCauseNoReasonLabel(item.causesNoReason))}</p>
+                <p class="report-line" style="margin: 2px 0 0; line-height: 1.3; font-size: 9pt;"><strong>Toelichting andere reden:</strong> ${formatOptionalValue(item.causesNoReason === "anders" ? item.causesNoNote : "")}</p>
               </div>
               ${
                 supplementalHtml
@@ -4050,6 +4316,7 @@ function getRelevantRiskInventoryReportHtml() {
             item.evaluationMethodNote ||
             item.describedNoNote ||
             item.causesYesNote ||
+            item.causesNoReason ||
             item.causesNoNote ||
             Object.values(item.supplementalAnswers || {}).some(Boolean) ||
             Object.values(item.supplementalNotes || {}).some(Boolean);
@@ -4136,21 +4403,32 @@ function getRelevantRiskInventoryReportHtml() {
                 );
               }
 
-              if (item.causes === "no" && item.causesNoNote) {
-                lines.push(
-                  `<p class="report-line"><strong>Waarom zijn de grondoorzaken niet geïnventariseerd?:</strong> ${formatOptionalValue(
-                    item.causesNoNote
-                  )}</p>`
-                );
+              if (item.causes === "no") {
+                if (item.causesNoReason) {
+                  lines.push(
+                    `<p class="report-line"><strong>Reden waarom de grondoorzaken niet zijn meegenomen:</strong> ${formatOptionalValue(
+                      getGroundCauseNoReasonLabel(item.causesNoReason)
+                    )}</p>`
+                  );
+                }
+
+                if (item.causesNoReason === "anders" && item.causesNoNote) {
+                  lines.push(
+                    `<p class="report-line"><strong>Toelichting andere reden:</strong> ${formatOptionalValue(
+                      item.causesNoNote
+                    )}</p>`
+                  );
+                }
               }
 
               const supplementalHtml = supplementalConfigs
                 .map((config) => {
                   const answer = item.supplementalAnswers?.[config.key];
                   const note = item.supplementalNotes?.[config.key] || "";
+                  const noReason = item.supplementalNoReasons?.[config.key] || null;
                   const normalizedNote = getPlainValue(note);
 
-                  if (!answer && !normalizedNote) {
+                  if (!answer && !normalizedNote && !noReason) {
                     return "";
                   }
 
@@ -4158,6 +4436,11 @@ function getRelevantRiskInventoryReportHtml() {
                     <li>
                       <strong>${escapeHtml(config.prompt)}</strong><br>
                       Antwoord: ${escapeHtml(getOptionLabel(requirementsOptions, answer))}
+                      ${
+                        answer === "no" && noReason
+                          ? `<br>Reden waarom geen invulling is gegeven: ${escapeHtml(getSupplementalNoReasonLabel(noReason))}`
+                          : ""
+                      }
                       ${
                         normalizedNote
                           ? `<br>Toelichting: ${formatOptionalValue(note)}`
@@ -5061,27 +5344,27 @@ function updateRiskInventoryVisibility() {
     for (const config of getSupplementalRequirementConfigs(groupId, plainItemLabel)) {
       const block = item.querySelector(`[data-field="${config.key}"]`);
       const value = getAnswerValue(`risk-${itemId}-${config.key}`);
-      const field = block?.querySelector(".risk-evidence");
-      const note = field?.querySelector(".risk-note");
+      const regularField = block?.querySelector('[data-supplemental-note-field="true"]');
+      const noReasonField = block?.querySelector('[data-supplemental-no-reason-field="true"]');
+      const note = regularField?.querySelector(".risk-note");
 
-      if (field) {
-        field.hidden = value !== "yes" && value !== "no" && value !== "na";
+      if (regularField) {
+        regularField.hidden = value !== "yes";
       }
 
-      if (note) {
+      if (noReasonField) {
+        noReasonField.hidden = value !== "no";
+        const selectedReason = getAnswerValue(`risk-${itemId}-${config.key}-no-reason`);
+        const extraNoteField = noReasonField.querySelector('[data-supplemental-no-reason-note="true"]');
+        if (extraNoteField) {
+          extraNoteField.hidden = selectedReason !== "anders";
+        }
+      }
+
+      if (note && value === "yes") {
         if (value === "yes") {
           note.placeholder =
             "Omschrijf hier op welke wijze invulling is gegeven aan dit nadere voorschrift en waar dit uit blijkt.";
-        }
-
-        if (value === "no") {
-          note.placeholder =
-            "Omschrijf hier waarom geen invulling is gegeven aan dit nadere voorschrift.";
-        }
-
-        if (value === "na") {
-          note.placeholder =
-            "Omschrijf hier waarom dit nadere voorschrift niet van toepassing is.";
         }
       }
     }
@@ -5164,6 +5447,11 @@ function updateGroundCauseVisibility() {
 
       if (causes === "no" && causesFields[1]) {
         causesFields[1].hidden = false;
+        const selectedReason = getAnswerValue(`risk-${itemId}-causes-no-reason`);
+        const extraNoteField = causesFields[1].querySelector('[data-ground-cause-no-reason-note="true"]');
+        if (extraNoteField) {
+          extraNoteField.hidden = selectedReason !== "anders";
+        }
       }
     }
 
@@ -5609,14 +5897,21 @@ function collectSupplementalStatusSummaryData() {
         const riskLabel = getShortRiskSummaryLabel(item);
         return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => {
           const answer = item.supplementalAnswers?.[config.key] || null;
+          const noReason = item.supplementalNoReasons?.[config.key] || null;
           let status = "nog niet beantwoord";
 
           if (answer === "yes") {
             status = "meegenomen";
           } else if (answer === "no") {
-            status = "niet meegenomen";
-          } else if (answer === "na") {
-            status = "niet van toepassing";
+            if (noReason === "niet-noodzakelijk") {
+              status = "niet noodzakelijk";
+            } else if (noReason === "niet-onderkend") {
+              status = "niet onderkend";
+            } else if (noReason === "anders") {
+              status = "afwijkend gemotiveerd";
+            } else {
+              status = "niet meegenomen";
+            }
           }
 
           return `${getShortSupplementalSummaryLabel(riskLabel, config.prompt, item)} - ${status}`;
@@ -5640,7 +5935,15 @@ function collectGroundCausesStatusSummaryData() {
         if (item.causes === "yes") {
           status = { label: "benoemd", className: "status-chip-yes" };
         } else if (item.causes === "no") {
-          status = { label: "niet benoemd", className: "status-chip-no" };
+          if (item.causesNoReason === "systematiek") {
+            status = { label: "niet opgenomen", className: "status-chip-no" };
+          } else if (item.causesNoReason === "niet-relevant") {
+            status = { label: "niet relevant", className: "status-chip-yes" };
+          } else if (item.causesNoReason === "anders") {
+            status = { label: "afwijkend gemotiveerd", className: "status-chip-partial" };
+          } else {
+            status = { label: "niet benoemd", className: "status-chip-no" };
+          }
         }
 
         return [
@@ -5765,14 +6068,21 @@ function renderApplicabilityLists(assessment) {
         const riskLabel = getShortRiskSummaryLabel(item);
         return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => {
           const answer = item.supplementalAnswers?.[config.key] || null;
+          const noReason = item.supplementalNoReasons?.[config.key] || null;
           let status = { label: "nog niet beantwoord", className: "status-chip-empty" };
 
           if (answer === "yes") {
             status = { label: "meegenomen", className: "status-chip-yes" };
           } else if (answer === "no") {
-            status = { label: "niet meegenomen", className: "status-chip-no" };
-          } else if (answer === "na") {
-            status = { label: "niet van toepassing", className: "status-chip-empty" };
+            if (noReason === "niet-noodzakelijk") {
+              status = { label: "niet noodzakelijk", className: "status-chip-yes" };
+            } else if (noReason === "niet-onderkend") {
+              status = { label: "niet onderkend", className: "status-chip-no" };
+            } else if (noReason === "anders") {
+              status = { label: "afwijkend gemotiveerd", className: "status-chip-partial" };
+            } else {
+              status = { label: "niet meegenomen", className: "status-chip-no" };
+            }
           }
 
           return {
