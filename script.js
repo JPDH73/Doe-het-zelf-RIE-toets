@@ -2238,7 +2238,7 @@ function renderSupplementalRequirementsQuestion(container) {
   summary.innerHTML = `
     <div class="question-summary-copy">
       <p class="question-category">1.1 Volledigheid</p>
-      <h3 class="question-title">Is per relevant hoofd- en deelrisico invulling gegeven aan de nadere voorschriften?</h3>
+      <h3 class="question-title">Is per deelrisico invulling gegeven aan de nadere voorschriften?</h3>
     </div>
     <span class="question-card-chevron">⌄</span>
   `;
@@ -2250,8 +2250,8 @@ function renderSupplementalRequirementsQuestion(container) {
   copy.className = "question-copy";
   copy.innerHTML = `
     <p class="question-help">
-      Beoordeel hier per relevant hoofd- en deelrisico of invulling is gegeven aan de toepasselijke
-      nadere voorschriften. Hoofdthema’s of deelrisico’s die in het risicoprofiel als niet van
+      Beoordeel hier per relevant deelrisico of invulling is gegeven aan de nadere voorschriften.
+      Hoofdthema’s of deelrisico’s die in het risicoprofiel als niet van
       toepassing zijn beoordeeld, hoeft u hier niet verder in te vullen.
     </p>
   `;
