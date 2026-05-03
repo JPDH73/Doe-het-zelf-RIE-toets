@@ -1528,7 +1528,7 @@ function createRiskMethodHelp() {
   helpToggle.dataset.methodHelp = "true";
 
   const summary = document.createElement("summary");
-  summary.textContent = "Toelichting op methoden";
+  summary.textContent = "Toelichting";
 
   const paragraph = document.createElement("p");
   paragraph.textContent =
@@ -1536,6 +1536,27 @@ function createRiskMethodHelp() {
 
   helpToggle.append(summary, paragraph);
   return helpToggle;
+}
+
+function createInlineHelpToggle(content) {
+  const helpToggle = document.createElement("details");
+  helpToggle.className = "question-help-toggle";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "Toelichting";
+
+  const body = document.createElement("div");
+  const paragraph = document.createElement("p");
+  paragraph.textContent = content;
+  body.append(paragraph);
+
+  helpToggle.append(summary, body);
+  return helpToggle;
+}
+
+function formatThemeQuestionLabel(title) {
+  const withoutNumber = title.replace(/^\d+\.\s*/, "");
+  return withoutNumber.charAt(0).toLowerCase() + withoutNumber.slice(1);
 }
 
 function getExecutionParticipantOptions() {
@@ -1998,16 +2019,12 @@ function renderRiskInventory(container) {
       Doorloop per hoofd- en deelrisico eerst of het van toepassing is, wie het risico heeft
       beoordeeld en welke methode daarbij gebruikt is.
     </p>
-    <p>
-      <strong>Toelichting</strong><br />
-      Is een risico van toepassing, dan moet het risico worden beschreven. Maar niet elk theoretisch
-      risico is in de praktijk relevant. Wanneer een risico wordt uitgesloten, moet dit worden
-      onderbouwd met objectieve argumenten en gebaseerd zijn op een goed inzicht in de werksituatie
-      – in het bijzonder wanneer het risico is opgenomen in de arbocatalogus - tenzij geheel evident.
-      Daarmee wordt voor de toetser duidelijk dat het risico bewust is afgewogen en niet over het
-      hoofd is gezien.
-    </p>
   `;
+  intro.append(
+    createInlineHelpToggle(
+      "Is een risico van toepassing, dan moet het risico worden beschreven. Maar niet elk theoretisch risico is in de praktijk relevant. Wanneer een risico wordt uitgesloten, moet dit worden onderbouwd met objectieve argumenten en gebaseerd zijn op een goed inzicht in de werksituatie – in het bijzonder wanneer het risico is opgenomen in de arbocatalogus - tenzij geheel evident. Daarmee wordt voor de toetser duidelijk dat het risico bewust is afgewogen en niet over het hoofd is gezien."
+    )
+  );
   inventory.append(intro);
 
   for (const group of riskCatalog) {
@@ -2047,7 +2064,7 @@ function renderRiskInventory(container) {
 
       const groupApplicabilityQuestion = document.createElement("p");
       groupApplicabilityQuestion.className = "risk-question";
-      groupApplicabilityQuestion.textContent = `Is ${group.title} als hoofdthema van toepassing op de organisatie binnen de reikwijdte van de RI&E?`;
+      groupApplicabilityQuestion.textContent = `Is ${formatThemeQuestionLabel(group.title)} als hoofdthema van toepassing op de organisatie binnen de reikwijdte van de RI&E?`;
 
       const groupApplicabilityOptions = createBinaryOptions(
         `risk-group-${group.id}-applicable`,
@@ -2132,6 +2149,11 @@ function renderRiskInventory(container) {
       described.classList.add("conditional-block");
       described.dataset.when = "applicable-yes";
       described.append(
+        createInlineHelpToggle(
+          "Indien een risico van toepassing is, moet dit herkenbaar en inhoudelijk worden beschreven. Wanneer een deelrisico niet is beschreven of onjuist als niet van toepassing is beoordeeld, is de RI&E niet compleet. Omdat binnen één hoofdrisico meerdere deelrisico’s relevant kunnen zijn, moeten deze allemaal worden meegenomen."
+        )
+      );
+      described.append(
         createRiskParticipantPickerField(
           `risk-${itemId}-assessor`,
           "Wie heeft dit risico beoordeeld?"
@@ -2172,6 +2194,11 @@ function renderRiskInventory(container) {
       );
       whyNot.classList.add("conditional-block");
       whyNot.dataset.when = "described-no";
+      whyNot.append(
+        createInlineHelpToggle(
+          "Soms is bij de start van de RI&E al duidelijk dat bepaalde risico's dermate complex of omvangrijk zijn dat hiervoor een afzonderlijk RI&E-traject nodig is. Een voorbeeld hiervan kan zijn explosiegevaar. In dergelijke gevallen is het van belang dit expliciet en gemotiveerd te vermelden, met de kanttekening dat de RI&E op dat punt nog niet compleet en dus ook niet volledig is."
+        )
+      );
       appendRiskEvidenceField(
         whyNot,
         `risk-${itemId}-described-no-note`,
@@ -2216,6 +2243,11 @@ function renderSupplementalRequirementsQuestion(container) {
       toepassing zijn beoordeeld, hoeft u hier niet verder in te vullen.
     </p>
   `;
+  copy.append(
+    createInlineHelpToggle(
+      "Voor bepaalde risico’s gelden, naast de algemene RI&E-verplichting, aanvullende wettelijke eisen met betrekking tot inventarisatie, beoordeling en documentatie. Deze zijn opgenomen in bijlage 2: Nadere of aanvullende RI&E-voorschriften uit het Arbeidsomstandighedenbesluit (AB) en de Arbeidsomstandighedenregeling (AR). Daarnaast kunnen, afhankelijk van de sector, ook aanvullende eisen voortvloeien uit brancheafspraken, arbocatalogus of specifieke cao-bepalingen."
+    )
+  );
 
   const optionGroup = document.createElement("div");
   optionGroup.className = "question-options";
@@ -2339,23 +2371,12 @@ function renderGroundCausesQuestion(container) {
       Deze stap is alleen relevant voor deelrisico’s die in het risicoprofiel als van toepassing en
       beschreven zijn aangemerkt.
     </p>
-    <p class="question-help">
-      <strong>Toelichting</strong><br />
-      Een RI&amp;E richt zich niet alleen op zichtbare risico’s of symptomen, maar gaat dieper in op
-      de achterliggende oorzaken die maken dat risico’s blijven bestaan. Soms is het niet nodig de
-      grondoorzaak volledig uit te diepen, in andere gevallen kan juist wel onderzoek gewenst zijn.
-      Het expliciet benoemen van deze grondoorzaken maakt het mogelijk om maatregelen te kiezen die
-      verder gaan dan symptoombestrijding, zoals enkel het verwijderen van een obstakel of het
-      uitdelen van persoonlijke beschermingsmiddelen. Zo ontstaan structurele verbeteringen die
-      risico’s daadwerkelijk terugdringen en herhaling voorkomen. Bovendien werkt het aanpakken van
-      grondoorzaken preventief: niet alleen het vastgestelde risico wordt verminderd, maar ook
-      andere – soms nog onzichtbare – risico’s. Dit draagt bij aan een lerende organisatie, waarin
-      systematisch patronen worden doorbroken en veiligheidscultuur zich ontwikkelt. Het plan van
-      aanpak kan dan gericht zijn op het achterhalen en structureel aanpakken. Voor het vinden van
-      grondoorzaken kunnen verschillende methodieken worden toegepast, zoals Tripod, Visgraat,
-      What-if en 5xW.
-    </p>
   `;
+  copy.append(
+    createInlineHelpToggle(
+      "Een RI&E richt zich niet alleen op zichtbare risico’s of symptomen, maar gaat dieper in op de achterliggende oorzaken die maken dat risico’s blijven bestaan. Soms is het niet nodig de grondoorzaak volledig uit te diepen, in andere gevallen kan juist wel onderzoek gewenst zijn. Het expliciet benoemen van deze grondoorzaken maakt het mogelijk om maatregelen te kiezen die verder gaan dan symptoombestrijding, zoals enkel het verwijderen van een obstakel of het uitdelen van persoonlijke beschermingsmiddelen. Zo ontstaan structurele verbeteringen die risico’s daadwerkelijk terugdringen en herhaling voorkomen. Bovendien werkt het aanpakken van grondoorzaken preventief: niet alleen het vastgestelde risico wordt verminderd, maar ook andere – soms nog onzichtbare – risico’s. Dit draagt bij aan een lerende organisatie, waarin systematisch patronen worden doorbroken en veiligheidscultuur zich ontwikkelt. Het plan van aanpak kan dan gericht zijn op het achterhalen en structureel aanpakken. Voor het vinden van grondoorzaken kunnen verschillende methodieken worden toegepast, zoals Tripod, Visgraat, What-if en 5xW."
+    )
+  );
 
   const optionGroup = document.createElement("div");
   optionGroup.className = "question-options";
@@ -5629,7 +5650,8 @@ function renderResultStatusList(target, items, emptyText, groupPrefixSelector) {
   target.innerHTML = "";
 
   if (items.length === 0) {
-    const entry = document.createElement("li");
+    const entry = document.createElement("div");
+    entry.className = "result-status-card result-status-card-empty";
     entry.textContent = emptyText;
     target.append(entry);
     return;
@@ -5638,11 +5660,11 @@ function renderResultStatusList(target, items, emptyText, groupPrefixSelector) {
   let previousGroupPrefix = "";
 
   for (const item of items) {
-    const entry = document.createElement("li");
-    entry.className = "result-list-item";
+    const entry = document.createElement("div");
+    entry.className = "result-status-card";
     const groupPrefix = groupPrefixSelector(item.label);
     if (previousGroupPrefix && groupPrefix !== previousGroupPrefix) {
-      entry.classList.add("result-list-item-group-start");
+      entry.classList.add("result-status-card-group-start");
     }
 
     const text = document.createElement("span");
@@ -5849,32 +5871,32 @@ function updateQuestionSectionToggleLabels() {
   updateSectionToggleButtonLabel(
     toggleRiskInventoryQuestion,
     getRiskInventoryExpandableSections(),
-    "Klap alle vragen open",
-    "Klap alle vragen dicht"
+    "Alle vragen uitklappen",
+    "Alle vragen inklappen"
   );
   updateSectionToggleButtonLabel(
     toggleCauseQuestions,
     getCauseQuestionCards(),
-    "Klap alle vragen open",
-    "Klap alle vragen dicht"
+    "Alle vragen uitklappen",
+    "Alle vragen inklappen"
   );
   updateSectionToggleButtonLabel(
     toggleSupplementalQuestions,
     getSupplementalQuestionCards(),
-    "Klap alle vragen open",
-    "Klap alle vragen dicht"
+    "Alle vragen uitklappen",
+    "Alle vragen inklappen"
   );
   updateSectionToggleButtonLabel(
     toggleRegularQuestions,
     getRegularQuestionCards(),
-    "Klap alle vragen open",
-    "Klap alle vragen dicht"
+    "Alle vragen uitklappen",
+    "Alle vragen inklappen"
   );
   updateSectionToggleButtonLabel(
     togglePlanQuestions,
     getPlanQuestionCards(),
-    "Klap alle vragen open",
-    "Klap alle vragen dicht"
+    "Alle vragen uitklappen",
+    "Alle vragen inklappen"
   );
 }
 

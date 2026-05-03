@@ -975,6 +975,11 @@ h1 {
   gap: 6px;
 }
 
+.result-card-list {
+  display: grid;
+  gap: 10px;
+}
+
 .result-list-item {
   display: flex;
   flex-wrap: nowrap;
@@ -992,6 +997,25 @@ h1 {
   line-height: 1.45;
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.result-status-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.result-status-card-group-start {
+  margin-top: 8px;
+}
+
+.result-status-card-empty {
+  color: var(--muted);
 }
 
 .status-matrix {
