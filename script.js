@@ -1995,10 +1995,17 @@ function renderRiskInventory(container) {
   intro.innerHTML = `
     <strong>Doorloop per hoofd- en deelrisico dezelfde beslisroute.</strong>
     <p>
-      Eerst bepaalt u of het risico van toepassing is. Alleen als het risico van toepassing is,
-      volgt de vraag of het is beschreven in de RI&E. Daarna verschijnt afhankelijk van uw antwoord
-      de vraag over verantwoording. In de volgende stap beoordeelt u per relevant deelrisico of de
-      grondoorzaken zijn geïnventariseerd.
+      Doorloop per hoofd- en deelrisico eerst of het van toepassing is, wie het risico heeft
+      beoordeeld en welke methode daarbij gebruikt is.
+    </p>
+    <p>
+      <strong>Toelichting</strong><br />
+      Is een risico van toepassing, dan moet het risico worden beschreven. Maar niet elk theoretisch
+      risico is in de praktijk relevant. Wanneer een risico wordt uitgesloten, moet dit worden
+      onderbouwd met objectieve argumenten en gebaseerd zijn op een goed inzicht in de werksituatie
+      – in het bijzonder wanneer het risico is opgenomen in de arbocatalogus - tenzij geheel evident.
+      Daarmee wordt voor de toetser duidelijk dat het risico bewust is afgewogen en niet over het
+      hoofd is gezien.
     </p>
   `;
   inventory.append(intro);
@@ -2331,6 +2338,22 @@ function renderGroundCausesQuestion(container) {
       Beoordeel per hoofd- en deelrisico of de grondoorzaken in de RI&amp;E zijn geïnventariseerd.
       Deze stap is alleen relevant voor deelrisico’s die in het risicoprofiel als van toepassing en
       beschreven zijn aangemerkt.
+    </p>
+    <p class="question-help">
+      <strong>Toelichting</strong><br />
+      Een RI&amp;E richt zich niet alleen op zichtbare risico’s of symptomen, maar gaat dieper in op
+      de achterliggende oorzaken die maken dat risico’s blijven bestaan. Soms is het niet nodig de
+      grondoorzaak volledig uit te diepen, in andere gevallen kan juist wel onderzoek gewenst zijn.
+      Het expliciet benoemen van deze grondoorzaken maakt het mogelijk om maatregelen te kiezen die
+      verder gaan dan symptoombestrijding, zoals enkel het verwijderen van een obstakel of het
+      uitdelen van persoonlijke beschermingsmiddelen. Zo ontstaan structurele verbeteringen die
+      risico’s daadwerkelijk terugdringen en herhaling voorkomen. Bovendien werkt het aanpakken van
+      grondoorzaken preventief: niet alleen het vastgestelde risico wordt verminderd, maar ook
+      andere – soms nog onzichtbare – risico’s. Dit draagt bij aan een lerende organisatie, waarin
+      systematisch patronen worden doorbroken en veiligheidscultuur zich ontwikkelt. Het plan van
+      aanpak kan dan gericht zijn op het achterhalen en structureel aanpakken. Voor het vinden van
+      grondoorzaken kunnen verschillende methodieken worden toegepast, zoals Tripod, Visgraat,
+      What-if en 5xW.
     </p>
   `;
 
