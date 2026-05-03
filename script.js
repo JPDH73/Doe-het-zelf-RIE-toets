@@ -1809,7 +1809,9 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
   if (itemLabel === "Zwangeren") {
     configs.push({
       key: "pregnancy-article",
-      prompt: "Is invulling gegeven aan Arbobesluit art. 1.4: zwangere medewerkers?",
+      prompt: "Is invulling gegeven aan Arbobesluit art. 1.40: zwangere medewerkers?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=1&afdeling=9&artikel=1.41&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 1.41 Arbobesluit voor zwangere medewerkers en medewerkers tijdens de lactatie.",
       noNote:
@@ -1899,6 +1901,8 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push({
       key: "physical-load-article",
       prompt: "Is invulling gegeven aan Arbobesluit art. 5.3: fysieke belasting?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=5&afdeling=1&artikel=5.3&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 5.3 Arbobesluit voor fysieke belasting.",
       noNote: "Voor fysieke belasting is geen invulling gegeven aan artikel 5.3 Arbobesluit.",
@@ -1909,6 +1913,8 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push({
       key: "screen-work-article",
       prompt: "Is invulling gegeven aan Arbobesluit art. 5.9: beeldschermwerk?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=5&afdeling=2&artikel=5.9&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 5.9 Arbobesluit voor beeldschermwerk.",
       noNote: "Voor beeldschermwerk is geen invulling gegeven aan artikel 5.9 Arbobesluit.",
@@ -1931,6 +1937,8 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push({
       key: "vibration-article-6-11b",
       prompt: "Is invulling gegeven aan Arbobesluit art. 6.11b: nadere voorschriften; trillingen?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=6&afdeling=3a&paragraaf=2&artikel=6.11b&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 6.11b Arbobesluit voor trillingen.",
       noNote: "Voor trillingen is geen invulling gegeven aan artikel 6.11b Arbobesluit.",
@@ -1961,6 +1969,8 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
       {
         key: "work-equipment-article-7-3",
         prompt: "Is invulling gegeven aan Arbobesluit art. 7.3: geschiktheid van arbeidsmiddelen?",
+        helpLink:
+          "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=7&afdeling=1&artikel=7.3&z=2026-04-09&g=2026-04-09",
         placeholder:
           "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 7.3 Arbobesluit voor arbeidsmiddelen.",
         noNote: "Voor arbeidsmiddelen is geen invulling gegeven aan artikel 7.3 Arbobesluit.",
@@ -1998,6 +2008,8 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push({
       key: "ppe-article-8-2",
       prompt: "Is invulling gegeven aan Arbobesluit art. 8.2: keuze van PBM?",
+      helpLink:
+        "https://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=8&afdeling=1&artikel=8.2&z=2026-04-09&g=2026-04-09",
       placeholder:
         "Omschrijf hier waaruit blijkt dat invulling is gegeven aan artikel 8.2 Arbobesluit voor persoonlijke beschermingsmiddelen.",
       noNote: "Voor persoonlijke beschermingsmiddelen is geen invulling gegeven aan artikel 8.2 Arbobesluit.",
