@@ -3874,10 +3874,11 @@ function buildReport(assessment) {
 
 function buildReportPreviewHtml(reportText) {
   const headingLines = new Set([
+    "RI&E toetsklaar-rapport",
     "Samenvatting",
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
-    "Uitkomst risicoprofiel",
+    "Uitwerking vraag 1.1.1",
     "Uitkomst RI&E-kwaliteit",
     "Uitkomsten plan van aanpak",
   ]);
@@ -4728,6 +4729,30 @@ function buildSummaryWordHtml() {
       )
       .join("");
   };
+  const renderStatusParagraphs = (items, emptyText) => {
+    if (items.length === 0) {
+      return `<p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">${escapeHtml(
+        emptyText
+      )}</p>`;
+    }
+
+    return items
+      .map(
+        (item) => `
+          <table style="width: 100%; border-collapse: collapse; margin: 0 0 6px 0;">
+            <tr>
+              <td style="border: 1px solid #d9e0e7; padding: 8px 10px; font: 9pt Verdana; color: #172033; width: 78%;">${escapeHtml(
+                item.label
+              )}</td>
+              <td style="border: 1px solid #d9e0e7; padding: 8px 10px; font: 9pt Verdana; color: #172033; width: 22%; text-align: right;"><b>${escapeHtml(
+                item.status.label
+              )}</b></td>
+            </tr>
+          </table>
+        `
+      )
+      .join("");
+  };
 
   const spacer = (fontSize = 11, minHeight = 13) =>
     `<p style="margin: 0; font: ${fontSize}pt Verdana; color: #172033; min-height: ${minHeight}px;"><br></p>`;
@@ -4749,10 +4774,8 @@ function buildSummaryWordHtml() {
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
-  const summaryData = collectApplicabilitySummaryData(assessment, {
-    formatRiskLabel: getShortRiskSummaryLabel,
-    formatSupplementalLabel: getShortSupplementalSummaryLabel,
-  });
+  const riskStatusItems = collectRiskProfileStatusSummaryData();
+  const groundCauseStatusItems = collectGroundCausesStatusSummaryData();
   const supplementalStatusItems = collectSupplementalStatusSummaryData();
 
   const renderQuestionGroup = (title, items, breakBefore = false) => {
@@ -4885,35 +4908,23 @@ function buildSummaryWordHtml() {
           ${spacer(10, 12)}
           <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst risicoprofiel</b></p>
           ${spacer(9, 11)}
-          <p style="margin: 0 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing</b></p>
-          ${renderListParagraphs(
-            summaryData.applicable,
-            "Nog geen onderdelen als van toepassing aangemerkt.",
-            0.48
+          ${renderStatusParagraphs(
+            riskStatusItems,
+            "Nog geen hoofd- en deelrisico's beoordeeld."
           )}
-          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing en beschreven</b></p>
-          ${renderListParagraphs(
-            summaryData.describedApplicable,
-            "Nog geen onderdelen als van toepassing en beschreven aangemerkt.",
-            0.48
+          ${spacer(9, 11)}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst grondoorzaken</b></p>
+          ${spacer(9, 11)}
+          ${renderStatusParagraphs(
+            groundCauseStatusItems,
+            "Nog geen relevante grondoorzaken beoordeeld."
           )}
-          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Van toepassing maar niet beschreven</b></p>
-          ${renderListParagraphs(
-            summaryData.notDescribedApplicable,
-            "Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Niet van toepassing</b></p>
-          ${renderListParagraphs(
-            summaryData.notApplicable,
-            "Nog geen onderdelen als niet van toepassing aangemerkt.",
-            0.48
-          )}
-          <p style="margin: 12pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;"><b>Nadere voorschriften</b></p>
-          ${renderListParagraphs(
+          ${spacer(9, 11)}
+          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst nadere voorschriften</b></p>
+          ${spacer(9, 11)}
+          ${renderStatusParagraphs(
             supplementalStatusItems,
             "Nog geen relevante nadere voorschriften.",
-            0.48
           )}
           ${spacer(9, 11)}
           ${spacer(11, 13)}
@@ -4957,10 +4968,8 @@ function buildSummaryPdfText() {
     timeStyle: "short",
     timeZone: "Europe/Amsterdam",
   }).format(new Date());
-  const summaryData = collectApplicabilitySummaryData(assessment, {
-    formatRiskLabel: getShortRiskSummaryLabel,
-    formatSupplementalLabel: getShortSupplementalSummaryLabel,
-  });
+  const riskStatusItems = collectRiskProfileStatusSummaryData();
+  const groundCauseStatusItems = collectGroundCausesStatusSummaryData();
   const supplementalStatusItems = collectSupplementalStatusSummaryData();
 
   const lines = [
@@ -4990,29 +4999,18 @@ function buildSummaryPdfText() {
     "UITKOMSTEN EN RAPPORTEN",
     "",
     "Uitkomst risicoprofiel",
-    "Van toepassing",
-    ...(summaryData.applicable.length
-      ? summaryData.applicable.map((item) => `• ${item}`)
-      : ["• Nog geen onderdelen als van toepassing aangemerkt."]),
+    ...(riskStatusItems.length
+      ? riskStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
+      : ["• Nog geen hoofd- en deelrisico's beoordeeld."]),
     "",
-    "Van toepassing en beschreven",
-    ...(summaryData.describedApplicable.length
-      ? summaryData.describedApplicable.map((item) => `• ${item}`)
-      : ["• Nog geen onderdelen als van toepassing en beschreven aangemerkt."]),
+    "Uitkomst grondoorzaken",
+    ...(groundCauseStatusItems.length
+      ? groundCauseStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
+      : ["• Nog geen relevante grondoorzaken beoordeeld."]),
     "",
-    "Van toepassing maar niet beschreven",
-    ...(summaryData.notDescribedApplicable.length
-      ? summaryData.notDescribedApplicable.map((item) => `• ${item}`)
-      : ["• Nog geen onderdelen als van toepassing maar niet beschreven aangemerkt."]),
-    "",
-    "Niet van toepassing",
-    ...(summaryData.notApplicable.length
-      ? summaryData.notApplicable.map((item) => `• ${item}`)
-      : ["• Nog geen onderdelen als niet van toepassing aangemerkt."]),
-    "",
-    "Nadere voorschriften",
+    "Uitkomst nadere voorschriften",
     ...(supplementalStatusItems.length
-      ? supplementalStatusItems.map((item) => `• ${item}`)
+      ? supplementalStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
       : ["• Nog geen relevante nadere voorschriften."]),
     "",
     "Uitkomst RI&E-kwaliteit",
@@ -5570,7 +5568,7 @@ function renderAssessment() {
   }
 
   if (reportOutput) {
-    const reportText = buildReport(assessment);
+    const reportText = buildRelevantReportPdfText();
     reportOutput.dataset.rawText = reportText;
     reportOutput.innerHTML = buildReportPreviewHtml(reportText);
   }
@@ -5957,6 +5955,40 @@ function collectGroundCausesStatusSummaryData() {
     .filter(Boolean);
 }
 
+function collectRiskProfileStatusSummaryData() {
+  return riskCatalog
+    .flatMap((group) =>
+      group.items.map((itemLabel) => {
+        const item = getRiskItemState(group.id, group.title, itemLabel);
+        const label = getShortRiskSummaryLabel(item);
+
+        if (item.applicable === "yes" && item.described === "yes") {
+          return {
+            label,
+            status: { label: "beschreven", className: "status-chip-yes" },
+          };
+        }
+
+        if (item.applicable === "yes" && item.described === "no") {
+          return {
+            label,
+            status: { label: "niet beschreven", className: "status-chip-no" },
+          };
+        }
+
+        if (item.applicable === "no") {
+          return {
+            label,
+            status: { label: "niet van toepassing", className: "status-chip-empty" },
+          };
+        }
+
+        return null;
+      })
+    )
+    .filter(Boolean);
+}
+
 function renderResultStatusList(target, items, emptyText, groupPrefixSelector) {
   if (!target) {
     return;
@@ -6009,37 +6041,7 @@ function renderApplicabilityLists(assessment) {
   groundCausesOverviewItems.innerHTML = "";
   supplementedApplicableItems.innerHTML = "";
 
-  const overviewItems = riskCatalog
-    .flatMap((group) =>
-      group.items.map((itemLabel) => {
-        const item = getRiskItemState(group.id, group.title, itemLabel);
-        const label = getShortRiskSummaryLabel(item);
-
-        if (item.applicable === "yes" && item.described === "yes") {
-          return {
-            label,
-            status: { label: "beschreven", className: "status-chip-yes" },
-          };
-        }
-
-        if (item.applicable === "yes" && item.described === "no") {
-          return {
-            label,
-            status: { label: "niet beschreven", className: "status-chip-no" },
-          };
-        }
-
-        if (item.applicable === "no") {
-          return {
-            label,
-            status: { label: "niet van toepassing", className: "status-chip-empty" },
-          };
-        }
-
-        return null;
-      })
-    )
-    .filter(Boolean);
+  const overviewItems = collectRiskProfileStatusSummaryData();
 
   renderResultStatusList(
     riskOverviewItems,
