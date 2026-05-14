@@ -3973,6 +3973,124 @@ function buildReportPreviewHtml(reportText) {
     .join("");
 }
 
+function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines = []) {
+  const headingLines = new Set([
+    documentTitle,
+    "Bedrijfsprofiel",
+    "Afbakening en documentgegevens van de RI&E",
+    "Uitwerking vraag 1.1.1",
+    "Uitkomst RI&E-kwaliteit",
+    "Uitkomsten plan van aanpak",
+    "UITKOMSTEN EN RAPPORTEN",
+    "Uitkomst risicoprofiel",
+    "Uitkomst grondoorzaken",
+    "Uitkomst nadere voorschriften",
+    "Uitkomst volledigheid",
+    "Uitkomst actualiteit",
+    "Uitkomst betrouwbaarheid",
+    ...extraHeadingLines,
+  ]);
+
+  const paragraphs = reportText
+    .split("\n")
+    .map((line, index) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        return '<p class="word-spacer"><br></p>';
+      }
+
+      if (index === 0) {
+        return `<h1 class="word-title">${escapeHtml(trimmed)}</h1>`;
+      }
+
+      if (/^Gegenereerd op /.test(trimmed)) {
+        return `<p class="word-meta">${escapeHtml(trimmed)}</p>`;
+      }
+
+      if (headingLines.has(trimmed)) {
+        return `<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`;
+      }
+
+      if (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40) {
+        return `<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`;
+      }
+
+      const escapedLine = escapeHtml(line)
+        .replace(/^([^:\n]+:)/, "<strong>$1</strong>")
+        .replace(/^<strong>Antwoord:<\/strong>/, "<strong>Antwoord:</strong>");
+
+      return `<p class="word-line">${escapedLine}</p>`;
+    })
+    .join("");
+
+  return `
+    <!doctype html>
+    <html lang="nl">
+      <head>
+        <meta charset="utf-8">
+        <title>${escapeHtml(documentTitle)}</title>
+        <style>
+          @page {
+            margin: 2cm 1.6cm 1.8cm 1.6cm;
+          }
+
+          body {
+            margin: 0;
+            font-family: Verdana, Arial, sans-serif;
+            color: #172033;
+            background: #ffffff;
+            font-size: 9pt;
+            line-height: 1.45;
+          }
+
+          .word-page {
+            max-width: none;
+            margin: 0 auto;
+            padding: 0 0 24px;
+            background: #ffffff;
+          }
+
+          .word-title {
+            margin: 0 0 8px;
+            font-size: 18pt;
+          }
+
+          .word-meta {
+            margin: 0 0 18px;
+            color: #5b6472;
+            font-size: 9pt;
+            line-height: 1.35;
+            border-bottom: 1px solid #c8ced6;
+            padding-bottom: 10px;
+          }
+
+          .word-heading {
+            margin: 18px 0 8px;
+            font-size: 14pt;
+          }
+
+          .word-line {
+            margin: 0 0 6px;
+            font-size: 9pt;
+            line-height: 1.45;
+          }
+
+          .word-spacer {
+            margin: 0;
+            min-height: 10px;
+            line-height: 1;
+          }
+        </style>
+      </head>
+      <body>
+        <main class="word-page">
+          ${paragraphs}
+        </main>
+      </body>
+    </html>
+  `;
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -4597,420 +4715,13 @@ function getRelevantRiskInventoryReportHtml() {
 }
 
 function buildPrintableReportHtml() {
-  const generatedAt = new Intl.DateTimeFormat("nl-NL", {
-    dateStyle: "long",
-    timeStyle: "short",
-    timeZone: "Europe/Amsterdam",
-  }).format(new Date());
-
-  const completenessItems = getQuestionStatusItems().filter(
-    (question) => question.category === "1.1 Volledigheid"
-  );
-  const actualityAndReliabilityItems = [
-    ...getQuestionStatusItems().filter(
-      (question) =>
-        question.category === "1.2 Actualiteit" ||
-        question.category === "1.3 Actuele inzichten" ||
-        question.category === "1.4 Betrouwbaarheid"
-    ),
-  ];
-  const planItems = getPlanStatusItems();
-
-  return `
-    <!doctype html>
-    <html lang="nl">
-      <head>
-        <meta charset="utf-8">
-        <title>RI&E toetsklaar-rapport</title>
-        <style>
-          :root {
-            color-scheme: light;
-          }
-
-          @page {
-            margin: 2cm 1.6cm 1.8cm 1.6cm;
-          }
-
-          body {
-            margin: 0;
-            font-family: Verdana, Arial, sans-serif;
-            color: #172033;
-            background: #ffffff;
-            font-size: 9pt;
-            line-height: 1.5;
-          }
-
-          .report-page {
-            max-width: none;
-            margin: 0 auto;
-            padding: 0 0 28px;
-            background: #ffffff;
-          }
-
-          .report-header {
-            padding-bottom: 14px;
-            border-bottom: 1px solid #c8ced6;
-          }
-
-          .report-header h1 {
-            margin: 0 0 8px;
-            font-size: 14pt;
-          }
-
-          .report-meta {
-            margin: 0;
-            color: #5b6472;
-            line-height: 1.45;
-            font-size: 9pt;
-          }
-
-          .report-section {
-            margin-top: 22px;
-          }
-
-          .report-section h2 {
-            margin: 0 0 12px;
-            font-size: 12pt;
-          }
-
-          .report-risk-group h2 {
-            font-size: 14pt;
-          }
-
-          .report-subsection {
-            margin-top: 12px;
-          }
-
-          .report-question,
-          .report-risk-item,
-          .report-block {
-            margin-top: 12px;
-            padding: 14px 16px;
-            border: 1px solid #d9e0e7;
-            border-radius: 12px;
-            background: #fbfcfd;
-            break-inside: avoid;
-          }
-
-          .report-question h3,
-          .report-risk-item h3 {
-            margin: 0 0 10px;
-            font-size: 12pt;
-          }
-
-          .report-risk-item h3 {
-            font-size: 11pt;
-          }
-
-          .report-line {
-            margin: 8px 0 0;
-            line-height: 1.5;
-          }
-
-          .report-list {
-            margin: 8px 0 0;
-            padding-left: 20px;
-          }
-
-          .report-list li {
-            margin-top: 8px;
-            line-height: 1.45;
-          }
-
-          .word-page-break {
-            display: block;
-            height: 0;
-            margin: 0;
-            break-before: page;
-            page-break-before: always;
-            mso-special-character: line-break;
-          }
-
-          .report-muted {
-            color: #6b7280;
-            font-style: italic;
-          }
-
-          .report-subheading {
-            display: inline-block;
-            margin-top: 10px;
-            font-size: 9pt;
-          }
-
-          @media print {
-            body {
-              background: #fff;
-            }
-
-            .report-page {
-              max-width: none;
-              padding: 0;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <main class="report-page">
-          <header class="report-header">
-            <h1 style="margin: 0 0 8px; font-size: 18pt;">RI&E toetsklaar-rapport</h1>
-            <p class="report-meta">Gegenereerd op ${escapeHtml(generatedAt)}</p>
-          </header>
-
-          ${getGeneralFieldsReportHtml()}
-          ${getRelevantRiskInventoryReportHtml()}
-          ${getRelevantRegularQuestionReportSection(
-            "Uitkomst RI&E-kwaliteit",
-            [...completenessItems, ...actualityAndReliabilityItems]
-          )}
-          ${getRelevantRegularQuestionReportSection("Uitkomsten plan van aanpak", planItems)}
-        </main>
-      </body>
-    </html>
-  `;
+  return buildWordDocumentFromText("RI&E toetsklaar-rapport", buildRelevantReportPdfText());
 }
 
 function buildSummaryWordHtml() {
-  const assessment = computeAssessment();
-  const generatedAt = new Intl.DateTimeFormat("nl-NL", {
-    dateStyle: "long",
-    timeStyle: "short",
-    timeZone: "Europe/Amsterdam",
-  }).format(new Date());
-  const emptyValue = '<span style="color: #6b7280; font-style: italic;">Niet ingevuld</span>';
-  const formatFieldValue = (value) => {
-    const normalized = getPlainValue(value);
-    return normalized ? escapeHtml(normalized) : emptyValue;
-  };
-
-  const renderField = (label, value, indent = 0) => `
-    <p style="margin: 0 0 6px ${indent}px; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
-      label
-    )}:</b> ${formatFieldValue(value)}</p>
-  `;
-
-  const renderListParagraphs = (items, emptyText, indentCm = 0) => {
-    const values = items.length > 0 ? items : [emptyText];
-    return values
-      .map(
-        (item) =>
-          `<p style="margin: 0 0 6px 0; padding-left: ${indentCm}cm; text-indent: 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">•\u00a0${escapeHtml(
-            item
-          )}</p>`
-      )
-      .join("");
-  };
-  const renderStatusParagraphs = (items, emptyText) => {
-    if (items.length === 0) {
-      return `<p style="margin: 0 0 6px 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">${escapeHtml(
-        emptyText
-      )}</p>`;
-    }
-
-    return items
-      .map(
-        (item) => `
-          <table style="width: 100%; border-collapse: collapse; margin: 0 0 6px 0;">
-            <tr>
-              <td style="border: 1px solid #d9e0e7; padding: 8px 10px; font: 9pt Verdana; color: #172033; width: 78%;">${escapeHtml(
-                item.label
-              )}</td>
-              <td style="border: 1px solid #d9e0e7; padding: 8px 10px; font: 9pt Verdana; color: #172033; width: 22%; text-align: right;"><b>${escapeHtml(
-                item.status.label
-              )}</b></td>
-            </tr>
-          </table>
-        `
-      )
-      .join("");
-  };
-
-  const spacer = (fontSize = 11, minHeight = 13) =>
-    `<p style="margin: 0; font: ${fontSize}pt Verdana; color: #172033; min-height: ${minHeight}px;"><br></p>`;
-
-  const groupedQuestions = [
-    {
-      title: "Uitkomst volledigheid",
-      items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
-    },
-    {
-      title: "Uitkomst actualiteit",
-      items: getQuestionStatusItems().filter(
-        (question) =>
-          question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
-      ),
-    },
-    {
-      title: "Uitkomst betrouwbaarheid",
-      items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
-    },
-  ];
-  const riskStatusItems = collectRiskProfileStatusSummaryData();
-  const groundCauseStatusItems = collectGroundCausesStatusSummaryData();
-  const supplementalStatusItems = collectSupplementalStatusSummaryData();
-
-  const renderQuestionGroup = (title, items, breakBefore = false) => {
-    const rows = items
-      .map((question) => {
-        const presentation = getStatusPresentation(getAnswerValue(question.id));
-        return `
-          <p style="margin: 0 0 0 0; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
-            getDisplayQuestionTitle(question)
-          )}</b></p>
-          <p style="margin: 3pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">${escapeHtml(
-            presentation.label
-          )}</p>
-        `;
-      })
-      .join("");
-
-    return `
-      ${breakBefore ? getWordPageBreakHtml() : ""}
-      <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>${escapeHtml(
-        title
-      )}</b></u></p>
-      ${spacer(12, 15)}
-      ${rows}
-      ${spacer(12, 15)}
-    `;
-  };
-
-  const planRows = getPlanStatusItems()
-    .map((question) => {
-      const presentation = getStatusPresentation(getAnswerValue(question.id));
-      return `
-        <p style="margin: 0 0 0 0; font: 9pt Verdana; color: #172033;"><b>${escapeHtml(
-          getDisplayQuestionTitle(question)
-        )}</b></p>
-        <p style="margin: 3pt 0 4.5pt 0; font: 9pt Verdana; color: #172033; line-height: 1.0;">${escapeHtml(
-          presentation.label
-        )}</p>
-      `;
-    })
-    .join("");
-
-  return `
-    <!doctype html>
-    <html lang="nl">
-      <head>
-        <meta charset="utf-8">
-        <title>RI&E toetsklaar-samenvatting</title>
-        <style>
-          @page {
-            margin: 2cm 1.6cm 1.8cm 1.6cm;
-          }
-
-          body {
-            margin: 0;
-            font-family: Verdana, Arial, sans-serif;
-            color: #172033;
-            background: #ffffff;
-            font-size: 9pt;
-            line-height: 1.3;
-          }
-
-          .report-page {
-            max-width: none;
-            margin: 0 auto;
-            padding: 0 0 24px;
-            background: #ffffff;
-          }
-
-          .report-header {
-            padding-bottom: 10px;
-            border-bottom: 1px solid #c8ced6;
-          }
-
-          .report-section {
-            margin-top: 16px;
-          }
-
-          .report-block {
-            display: block;
-          }
-
-          .report-list {
-            margin: 6px 0 0;
-            padding-left: 16px;
-          }
-
-          .report-list li {
-            margin-top: 6px;
-            line-height: 1.3;
-          }
-
-          .report-muted {
-            color: #6b7280;
-            font-style: italic;
-          }
-        </style>
-      </head>
-      <body>
-        <main class="report-page">
-          <header class="report-header">
-            <h1 style="margin: 0 0 6px; font-size: 16pt;">RI&E toetsklaar-samenvatting</h1>
-            <p style="margin: 0; color: #5b6472; line-height: 1.35; font-size: 9pt;">Gegenereerd op ${escapeHtml(
-              generatedAt
-            )}</p>
-          </header>
-          ${spacer(11, 13)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Bedrijfsprofiel</b></p>
-          ${spacer(11, 13)}
-          ${renderField("Bedrijfsnaam", companyName.value)}
-          ${renderField("Contactpersoon", contactName.value)}
-          ${renderField("E-mailadres contactpersoon", contactEmail?.value || "")}
-          ${renderField("Naam invuller RI&E-toets", rieAssessorName?.value || "")}
-          ${renderField("Contactpersoon ondernemingsraad", worksCouncilContact?.value || "")}
-          ${renderField("Arbodienst/ Bedrijfsarts", occupationalService?.value || "")}
-          ${renderField("Branche", industry.value)}
-          ${renderField("Arbo-certificaten", arboCertificates?.value || "")}
-          ${renderField("Aantal medewerkers", employees.value)}
-          ${renderField("Datum van invullen", assessmentDate.value)}
-          ${spacer(11, 13)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Afbakening en documentgegevens van de RI&amp;E</b></p>
-          ${spacer(11, 13)}
-          ${renderField("Naam of omschrijving van de RI&E", rieName.value)}
-          ${renderField("Reikwijdte van de RI&E", scopeDescription.value)}
-          ${renderField("Uitvoering van de RI&E", executionDescription.value)}
-          ${renderField("Datum van de RI&E", rieDate.value)}
-          ${renderField("Documenten die behoren tot de te toetsen RI&E", rieDocuments.value)}
-          ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>SAMENVATTING UITKOMST</b></p>
-          ${spacer(10, 12)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst risicoprofiel</b></p>
-          ${spacer(9, 11)}
-          ${renderStatusParagraphs(
-            riskStatusItems,
-            "Nog geen hoofd- en deelrisico's beoordeeld."
-          )}
-          ${spacer(9, 11)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst grondoorzaken</b></p>
-          ${spacer(9, 11)}
-          ${renderStatusParagraphs(
-            groundCauseStatusItems,
-            "Nog geen relevante grondoorzaken beoordeeld."
-          )}
-          ${spacer(9, 11)}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst nadere voorschriften</b></p>
-          ${spacer(9, 11)}
-          ${renderStatusParagraphs(
-            supplementalStatusItems,
-            "Nog geen relevante nadere voorschriften.",
-          )}
-          ${spacer(9, 11)}
-          ${spacer(11, 13)}
-          ${getWordPageBreakHtml()}
-          <p style="margin: 0; font: 14pt Verdana; color: #172033;"><b>Uitkomst RI&E-kwaliteit</b></p>
-          ${spacer(9, 11)}
-          ${groupedQuestions
-            .map((group, index) => renderQuestionGroup(group.title, group.items, index === 1))
-            .join("")}
-          <p style="margin: 0; font: 12pt Verdana; color: #172033;"><u><b>Uitkomsten plan van aanpak</b></u></p>
-          ${spacer(12, 15)}
-          ${planRows}
-        </main>
-      </body>
-    </html>
-  `;
+  return buildWordDocumentFromText("RI&E toetsklaar-samenvatting", buildSummaryPdfText(), [
+    "Uitkomsten plan van aanpak",
+  ]);
 }
 
 function buildSummaryPdfHtml() {
