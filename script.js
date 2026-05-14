@@ -3701,6 +3701,14 @@ function buildRelevantRegularQuestionReportLines(sectionTitle, items) {
 function buildRelevantRiskInventoryReportLines() {
   const lines = ["Uitwerking vraag 1.1.1", ""];
   let hasContent = false;
+  const addQuestionAnswer = (targetLines, questionText, answerText) => {
+    if (!questionText || !answerText) {
+      return;
+    }
+
+    targetLines.push(questionText);
+    targetLines.push(`Antwoord: ${answerText}`);
+  };
 
   for (const group of riskCatalog) {
     const groupLines = [];
@@ -3733,70 +3741,83 @@ function buildRelevantRiskInventoryReportLines() {
       hasContent = true;
       groupLines.push(group.title);
       groupLines.push(`${item.groupTitle} - ${getNumberedRiskItemLabel(group.id, item.itemLabel)}`);
-      const itemName = item.itemLabel;
 
       if (item.applicable) {
-        groupLines.push(`${formatReportLabel(`${itemName} van toepassing`)} ${getPlainOptionLabel(yesNoOptions, item.applicable)}`);
+        addQuestionAnswer(
+          groupLines,
+          "Is het risico van toepassing?",
+          getPlainOptionLabel(yesNoOptions, item.applicable)
+        );
       }
 
       if (item.applicable === "no") {
         if (item.applicabilityNote) {
-          groupLines.push(`${formatReportLabel(`Toelichting waarom ${itemName.toLowerCase()} niet van toepassing is`)} ${item.applicabilityNote}`);
+          addQuestionAnswer(
+            groupLines,
+            "Indien niet van toepassing: toelichting",
+            item.applicabilityNote
+          );
         }
       }
 
       if (item.applicable === "yes") {
         if (item.described) {
-          groupLines.push(
-            `${formatReportLabel(`Is ${itemName.toLowerCase()} beschreven in de RI&E?`)} ${getPlainOptionLabel(
-              yesNoOptions,
-              item.described
-            )}`
+          addQuestionAnswer(
+            groupLines,
+            "Is het risico beschreven in de RI&E?",
+            getPlainOptionLabel(yesNoOptions, item.described)
           );
         }
 
         if (item.described === "yes") {
           if (item.assessorNote) {
-            groupLines.push(`${formatReportLabel(`Wie heeft ${itemName.toLowerCase()} beoordeeld?`)} ${item.assessorNote}`);
+            addQuestionAnswer(groupLines, "Wie heeft dit risico beoordeeld?", item.assessorNote);
           }
           if (item.assessmentMethodNote) {
-            groupLines.push(
-              `${formatReportLabel(`Welke methode is gebruikt om ${itemName.toLowerCase()} te inventariseren?`)} ${item.assessmentMethodNote}`
+            addQuestionAnswer(
+              groupLines,
+              "Welke methode is gebruikt om het risico te inventariseren?",
+              item.assessmentMethodNote
             );
           }
           if (item.evaluationMethodNote) {
-            groupLines.push(
-              `${formatReportLabel(`Welke methode is gebruikt om ${itemName.toLowerCase()} te evalueren?`)} ${item.evaluationMethodNote}`
+            addQuestionAnswer(
+              groupLines,
+              "Welke methode is gebruikt om het risico te evalueren?",
+              item.evaluationMethodNote
             );
           }
           if (item.describedYesNote) {
-            groupLines.push(
-              `${formatReportLabel(`Waar is ${itemName.toLowerCase()} terug te vinden in de RI&E?`)} ${item.describedYesNote}`
+            addQuestionAnswer(
+              groupLines,
+              "Waar is dit onderdeel terug te vinden in de RI&E?",
+              item.describedYesNote
             );
           }
           if (item.causes) {
-            groupLines.push(
-              `${formatReportLabel(`Zijn de grondoorzaken van ${itemName.toLowerCase()} in de RI&E geïnventariseerd?`)} ${getPlainOptionLabel(
-                yesNoOptions,
-                item.causes
-              )}`
+            addQuestionAnswer(
+              groupLines,
+              "Zijn de grondoorzaken van dit risico in de RI&E geïnventariseerd?",
+              getPlainOptionLabel(yesNoOptions, item.causes)
             );
           }
           if (item.causes === "yes" && item.causesYesNote) {
-            groupLines.push(
-              `${formatReportLabel(`Waaruit blijkt dat de grondoorzaken van ${itemName.toLowerCase()} zijn geïnventariseerd?`)} ${item.causesYesNote}`
+            addQuestionAnswer(
+              groupLines,
+              "Waaruit blijkt dat de grondoorzaken zijn geïnventariseerd?",
+              item.causesYesNote
             );
           }
           if (item.causes === "no") {
             if (item.causesNoReason) {
-              groupLines.push(
-                `${formatReportLabel(`Reden waarom de grondoorzaken van ${itemName.toLowerCase()} niet zijn meegenomen`)} ${getGroundCauseNoReasonLabel(item.causesNoReason)}`
+              addQuestionAnswer(
+                groupLines,
+                "Reden waarom de grondoorzaken niet zijn meegenomen",
+                getGroundCauseNoReasonLabel(item.causesNoReason)
               );
             }
             if (item.causesNoReason === "anders" && item.causesNoNote) {
-              groupLines.push(
-                `${formatReportLabel(`Toelichting afwijkende reden bij ${itemName.toLowerCase()}`)} ${item.causesNoNote}`
-              );
+              addQuestionAnswer(groupLines, "Toelichting andere reden", item.causesNoNote);
             }
           }
 
@@ -3807,31 +3828,34 @@ function buildRelevantRiskInventoryReportLines() {
             if (!answer && !note) {
               continue;
             }
-            groupLines.push(
-              `${formatReportLabel(`${itemName} - ${config.prompt}`)} ${getPlainOptionLabel(requirementsOptions, answer)}`
+            addQuestionAnswer(
+              groupLines,
+              config.prompt,
+              getPlainOptionLabel(requirementsOptions, answer)
             );
             if (answer === "no" && noReason) {
-              groupLines.push(
-                `${formatReportLabel(`Reden waarom voor ${itemName.toLowerCase()} geen invulling is gegeven`)} ${getSupplementalNoReasonLabel(noReason)}`
+              addQuestionAnswer(
+                groupLines,
+                "Reden waarom geen invulling is gegeven",
+                getSupplementalNoReasonLabel(noReason)
               );
             }
             if (note) {
-              groupLines.push(`${formatReportLabel(`Toelichting bij ${itemName.toLowerCase()}`)} ${note}`);
+              addQuestionAnswer(groupLines, "Waaruit blijkt dat er invulling aan gegeven is?", note);
             }
           }
         }
 
         if (item.described === "no") {
           if (item.justified) {
-            groupLines.push(
-              `${formatReportLabel(`Kunt u verantwoorden waarom ${itemName.toLowerCase()} niet beschreven is in de RI&E?`)} ${getPlainOptionLabel(
-                yesNoOptions,
-                item.justified
-              )}`
+            addQuestionAnswer(
+              groupLines,
+              "Kunt u verantwoorden waarom het risico niet beschreven is in de RI&E?",
+              getPlainOptionLabel(yesNoOptions, item.justified)
             );
           }
           if (item.describedNoNote) {
-            groupLines.push(`${formatReportLabel(`Reden waarom ${itemName.toLowerCase()} niet is opgenomen`)} ${item.describedNoNote}`);
+            addQuestionAnswer(groupLines, "Reden waarom dit risico niet is opgenomen", item.describedNoNote);
           }
         }
       }
@@ -4072,6 +4096,24 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
         type: "label",
         label: labelMatch[1],
         value: labelMatch[2],
+      });
+      continue;
+    }
+
+    const isQuestionLine =
+      trimmed.endsWith("?") ||
+      trimmed.startsWith("Is invulling gegeven aan ") ||
+      trimmed.startsWith("Reden waarom ") ||
+      trimmed.startsWith("Indien niet van toepassing");
+
+    if (isQuestionLine) {
+      if (!currentCard) {
+        currentCard = { title: "", rows: [] };
+      }
+      currentCard.rows.push({
+        type: "label",
+        label: "Vraag",
+        value: trimmed,
       });
       continue;
     }
