@@ -3988,40 +3988,115 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     "Uitkomst volledigheid",
     "Uitkomst actualiteit",
     "Uitkomst betrouwbaarheid",
+    ...riskCatalog.map((group) => group.title),
     ...extraHeadingLines,
   ]);
 
-  const paragraphs = reportText
-    .split("\n")
-    .map((line, index) => {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        return '<p class="word-spacer"><br></p>';
+  const lines = reportText.split("\n");
+  const content = [];
+  let currentCard = null;
+
+  const flushCard = () => {
+    if (!currentCard) {
+      return;
+    }
+
+    const rowsHtml = currentCard.rows
+      .map((row) => {
+        if (row.type === "bullet") {
+          return `<div class="word-row word-row-bullet"><div class="word-row-value">${escapeHtml(row.text).replace(/\n/g, "<br>")}</div></div>`;
+        }
+
+        return `
+          <div class="word-row">
+            <div class="word-row-label">${escapeHtml(row.label)}</div>
+            <div class="word-row-value">${escapeHtml(row.value || "Niet ingevuld").replace(/\n/g, "<br>")}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    content.push(`
+      <article class="word-card${currentCard.title ? "" : " word-card-compact"}">
+        ${currentCard.title ? `<h3 class="word-card-title">${escapeHtml(currentCard.title)}</h3>` : ""}
+        ${rowsHtml}
+      </article>
+    `);
+
+    currentCard = null;
+  };
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const trimmed = line.trim();
+
+    if (index === 0) {
+      content.push(`<h1 class="word-title">${escapeHtml(trimmed)}</h1>`);
+      continue;
+    }
+
+    if (!trimmed) {
+      flushCard();
+      continue;
+    }
+
+    if (/^Gegenereerd op /.test(trimmed)) {
+      flushCard();
+      content.push(`<p class="word-meta">${escapeHtml(trimmed)}</p>`);
+      continue;
+    }
+
+    if (headingLines.has(trimmed) || (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40)) {
+      flushCard();
+      content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
+      continue;
+    }
+
+    if (trimmed.startsWith("• ")) {
+      if (!currentCard) {
+        currentCard = { title: "", rows: [] };
       }
+      currentCard.rows.push({ type: "bullet", text: trimmed.replace(/^•\s*/, "") });
+      continue;
+    }
 
-      if (index === 0) {
-        return `<h1 class="word-title">${escapeHtml(trimmed)}</h1>`;
+    const labelMatch = trimmed.match(/^([^:\n]{1,160}):\s*(.*)$/);
+    if (labelMatch) {
+      if (!currentCard) {
+        currentCard = { title: "", rows: [] };
       }
+      currentCard.rows.push({
+        type: "label",
+        label: labelMatch[1],
+        value: labelMatch[2],
+      });
+      continue;
+    }
 
-      if (/^Gegenereerd op /.test(trimmed)) {
-        return `<p class="word-meta">${escapeHtml(trimmed)}</p>`;
+    if (currentCard?.rows.length) {
+      const lastRow = currentCard.rows[currentCard.rows.length - 1];
+      if (lastRow.type === "label") {
+        lastRow.value = lastRow.value ? `${lastRow.value}\n${trimmed}` : trimmed;
+      } else if (lastRow.type === "bullet") {
+        lastRow.text = `${lastRow.text}\n${trimmed}`;
       }
+      continue;
+    }
 
-      if (headingLines.has(trimmed)) {
-        return `<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`;
-      }
+    if (currentCard?.title) {
+      currentCard.rows.push({
+        type: "label",
+        label: "Antwoord",
+        value: trimmed,
+      });
+      continue;
+    }
 
-      if (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40) {
-        return `<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`;
-      }
+    flushCard();
+    currentCard = { title: trimmed, rows: [] };
+  }
 
-      const escapedLine = escapeHtml(line)
-        .replace(/^([^:\n]+:)/, "<strong>$1</strong>")
-        .replace(/^<strong>Antwoord:<\/strong>/, "<strong>Antwoord:</strong>");
-
-      return `<p class="word-line">${escapedLine}</p>`;
-    })
-    .join("");
+  flushCard();
 
   return `
     <!doctype html>
@@ -4067,12 +4142,63 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
           .word-heading {
             margin: 18px 0 8px;
             font-size: 14pt;
+            color: #16324f;
           }
 
-          .word-line {
-            margin: 0 0 6px;
+          .word-card {
+            margin: 0 0 12px;
+            padding: 12px 14px;
+            border: 1px solid #d7dee8;
+            border-radius: 10px;
+            background: #fbfcfe;
+            break-inside: avoid;
+          }
+
+          .word-card-compact {
+            padding-top: 10px;
+          }
+
+          .word-card-title {
+            margin: 0 0 8px;
+            font-size: 11pt;
+            line-height: 1.35;
+            color: #13263d;
+          }
+
+          .word-row {
+            margin-top: 8px;
+          }
+
+          .word-row:first-child {
+            margin-top: 0;
+          }
+
+          .word-row-label {
+            margin-bottom: 2px;
+            font-size: 8pt;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: #516173;
+          }
+
+          .word-row-value {
             font-size: 9pt;
-            line-height: 1.45;
+            line-height: 1.5;
+            color: #172033;
+          }
+
+          .word-row-bullet {
+            padding-left: 14px;
+            position: relative;
+          }
+
+          .word-row-bullet::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #2f6f5e;
           }
 
           .word-spacer {
@@ -4084,7 +4210,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
       </head>
       <body>
         <main class="word-page">
-          ${paragraphs}
+          ${content.join("")}
         </main>
       </body>
     </html>
