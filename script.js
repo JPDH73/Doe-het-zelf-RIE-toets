@@ -6073,23 +6073,26 @@ function collectSupplementalStatusSummaryData() {
         return getSupplementalRequirementConfigs(group.id, itemLabel).map((config) => {
           const answer = item.supplementalAnswers?.[config.key] || null;
           const noReason = item.supplementalNoReasons?.[config.key] || null;
-          let status = "nog niet beantwoord";
+          let status = { label: "nog niet beantwoord", className: "status-chip-empty" };
 
           if (answer === "yes") {
-            status = "meegenomen";
+            status = { label: "meegenomen", className: "status-chip-yes" };
           } else if (answer === "no") {
             if (noReason === "niet-noodzakelijk") {
-              status = "niet noodzakelijk";
+              status = { label: "niet noodzakelijk", className: "status-chip-yes" };
             } else if (noReason === "niet-onderkend") {
-              status = "niet onderkend";
+              status = { label: "niet onderkend", className: "status-chip-no" };
             } else if (noReason === "anders") {
-              status = "afwijkend gemotiveerd";
+              status = { label: "afwijkend gemotiveerd", className: "status-chip-partial" };
             } else {
-              status = "niet meegenomen";
+              status = { label: "niet meegenomen", className: "status-chip-no" };
             }
           }
 
-          return `${getShortSupplementalSummaryLabel(riskLabel, config.prompt, item)} - ${status}`;
+          return {
+            label: getShortSupplementalSummaryLabel(riskLabel, config.prompt, item),
+            status,
+          };
         });
       })
     )
