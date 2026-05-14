@@ -4948,6 +4948,24 @@ function buildSummaryPdfHtml() {
   return buildSummaryWordHtml().replace("</body>", `${printScript}</body>`);
 }
 
+function buildPrintableReportPdfHtml() {
+  const printScript = `
+    <script>
+      window.addEventListener("load", () => {
+        window.setTimeout(() => {
+          window.print();
+        }, 150);
+
+        window.addEventListener("afterprint", () => {
+          window.close();
+        });
+      });
+    </script>
+  `;
+
+  return buildPrintableReportHtml().replace("</body>", `${printScript}</body>`);
+}
+
 function buildSummaryPdfText() {
   const assessment = computeAssessment();
   const generatedAt = new Intl.DateTimeFormat("nl-NL", {
@@ -5060,6 +5078,20 @@ function downloadBlob(blob, filename) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function openPrintHtmlDocument(html) {
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const printWindow = window.open(url, "_blank");
+
+  if (!printWindow) {
+    URL.revokeObjectURL(url);
+    window.alert("Het afdrukvenster kon niet worden geopend. Controleer of pop-ups zijn toegestaan.");
+    return;
+  }
+
+  window.setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 function sanitizePdfText(value) {
@@ -5201,9 +5233,7 @@ function generatePdfReport() {
 }
 
 function generateRelevantReportPdf() {
-  const reportText = buildRelevantReportPdfText();
-  const blob = buildPdfBlobFromText(reportText);
-  downloadBlob(blob, `RI&E toetsklaar-rapport.pdf`);
+  openPrintHtmlDocument(buildPrintableReportPdfHtml());
 }
 
 function generateWordReport() {
@@ -5223,9 +5253,7 @@ function generateSummaryWordReport() {
 }
 
 function generateSummaryPdfReport() {
-  const reportText = buildSummaryPdfText();
-  const blob = buildPdfBlobFromText(reportText);
-  downloadBlob(blob, `RI&E toetsklaar-samenvatting.pdf`);
+  openPrintHtmlDocument(buildSummaryPdfHtml());
 }
 
 function updateScoreRing(readiness) {
