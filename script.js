@@ -5403,7 +5403,9 @@ function generateWordReport() {
 }
 
 function generateSummaryWordReport() {
-  const html = buildSummaryWordHtml();
+  const html = buildWordDocumentFromText("RI&E toetsklaar-samenvatting", buildSummaryPdfText(), [
+    "Uitkomsten plan van aanpak",
+  ]);
   const blob = new Blob(["\ufeff", html], {
     type: "application/msword;charset=utf-8",
   });
