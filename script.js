@@ -3699,7 +3699,7 @@ function buildRelevantRegularQuestionReportLines(sectionTitle, items) {
 }
 
 function buildRelevantRiskInventoryReportLines() {
-  const lines = ["Uitwerking vraag 1.1.1", ""];
+  const lines = ["Uitkomst risicoprofiel, grondoorzaken en nadere voorschriften", ""];
   let hasContent = false;
   const addQuestionAnswer = (targetLines, questionText, answerText) => {
     if (!questionText || !answerText) {
@@ -4002,11 +4002,16 @@ function buildReportPreviewHtml(reportText) {
 
 function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines = []) {
   const riskGroupHeadings = new Set(riskCatalog.map((group) => group.title));
+  const pageBreakHeadings = new Set([
+    ...riskGroupHeadings,
+    "Uitkomst RI&E-kwaliteit",
+    "Uitkomsten plan van aanpak",
+  ]);
   const headingLines = new Set([
     documentTitle,
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
-    "Uitwerking vraag 1.1.1",
+    "Uitkomst risicoprofiel, grondoorzaken en nadere voorschriften",
     "Uitkomst RI&E-kwaliteit",
     "Uitkomsten plan van aanpak",
     "UITKOMSTEN EN RAPPORTEN",
@@ -4085,7 +4090,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
     if (headingLines.has(trimmed) || (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40)) {
       flushCard();
-      if (riskGroupHeadings.has(trimmed)) {
+      if (pageBreakHeadings.has(trimmed)) {
         content.push('<div class="word-page-break"></div>');
       }
       content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
@@ -4931,39 +4936,11 @@ function buildSummaryWordHtml() {
 }
 
 function buildSummaryPdfHtml() {
-  const printScript = `
-    <script>
-      window.addEventListener("load", () => {
-        window.setTimeout(() => {
-          window.print();
-        }, 150);
-
-        window.addEventListener("afterprint", () => {
-          window.close();
-        });
-      });
-    </script>
-  `;
-
-  return buildSummaryWordHtml().replace("</body>", `${printScript}</body>`);
+  return buildSummaryWordHtml();
 }
 
 function buildPrintableReportPdfHtml() {
-  const printScript = `
-    <script>
-      window.addEventListener("load", () => {
-        window.setTimeout(() => {
-          window.print();
-        }, 150);
-
-        window.addEventListener("afterprint", () => {
-          window.close();
-        });
-      });
-    </script>
-  `;
-
-  return buildPrintableReportHtml().replace("</body>", `${printScript}</body>`);
+  return buildPrintableReportHtml();
 }
 
 function buildSummaryPdfText() {
@@ -5083,15 +5060,41 @@ function downloadBlob(blob, filename) {
 function openPrintHtmlDocument(html) {
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
-  const printWindow = window.open(url, "_blank");
+  const frame = document.createElement("iframe");
+  frame.style.position = "fixed";
+  frame.style.right = "0";
+  frame.style.bottom = "0";
+  frame.style.width = "0";
+  frame.style.height = "0";
+  frame.style.border = "0";
+  frame.setAttribute("aria-hidden", "true");
+  frame.src = url;
+  document.body.append(frame);
 
-  if (!printWindow) {
-    URL.revokeObjectURL(url);
-    window.alert("Het afdrukvenster kon niet worden geopend. Controleer of pop-ups zijn toegestaan.");
-    return;
-  }
+  frame.addEventListener(
+    "load",
+    () => {
+      const cleanup = () => {
+        window.setTimeout(() => {
+          frame.remove();
+          URL.revokeObjectURL(url);
+        }, 1000);
+      };
 
-  window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+      const printFrameWindow = frame.contentWindow;
+      if (!printFrameWindow) {
+        cleanup();
+        return;
+      }
+
+      printFrameWindow.focus();
+      window.setTimeout(() => {
+        printFrameWindow.print();
+        cleanup();
+      }, 150);
+    },
+    { once: true }
+  );
 }
 
 function sanitizePdfText(value) {
