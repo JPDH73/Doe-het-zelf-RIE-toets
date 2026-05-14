@@ -3770,6 +3770,13 @@ function buildRelevantRiskInventoryReportLines() {
         }
 
         if (item.described === "yes") {
+          if (item.describedYesNote) {
+            addQuestionAnswer(
+              groupLines,
+              "Waar is dit onderdeel terug te vinden in de RI&E?",
+              item.describedYesNote
+            );
+          }
           if (item.assessorNote) {
             addQuestionAnswer(groupLines, "Wie heeft dit risico beoordeeld?", item.assessorNote);
           }
@@ -3785,13 +3792,6 @@ function buildRelevantRiskInventoryReportLines() {
               groupLines,
               "Welke methode is gebruikt om het risico te evalueren?",
               item.evaluationMethodNote
-            );
-          }
-          if (item.describedYesNote) {
-            addQuestionAnswer(
-              groupLines,
-              "Waar is dit onderdeel terug te vinden in de RI&E?",
-              item.describedYesNote
             );
           }
           if (item.causes) {
@@ -4001,6 +4001,7 @@ function buildReportPreviewHtml(reportText) {
 }
 
 function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines = []) {
+  const riskGroupHeadings = new Set(riskCatalog.map((group) => group.title));
   const headingLines = new Set([
     documentTitle,
     "Bedrijfsprofiel",
@@ -4015,7 +4016,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     "Uitkomst volledigheid",
     "Uitkomst actualiteit",
     "Uitkomst betrouwbaarheid",
-    ...riskCatalog.map((group) => group.title),
+    ...riskGroupHeadings,
     ...extraHeadingLines,
   ]);
 
@@ -4084,6 +4085,9 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
     if (headingLines.has(trimmed) || (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40)) {
       flushCard();
+      if (riskGroupHeadings.has(trimmed)) {
+        content.push('<div class="word-page-break"></div>');
+      }
       content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
       continue;
     }
@@ -4273,6 +4277,14 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             margin: 0;
             min-height: 10px;
             line-height: 1;
+          }
+
+          .word-page-break {
+            display: block;
+            height: 0;
+            margin: 0;
+            break-before: page;
+            page-break-before: always;
           }
         </style>
       </head>
