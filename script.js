@@ -385,6 +385,7 @@ const scopeDescription = document.querySelector("#scopeDescription");
 const executionDescription = document.querySelector("#executionDescription");
 const executionParticipantRows = document.querySelector("#executionParticipantRows");
 const rieDate = document.querySelector("#rieDate");
+const riePeriod = document.querySelector("#riePeriod");
 const rieDocuments = document.querySelector("#rieDocuments");
 const statusBadge = document.querySelector("#statusBadge");
 const scoreValue = document.querySelector("#scoreValue");
@@ -3161,7 +3162,7 @@ function areSectionFieldsFilled(container) {
 }
 
 function isScopeStepComplete() {
-  if (!rieName.value || !rieDescription.value || !scopeDescription.value || !rieDate.value || !rieDocuments.value) {
+  if (!rieName.value || !rieDescription.value || !scopeDescription.value || !rieDate.value || !riePeriod.value || !rieDocuments.value) {
     return false;
   }
 
@@ -3610,7 +3611,10 @@ function buildSummary(assessment) {
   const executionText = executionDescription.value.trim()
     ? ` De uitvoering van de RI&E is als volgt beschreven: ${executionDescription.value.trim()}.`
     : "";
-  const rieDateText = rieDate.value ? ` De datum van de RI&E is ${rieDate.value}.` : "";
+  const rieDateText = rieDate.value ? ` De datum van het rapport is ${rieDate.value}.` : "";
+  const riePeriodText = riePeriod?.value.trim()
+    ? ` De periode van uitvoering van de RI&E is: ${riePeriod.value.trim()}.`
+    : "";
   const rieDocumentsText = rieDocuments.value.trim()
     ? ` De volgende documenten behoren tot de te toetsen RI&E: ${rieDocuments.value.trim()}.`
     : "";
@@ -3635,7 +3639,7 @@ function buildSummary(assessment) {
       : "";
   const inventoryText = riskInventory ? ` ${riskInventory.inventorySummary}` : "";
 
-  return `${intro}${critical}${inventoryText}${rieNameText}${rieDescriptionText}${scopeText}${executionText}${rieDateText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
+  return `${intro}${critical}${inventoryText}${rieNameText}${rieDescriptionText}${scopeText}${executionText}${rieDateText}${riePeriodText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
 }
 
 function getPlainValue(value) {
@@ -4039,7 +4043,8 @@ function buildRelevantReportPdfText() {
     `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
-    `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
+    `Datum rapport: ${getPlainValue(rieDate.value)}`,
+    `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     "Documenten die behoren tot de te toetsen RI&E:",
     getPlainValue(rieDocuments.value),
     "",
@@ -4098,7 +4103,8 @@ function buildReport(assessment) {
     `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
-    `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
+    `Datum rapport: ${getPlainValue(rieDate.value)}`,
+    `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     `Documenten die behoren tot de te toetsen RI&E: ${getPlainValue(rieDocuments.value)}`,
     "",
     ...buildRiskInventoryReportLines(),
@@ -4496,7 +4502,8 @@ function getGeneralFieldsReportHtml() {
     ["Omschrijving van de RI&E", rieDescription?.value || ""],
     ["Reikwijdte van de RI&E", scopeDescription.value],
     ["Uitvoering van de RI&E", executionDescription.value],
-    ["Datum van de RI&E", rieDate.value],
+    ["Datum rapport", rieDate.value],
+    ["Periode van uitvoering van de RI&E", riePeriod?.value || ""],
     ["Documenten die behoren tot de te toetsen RI&E", rieDocuments.value],
   ];
 
@@ -5121,7 +5128,8 @@ function buildSummaryPdfText() {
     `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
-    `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
+    `Datum rapport: ${getPlainValue(rieDate.value)}`,
+    `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     "Documenten die behoren tot de te toetsen RI&E:",
     getPlainValue(rieDocuments.value),
     "",

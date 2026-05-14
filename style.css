@@ -258,14 +258,14 @@ h1 {
 }
 
 .wizard-step-button-results {
-  border-color: rgba(23, 32, 51, 0.18);
-  background: rgba(23, 32, 51, 0.06);
-  color: #172033;
+  border-color: #172033;
+  background: #172033;
+  color: #ffffff;
   font-weight: 700;
 }
 
 .wizard-step-button.is-active {
-  border-color: #1d4ed8;
+  border-color: #ffffff;
   background: rgba(37, 99, 235, 0.12);
   color: #1d4ed8;
   font-weight: 700;
@@ -286,21 +286,32 @@ h1 {
 }
 
 .wizard-step-button.is-complete.is-active {
-  border-color: #1d4ed8;
+  border-color: #ffffff;
   background: rgba(37, 99, 235, 0.12);
   color: #1d4ed8;
 }
 
 .wizard-step-button.is-partial.is-active {
-  border-color: #1d4ed8;
+  border-color: #ffffff;
   background: rgba(37, 99, 235, 0.12);
   color: #1d4ed8;
 }
 
 .wizard-step-button-results.is-active {
-  border-color: rgba(23, 32, 51, 0.28);
-  background: rgba(23, 32, 51, 0.12);
-  color: #172033;
+  border-color: #ffffff;
+  background: #172033;
+  color: #ffffff;
+}
+
+.wizard-step-button-results .wizard-step-button-status {
+  display: none;
+}
+
+.wizard-step-button-results.is-complete,
+.wizard-step-button-results.is-partial {
+  border-color: #172033;
+  background: #172033;
+  color: #ffffff;
 }
 
 .wizard-progress-actions {
