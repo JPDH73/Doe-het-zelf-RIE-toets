@@ -4192,9 +4192,9 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     "Uitkomst risicoprofiel",
     "Uitkomst grondoorzaken",
     "Uitkomst nadere voorschriften",
-    "Uitkomst volledigheid",
-    "Uitkomst actualiteit",
-    "Uitkomst betrouwbaarheid",
+    "Volledigheid",
+    "Actualiteit",
+    "Betrouwbaarheid",
     ...riskGroupHeadings,
     ...extraHeadingLines,
   ]);
@@ -4379,7 +4379,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
           .word-heading {
             margin: 18px 0 8px;
-            font-size: 14pt;
+            font-size: 12pt;
             color: #16324f;
           }
 
@@ -4647,18 +4647,18 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
 
   const groupedQuestions = [
     {
-      title: "Uitkomst volledigheid",
+      title: "Volledigheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
     },
     {
-      title: "Uitkomst actualiteit",
+      title: "Actualiteit",
       items: getQuestionStatusItems().filter(
         (question) =>
           question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
       ),
     },
     {
-      title: "Uitkomst betrouwbaarheid",
+      title: "Betrouwbaarheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
@@ -5180,18 +5180,18 @@ function buildSummaryPdfText() {
 
   const groupedQuestions = [
     {
-      title: "Uitkomst volledigheid",
+      title: "Volledigheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
     },
     {
-      title: "Uitkomst actualiteit",
+      title: "Actualiteit",
       items: getQuestionStatusItems().filter(
         (question) =>
           question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
       ),
     },
     {
-      title: "Uitkomst betrouwbaarheid",
+      title: "Betrouwbaarheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
@@ -5862,18 +5862,18 @@ function renderQuestionStatusMatrix() {
   questionStatusMatrix.innerHTML = "";
   const groupedQuestions = [
     {
-      title: "Uitkomst volledigheid",
+      title: "Volledigheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
     },
     {
-      title: "Uitkomst actualiteit",
+      title: "Actualiteit",
       items: getQuestionStatusItems().filter(
         (question) =>
           question.category === "1.2 Actualiteit" || question.category === "1.3 Actuele inzichten"
       ),
     },
     {
-      title: "Uitkomst betrouwbaarheid",
+      title: "Betrouwbaarheid",
       items: getQuestionStatusItems().filter((question) => question.category === "1.4 Betrouwbaarheid"),
     },
   ];
