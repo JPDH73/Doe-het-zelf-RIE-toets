@@ -4091,7 +4091,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     if (headingLines.has(trimmed) || (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40)) {
       flushCard();
       if (pageBreakHeadings.has(trimmed)) {
-        content.push('<div class="word-page-break"></div>');
+        content.push(getWordPageBreakHtml());
       }
       content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
       continue;
@@ -4163,10 +4163,19 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
   return `
     <!doctype html>
-    <html lang="nl">
+    <html lang="nl" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
       <head>
         <meta charset="utf-8">
         <title>${escapeHtml(documentTitle)}</title>
+        <!--[if gte mso 9]>
+        <xml>
+          <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+          </w:WordDocument>
+        </xml>
+        <![endif]-->
         <style>
           @page {
             margin: 2cm 1.6cm 1.8cm 1.6cm;
@@ -4282,14 +4291,6 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             margin: 0;
             min-height: 10px;
             line-height: 1;
-          }
-
-          .word-page-break {
-            display: block;
-            height: 0;
-            margin: 0;
-            break-before: page;
-            page-break-before: always;
           }
         </style>
       </head>
@@ -4936,11 +4937,33 @@ function buildSummaryWordHtml() {
 }
 
 function buildSummaryPdfHtml() {
-  return buildSummaryWordHtml();
+  const printScript = `
+    <script>
+      window.addEventListener("load", () => {
+        window.setTimeout(() => {
+          window.focus();
+          window.print();
+        }, 150);
+      });
+    </script>
+  `;
+
+  return buildSummaryWordHtml().replace("</body>", `${printScript}</body>`);
 }
 
 function buildPrintableReportPdfHtml() {
-  return buildPrintableReportHtml();
+  const printScript = `
+    <script>
+      window.addEventListener("load", () => {
+        window.setTimeout(() => {
+          window.focus();
+          window.print();
+        }, 150);
+      });
+    </script>
+  `;
+
+  return buildPrintableReportHtml().replace("</body>", `${printScript}</body>`);
 }
 
 function buildSummaryPdfText() {
@@ -5058,43 +5081,16 @@ function downloadBlob(blob, filename) {
 }
 
 function openPrintHtmlDocument(html) {
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const frame = document.createElement("iframe");
-  frame.style.position = "fixed";
-  frame.style.right = "0";
-  frame.style.bottom = "0";
-  frame.style.width = "0";
-  frame.style.height = "0";
-  frame.style.border = "0";
-  frame.setAttribute("aria-hidden", "true");
-  frame.src = url;
-  document.body.append(frame);
+  const printWindow = window.open("", "_blank");
 
-  frame.addEventListener(
-    "load",
-    () => {
-      const cleanup = () => {
-        window.setTimeout(() => {
-          frame.remove();
-          URL.revokeObjectURL(url);
-        }, 1000);
-      };
+  if (!printWindow) {
+    window.alert("Het afdrukvenster kon niet worden geopend. Controleer of pop-ups zijn toegestaan.");
+    return;
+  }
 
-      const printFrameWindow = frame.contentWindow;
-      if (!printFrameWindow) {
-        cleanup();
-        return;
-      }
-
-      printFrameWindow.focus();
-      window.setTimeout(() => {
-        printFrameWindow.print();
-        cleanup();
-      }, 150);
-    },
-    { once: true }
-  );
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
 }
 
 function sanitizePdfText(value) {
@@ -5241,7 +5237,7 @@ function generateRelevantReportPdf() {
 
 function generateWordReport() {
   const html = buildPrintableReportHtml();
-  const blob = new Blob([html], {
+  const blob = new Blob(["\ufeff", html], {
     type: "application/msword;charset=utf-8",
   });
   downloadBlob(blob, `RI&E toetsklaar-rapport.doc`);
@@ -5249,7 +5245,7 @@ function generateWordReport() {
 
 function generateSummaryWordReport() {
   const html = buildSummaryWordHtml();
-  const blob = new Blob([html], {
+  const blob = new Blob(["\ufeff", html], {
     type: "application/msword;charset=utf-8",
   });
   downloadBlob(blob, `RI&E toetsklaar-samenvatting.doc`);
