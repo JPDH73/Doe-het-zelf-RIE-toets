@@ -380,6 +380,7 @@ const arboCertificates = document.querySelector("#arboCertificates");
 const employees = document.querySelector("#employees");
 const assessmentDate = document.querySelector("#assessmentDate");
 const rieName = document.querySelector("#rieName");
+const rieDescription = document.querySelector("#rieDescription");
 const scopeDescription = document.querySelector("#scopeDescription");
 const executionDescription = document.querySelector("#executionDescription");
 const executionParticipantRows = document.querySelector("#executionParticipantRows");
@@ -658,8 +659,15 @@ function setPanelContentOpenForStep(step) {
 function updateWizardStepButtons() {
   for (const button of wizardStepButtons) {
     const step = Number(button.dataset.stepTarget || "0");
+    const status = getWizardStepProgressStatus(step);
     button.classList.toggle("is-active", step === currentWizardStep);
-    button.classList.toggle("is-complete", isWizardStepComplete(step));
+    button.classList.toggle("is-complete", status === "complete");
+    button.classList.toggle("is-partial", status === "partial");
+    const statusElement = button.querySelector(".wizard-step-button-status");
+    if (statusElement) {
+      statusElement.textContent =
+        status === "complete" ? "ingevuld" : status === "partial" ? "deels ingevuld" : "niet ingevuld";
+    }
   }
 }
 
@@ -1539,7 +1547,7 @@ function createRiskMethodHelp() {
 
   const paragraph = document.createElement("p");
   paragraph.textContent =
-    "Beschrijf hier welke onderzoeksmethode, beoordelingswijze of verdiepende analyse is gebruikt om dit risico te inventariseren. Afhankelijk van het onderwerp kunnen verschillende methoden zijn toegepast, zoals interviews, werkplekobservaties, metingen, dossieronderzoek, trendanalyses of taakgerichte beoordelingen.";
+    "Beschrijf hier welke onderzoeksmethode, beoordelingswijze of verdiepende analyse is gebruikt om dit risico te inventariseren. Afhankelijk van het onderwerp kunnen verschillende methoden zijn toegepast, vragenlijsten gebruikt zijn en eventueel ondersteund zijn met interviews, werkplekobservaties, metingen, dossieronderzoek, trendanalyses of taakgerichte beoordelingen.";
 
   helpToggle.append(summary, paragraph);
   return helpToggle;
@@ -3153,7 +3161,7 @@ function areSectionFieldsFilled(container) {
 }
 
 function isScopeStepComplete() {
-  if (!rieName.value || !scopeDescription.value || !rieDate.value || !rieDocuments.value) {
+  if (!rieName.value || !rieDescription.value || !scopeDescription.value || !rieDate.value || !rieDocuments.value) {
     return false;
   }
 
@@ -3163,6 +3171,32 @@ function isScopeStepComplete() {
   }
 
   return participants.every((participant) => participant.name && participant.role);
+}
+
+function hasAnyNamedValue(elements) {
+  return elements.some((field) => {
+    if (!field || !field.name) {
+      return false;
+    }
+
+    if (field.type === "radio") {
+      return Boolean(survey.querySelector(`input[name="${CSS.escape(field.name)}"]:checked`));
+    }
+
+    if (field.type === "checkbox") {
+      return field.checked;
+    }
+
+    return getPlainValue(field.value) !== "";
+  });
+}
+
+function hasAnyDataInContainer(container) {
+  if (!container) {
+    return false;
+  }
+
+  return hasAnyNamedValue(Array.from(container.querySelectorAll("input[name], textarea[name], select[name]")));
 }
 
 function isRiskProfileStepComplete() {
@@ -3370,6 +3404,110 @@ function isWizardStepComplete(step) {
   return false;
 }
 
+function hasAnyRiskProfileData() {
+  for (const group of riskCatalog) {
+    const groupState = getRiskGroupState(group.id);
+    if (groupState.applicable || groupState.note) {
+      return true;
+    }
+
+    for (const itemLabel of group.items) {
+      const item = getRiskItemState(group.id, group.title, itemLabel);
+      if (
+        item.applicable ||
+        item.described ||
+        item.justified ||
+        item.applicabilityNote ||
+        item.describedYesNote ||
+        item.assessorNote ||
+        item.assessmentMethodNote ||
+        item.evaluationMethodNote ||
+        item.describedNoNote
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function hasAnyGroundCauseData() {
+  const noneState = getGroundCausesNoneState();
+  if (noneState.answer || noneState.note) {
+    return true;
+  }
+
+  return getRelevantGroundCauseItems().some(
+    (item) => item.causes || item.causesYesNote || item.causesNoReason || item.causesNoNote
+  );
+}
+
+function hasAnySupplementalData() {
+  return getRelevantSupplementalConfigs().some(({ item, config }) => {
+    return Boolean(
+      item.supplementalAnswers?.[config.key] ||
+      item.supplementalNotes?.[config.key] ||
+      item.supplementalNoReasons?.[config.key]
+    );
+  });
+}
+
+function hasAnyQuestionSetData(questionSet) {
+  return questionSet.some((question) => {
+    return Boolean(
+      getAnswerValue(question.id) ||
+      getPlainValue(survey.querySelector(`[name="question-${question.id}-note"]`)?.value || "")
+    );
+  });
+}
+
+function getWizardStepProgressStatus(step) {
+  if (isWizardStepComplete(step)) {
+    return "complete";
+  }
+
+  if (step === 1) {
+    return hasAnyDataInContainer(profileSectionContent) ? "partial" : "empty";
+  }
+
+  if (step === 2) {
+    return hasAnyDataInContainer(scopeSectionContent) ? "partial" : "empty";
+  }
+
+  if (step === 3) {
+    return hasAnyRiskProfileData() ? "partial" : "empty";
+  }
+
+  if (step === 4) {
+    return hasAnyGroundCauseData() ? "partial" : "empty";
+  }
+
+  if (step === 5) {
+    return hasAnySupplementalData() ? "partial" : "empty";
+  }
+
+  if (step === 6) {
+    return hasAnyQuestionSetData(
+      questions.filter((question) => question.id !== "1-1-1" && question.id.startsWith("1-"))
+    )
+      ? "partial"
+      : "empty";
+  }
+
+  if (step === 7) {
+    return hasAnyQuestionSetData(questions.filter((question) => question.id.startsWith("2-")))
+      ? "partial"
+      : "empty";
+  }
+
+  if (step === 8) {
+    return computeAssessment().progress > 0 ? "partial" : "empty";
+  }
+
+  return "empty";
+}
+
 function computeAssessment() {
   const results = questions.map(getQuestionResult);
   const totalUnits = results.reduce((sum, result) => sum + result.totalUnits, 0);
@@ -3461,7 +3599,10 @@ function buildSummary(assessment) {
   const company = companyName.value.trim() || "Deze organisatie";
   const contact = rieAssessorName?.value.trim() || contactName.value.trim();
   const rieNameText = rieName.value.trim()
-    ? ` De naam of omschrijving van de RI&E is: ${rieName.value.trim()}.`
+    ? ` De naam van de RI&E is: ${rieName.value.trim()}.`
+    : "";
+  const rieDescriptionText = rieDescription?.value.trim()
+    ? ` De omschrijving van de RI&E is: ${rieDescription.value.trim()}.`
     : "";
   const scopeText = scopeDescription.value.trim()
     ? ` De beschreven reikwijdte van de RI&E is: ${scopeDescription.value.trim()}.`
@@ -3494,7 +3635,7 @@ function buildSummary(assessment) {
       : "";
   const inventoryText = riskInventory ? ` ${riskInventory.inventorySummary}` : "";
 
-  return `${intro}${critical}${inventoryText}${rieNameText}${scopeText}${executionText}${rieDateText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
+  return `${intro}${critical}${inventoryText}${rieNameText}${rieDescriptionText}${scopeText}${executionText}${rieDateText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
 }
 
 function getPlainValue(value) {
@@ -3894,7 +4035,8 @@ function buildRelevantReportPdfText() {
     `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
     "",
     "Afbakening en documentgegevens van de RI&E",
-    `Naam of omschrijving van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
     `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
@@ -3952,7 +4094,8 @@ function buildReport(assessment) {
     `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
     "",
     "Afbakening en documentgegevens van de RI&E",
-    `Naam of omschrijving van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
     `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
@@ -4349,7 +4492,8 @@ function getGeneralFieldsReportHtml() {
   ];
 
   const rieRows = [
-    ["Naam of omschrijving van de RI&E", rieName.value],
+    ["Naam van de RI&E", rieName.value],
+    ["Omschrijving van de RI&E", rieDescription?.value || ""],
     ["Reikwijdte van de RI&E", scopeDescription.value],
     ["Uitvoering van de RI&E", executionDescription.value],
     ["Datum van de RI&E", rieDate.value],
@@ -4973,7 +5117,8 @@ function buildSummaryPdfText() {
     `Datum van invullen: ${getPlainValue(assessmentDate.value)}`,
     "",
     "Afbakening en documentgegevens van de RI&E",
-    `Naam of omschrijving van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
+    `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
     `Datum van de RI&E: ${getPlainValue(rieDate.value)}`,
@@ -5251,14 +5396,16 @@ function generateWordReport() {
 
 function generateSummaryWordReport() {
   const html = buildSummaryWordHtml();
-  const blob = new Blob([html], {
+  const blob = new Blob(["\ufeff", html], {
     type: "application/msword;charset=utf-8",
   });
   downloadBlob(blob, `RI&E toetsklaar-samenvatting.doc`);
 }
 
 function generateSummaryPdfReport() {
-  openPrintHtmlDocument(buildSummaryPdfHtml());
+  const reportText = buildSummaryPdfText();
+  const blob = buildPdfBlobFromText(reportText);
+  downloadBlob(blob, `RI&E toetsklaar-samenvatting.pdf`);
 }
 
 function updateScoreRing(readiness) {

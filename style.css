@@ -237,8 +237,24 @@ h1 {
 }
 
 .wizard-step-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   justify-content: center;
   text-align: center;
+}
+
+.wizard-step-button-title {
+  display: block;
+}
+
+.wizard-step-button-status {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.2;
+  opacity: 0.88;
 }
 
 .wizard-step-button-results {
@@ -262,7 +278,20 @@ h1 {
   font-weight: 700;
 }
 
+.wizard-step-button.is-partial {
+  border-color: rgba(217, 119, 6, 0.28);
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  font-weight: 700;
+}
+
 .wizard-step-button.is-complete.is-active {
+  border-color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.wizard-step-button.is-partial.is-active {
   border-color: #1d4ed8;
   background: rgba(37, 99, 235, 0.12);
   color: #1d4ed8;

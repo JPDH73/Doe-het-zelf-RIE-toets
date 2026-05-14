@@ -77,28 +77,36 @@
               </div>
               <div class="wizard-step-buttons">
               <button class="secondary-button wizard-step-button" id="wizardStepButton1" type="button" data-step-target="1">
-                1. Bedrijfsprofiel
+                <span class="wizard-step-button-title">1. Bedrijfsprofiel</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton2" type="button" data-step-target="2">
-                2. Afbakening
+                <span class="wizard-step-button-title">2. Afbakening</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton3" type="button" data-step-target="3">
-                3. Risicoprofiel
+                <span class="wizard-step-button-title">3. Risicoprofiel</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton4" type="button" data-step-target="4">
-                4. Grondoorzaken
+                <span class="wizard-step-button-title">4. Grondoorzaken</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton5" type="button" data-step-target="5">
-                5. Nadere voorschriften
+                <span class="wizard-step-button-title">5. Nadere voorschriften</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton6" type="button" data-step-target="6">
-                6. RI&amp;E-kwaliteit
+                <span class="wizard-step-button-title">6. RI&amp;E-kwaliteit</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button" id="wizardStepButton7" type="button" data-step-target="7">
-                7. Plan van aanpak
+                <span class="wizard-step-button-title">7. Plan van aanpak</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
               <button class="secondary-button wizard-step-button wizard-step-button-results" id="wizardStepButton8" type="button" data-step-target="8">
-                8. Uitkomsten en rapporten
+                <span class="wizard-step-button-title">8. Uitkomsten en rapporten</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
             </div>
             <div class="button-row wizard-progress-actions">
@@ -228,12 +236,22 @@
 
               <div id="scopeSectionContent" class="document-grid" hidden>
                 <label class="field">
-                  <span>Naam of omschrijving van de RI&amp;E</span>
+                  <span>Naam van de RI&amp;E</span>
                   <input
                     id="rieName"
                     name="rieName"
                     type="text"
-                    placeholder="Geef hier de naam van de RI&amp;E en een korte omschrijving."
+                    placeholder="Geef hier de naam van de RI&amp;E."
+                  />
+                </label>
+
+                <label class="field field-full">
+                  <span>Omschrijving van de RI&amp;E</span>
+                  <textarea
+                    id="rieDescription"
+                    name="rieDescription"
+                    rows="3"
+                    placeholder="Geef hier een korte omschrijving van de RI&amp;E."
                   />
                 </label>
 
