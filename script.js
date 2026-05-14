@@ -449,7 +449,7 @@ const wizardNext = document.querySelector("#wizardNext");
 const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-target]"));
 const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
-const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v1";
+const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v2";
 const TOTAL_WIZARD_STEPS = 8;
 let currentWizardStep = 0;
 let resetConfirmationStep = 1;
@@ -3162,7 +3162,7 @@ function isScopeStepComplete() {
     return false;
   }
 
-  return participants.every((participant) => participant.name && participant.role && participant.method);
+  return participants.every((participant) => participant.name && participant.role);
 }
 
 function isRiskProfileStepComplete() {
