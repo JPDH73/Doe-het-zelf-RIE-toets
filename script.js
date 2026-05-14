@@ -4002,6 +4002,11 @@ function buildReportPreviewHtml(reportText) {
 
 function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines = []) {
   const riskGroupHeadings = new Set(riskCatalog.map((group) => group.title));
+  const pageBreakHeadings = new Set([
+    ...riskGroupHeadings,
+    "Uitkomst RI&E-kwaliteit",
+    "Uitkomsten plan van aanpak",
+  ]);
   const headingLines = new Set([
     documentTitle,
     "Bedrijfsprofiel",
@@ -4035,6 +4040,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
           return `<div class="word-row word-row-bullet"><div class="word-row-value">${escapeHtml(row.text).replace(/\n/g, "<br>")}</div></div>`;
         }
 
+        const isQuestionAnswerRow = row.label === "Vraag" || row.label === "Antwoord";
         const normalizedLabel =
           row.label === "Vraag"
             ? "VRAAG"
@@ -4044,9 +4050,9 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
         return `
           <div class="word-row">
-            <div class="word-row-inline">
+            <div class="${isQuestionAnswerRow ? "word-row-inline" : "word-row-stack"}">
               <span class="word-row-label">${normalizedLabel}</span>
-              <span class="word-row-value-inline">${escapeHtml(row.value || "Niet ingevuld").replace(/\n/g, "<br>")}</span>
+              <span class="${isQuestionAnswerRow ? "word-row-value-inline" : "word-row-value"}">${escapeHtml(row.value || "Niet ingevuld").replace(/\n/g, "<br>")}</span>
             </div>
           </div>
         `;
@@ -4085,8 +4091,8 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
 
     if (headingLines.has(trimmed) || (/^[A-Z0-9&.\-\s]+$/.test(trimmed) && trimmed.length <= 40)) {
       flushCard();
-      if (riskGroupHeadings.has(trimmed)) {
-        content.push('<div class="word-page-break"></div>');
+      if (pageBreakHeadings.has(trimmed)) {
+        content.push(getWordPageBreakHtml());
       }
       content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
       continue;
@@ -4237,6 +4243,10 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             gap: 10px;
           }
 
+          .word-row-stack {
+            display: block;
+          }
+
           .word-row-label {
             font-size: 8pt;
             font-weight: 700;
@@ -4251,6 +4261,9 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             font-size: 9pt;
             line-height: 1.5;
             color: #172033;
+            display: block;
+            margin-top: 2px;
+            word-break: break-word;
           }
 
           .word-row-value-inline {
@@ -4258,6 +4271,8 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             line-height: 1.5;
             color: #172033;
             flex: 1 1 auto;
+            min-width: 0;
+            word-break: break-word;
           }
 
           .word-row-bullet {
@@ -4277,14 +4292,6 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             margin: 0;
             min-height: 10px;
             line-height: 1;
-          }
-
-          .word-page-break {
-            display: block;
-            height: 0;
-            margin: 0;
-            break-before: page;
-            page-break-before: always;
           }
         </style>
       </head>
