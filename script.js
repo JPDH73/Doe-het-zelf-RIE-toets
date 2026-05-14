@@ -2097,7 +2097,7 @@ function getSupplementalRequirementConfigs(groupId, itemLabel) {
     configs.push(
       {
         key: "hazardous-substances-article-4-2",
-        prompt: "Is invulling gegeven aan Arbobesluit art. 4.2: nadere voorschriften; gevaarlijke stoffen?",
+        prompt: "Is invulling gegeven aan Arbobesluit art. 4.2; nadere voorschriften; gevaarlijke stoffen?",
         helpLink:
           "http://wetten.overheid.nl/jci1.3:c:BWBR0008498&hoofdstuk=4&afdeling=1&paragraaf=2&artikel=4.2",
         placeholder:
@@ -4034,10 +4034,19 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
           return `<div class="word-row word-row-bullet"><div class="word-row-value">${escapeHtml(row.text).replace(/\n/g, "<br>")}</div></div>`;
         }
 
+        const normalizedLabel =
+          row.label === "Vraag"
+            ? "VRAAG"
+            : row.label === "Antwoord"
+              ? "ANTWOORD"
+              : escapeHtml(row.label);
+
         return `
           <div class="word-row">
-            <div class="word-row-label">${escapeHtml(row.label)}</div>
-            <div class="word-row-value">${escapeHtml(row.value || "Niet ingevuld").replace(/\n/g, "<br>")}</div>
+            <div class="word-row-inline">
+              <span class="word-row-label">${normalizedLabel}</span>
+              <span class="word-row-value-inline">${escapeHtml(row.value || "Niet ingevuld").replace(/\n/g, "<br>")}</span>
+            </div>
           </div>
         `;
       })
@@ -4218,19 +4227,33 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             margin-top: 0;
           }
 
+          .word-row-inline {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+          }
+
           .word-row-label {
-            margin-bottom: 2px;
             font-size: 8pt;
             font-weight: 700;
             letter-spacing: 0.02em;
             text-transform: uppercase;
             color: #516173;
+            min-width: 78px;
+            flex: 0 0 78px;
           }
 
           .word-row-value {
             font-size: 9pt;
             line-height: 1.5;
             color: #172033;
+          }
+
+          .word-row-value-inline {
+            font-size: 9pt;
+            line-height: 1.5;
+            color: #172033;
+            flex: 1 1 auto;
           }
 
           .word-row-bullet {
