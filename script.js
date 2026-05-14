@@ -752,7 +752,7 @@ function saveDraftToLocalStorage() {
   try {
     const draftState = collectDraftState();
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftState));
-    updateDraftStatus("Concept wordt lokaal opgeslagen in deze browser.");
+    updateDraftStatus("");
   } catch (error) {
     updateDraftStatus("Lokaal opslaan is in deze browser niet beschikbaar.");
   }
@@ -763,7 +763,7 @@ function restoreDraftFromLocalStorage() {
     const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (!raw) {
       resetExecutionParticipantRows();
-      updateDraftStatus("Concept wordt lokaal opgeslagen in deze browser.");
+      updateDraftStatus("");
       return;
     }
 
@@ -1551,6 +1551,30 @@ function createRiskMethodHelp() {
     "Beschrijf hier welke onderzoeksmethode, beoordelingswijze of verdiepende analyse is gebruikt om dit risico te inventariseren. Afhankelijk van het onderwerp kunnen verschillende methoden zijn toegepast, vragenlijsten gebruikt zijn en eventueel ondersteund zijn met interviews, werkplekobservaties, metingen, dossieronderzoek, trendanalyses of taakgerichte beoordelingen.";
 
   helpToggle.append(summary, paragraph);
+  return helpToggle;
+}
+
+function createRiskEvaluationMethodHelp() {
+  const helpToggle = document.createElement("details");
+  helpToggle.className = "question-help-toggle";
+  helpToggle.hidden = true;
+  helpToggle.dataset.methodHelp = "true";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "Toelichting";
+
+  const body = document.createElement("div");
+
+  const paragraphOne = document.createElement("p");
+  paragraphOne.textContent =
+    "Een RI&E moet duidelijk maken hoe de risico’s zijn geëvalueerd en hoe de prioriteit is bepaald. Dat kan met een eenvoudige indeling zoals hoog/middel/laag, met een risicomatrix, met Kinney & Wiruth, met toetsing aan normen of grenswaarden, of met een deskundige beoordeling. De gekozen methode moet passen bij het soort risico dat wordt beoordeeld.";
+
+  const paragraphTwo = document.createElement("p");
+  paragraphTwo.textContent =
+    "Bij veiligheidsrisico’s kan een scoremethode goed werken. Bij bijvoorbeeld PSA, gevaarlijke stoffen, biologische agentia, fysieke belasting of machineveiligheid is vaak ook een aanvullende beoordeling nodig van blootstelling, normering, beheersniveau en deskundige duiding. Bij machineveiligheid kan daarbij worden aangesloten bij de systematiek uit de machinenormen, waarbij per gevaarlijke situatie onder meer wordt gekeken naar de ernst van mogelijk letsel, de blootstelling aan het gevaar en de mogelijkheid om het gevaar of letsel te vermijden of te beperken. Belangrijk is dat de gekozen evaluatiemethode navolgbaar is en past bij het type risico.";
+
+  body.append(paragraphOne, paragraphTwo);
+  helpToggle.append(summary, body);
   return helpToggle;
 }
 
@@ -2464,6 +2488,7 @@ function renderRiskInventory(container) {
           "Omschrijf hier welke methode is gebruikt om dit risico te evalueren (voor het bepalen van de risicoklasse)."
         )
       );
+      described.append(createRiskEvaluationMethodHelp());
       item.append(described);
 
       const whyNot = createRiskColumn(
@@ -4052,7 +4077,7 @@ function buildRelevantReportPdfText() {
 
   const riskLines = buildRelevantRiskInventoryReportLines();
   const regularLines = buildRelevantRegularQuestionReportLines(
-    "Uitkomst RI&E-kwaliteit",
+    "Uitkomst conformiteit",
     [
       ...getQuestionStatusItems().filter((question) => question.category === "1.1 Volledigheid"),
       ...getQuestionStatusItems().filter(
@@ -4109,7 +4134,7 @@ function buildReport(assessment) {
     "",
     ...buildRiskInventoryReportLines(),
     ...buildRegularQuestionReportLines(
-      "Uitkomst RI&E-kwaliteit",
+      "Uitkomst conformiteit",
       getQuestionStatusItems()
     ),
     ...buildRegularQuestionReportLines("Uitkomsten plan van aanpak", getPlanStatusItems()),
@@ -4125,7 +4150,7 @@ function buildReportPreviewHtml(reportText) {
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
     "Uitwerking vraag 1.1.1",
-    "Uitkomst RI&E-kwaliteit",
+    "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",
   ]);
 
@@ -4153,7 +4178,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
   const riskGroupHeadings = new Set(riskCatalog.map((group) => group.title));
   const pageBreakHeadings = new Set([
     ...riskGroupHeadings,
-    "Uitkomst RI&E-kwaliteit",
+    "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",
   ]);
   const headingLines = new Set([
@@ -4161,7 +4186,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
     "Uitkomst risicoprofiel, grondoorzaken en nadere voorschriften",
-    "Uitkomst RI&E-kwaliteit",
+    "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",
     "UITKOMSTEN EN RAPPORTEN",
     "Uitkomst risicoprofiel",
@@ -4711,7 +4736,7 @@ function getSummaryOutcomeReportHtml(assessment, options = {}) {
         )}</ul>
       </div>
       <div class="report-subsection">
-        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst RI&E-kwaliteit</h3>
+        <h3 style="margin: 10px 0 6px; font-size: 9pt;">Uitkomst conformiteit</h3>
         ${groupedQuestionHtml}
       </div>
       <div class="report-subsection">
@@ -5150,7 +5175,7 @@ function buildSummaryPdfText() {
       ? supplementalStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
       : ["• Nog geen relevante nadere voorschriften."]),
     "",
-    "Uitkomst RI&E-kwaliteit",
+    "Uitkomst conformiteit",
   ];
 
   const groupedQuestions = [
