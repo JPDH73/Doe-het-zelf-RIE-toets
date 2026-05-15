@@ -1411,6 +1411,26 @@ function createRiskTextField(name, labelText, placeholderText) {
   return field;
 }
 
+function createRiskTextFieldWithHelp(name, labelText, helpText, placeholderText) {
+  const field = document.createElement("label");
+  field.className = "risk-evidence";
+  field.hidden = true;
+
+  const label = document.createElement("span");
+  label.className = "risk-evidence-label";
+  label.textContent = labelText;
+
+  const help = createInlineHelpToggle(helpText);
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "risk-note";
+  textarea.name = name;
+  textarea.placeholder = placeholderText;
+
+  field.append(label, help, textarea);
+  return field;
+}
+
 function getParticipantPickerValues(input) {
   const raw = getPlainValue(input?.value || "");
   return raw ? raw.split(" | ").map((value) => value.trim()).filter(Boolean) : [];
@@ -1586,9 +1606,14 @@ function createInlineHelpToggle(content) {
   summary.textContent = "Toelichting";
 
   const body = document.createElement("div");
-  const paragraph = document.createElement("p");
-  paragraph.textContent = content;
-  body.append(paragraph);
+  String(content)
+    .split(/\n\s*\n/)
+    .filter(Boolean)
+    .forEach((part) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = part.trim();
+      body.append(paragraph);
+    });
 
   helpToggle.append(summary, body);
   return helpToggle;
@@ -2474,21 +2499,21 @@ function renderRiskInventory(container) {
         )
       );
       described.append(
-        createRiskTextField(
+        createRiskTextFieldWithHelp(
           `risk-${itemId}-assessment-method`,
           "Welke methode is gebruikt om het risico te inventariseren?",
+          "Beschrijf hier welke onderzoeksmethode, beoordelingswijze of verdiepende analyse is gebruikt om dit risico te inventariseren. Afhankelijk van het onderwerp kunnen verschillende methoden zijn toegepast, vragenlijsten gebruikt zijn en eventueel ondersteund zijn met interviews, werkplekobservaties, metingen, dossieronderzoek, trendanalyses of taakgerichte beoordelingen.",
           "Omschrijf hier welke methode is gebruikt om dit risico te inventariseren."
         )
       );
-      described.append(createRiskMethodHelp());
       described.append(
-        createRiskTextField(
+        createRiskTextFieldWithHelp(
           `risk-${itemId}-evaluation-method`,
           "Welke methode is gebruikt om het risico te evalueren?",
+          "Een RI&E moet duidelijk maken hoe de risico’s zijn geëvalueerd en hoe de prioriteit is bepaald. Dat kan met een eenvoudige indeling zoals hoog/middel/laag, met een risicomatrix, met Kinney & Wiruth, met toetsing aan normen of grenswaarden, of met een deskundige beoordeling. De gekozen methode moet passen bij het soort risico dat wordt beoordeeld.\n\nBij veiligheidsrisico’s kan een scoremethode goed werken. Bij bijvoorbeeld PSA, gevaarlijke stoffen, biologische agentia, fysieke belasting of machineveiligheid is vaak ook een aanvullende beoordeling nodig van blootstelling, normering, beheersniveau en deskundige duiding. Bij machineveiligheid kan daarbij worden aangesloten bij de systematiek uit de machinenormen, waarbij per gevaarlijke situatie onder meer wordt gekeken naar de ernst van mogelijk letsel, de blootstelling aan het gevaar en de mogelijkheid om het gevaar of letsel te vermijden of te beperken. Belangrijk is dat de gekozen evaluatiemethode navolgbaar is en past bij het type risico.",
           "Omschrijf hier welke methode is gebruikt om dit risico te evalueren (voor het bepalen van de risicoklasse)."
         )
       );
-      described.append(createRiskEvaluationMethodHelp());
       item.append(described);
 
       const whyNot = createRiskColumn(
