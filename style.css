@@ -257,7 +257,8 @@ h1 {
   opacity: 0.88;
 }
 
-.wizard-step-button-results {
+.wizard-step-button-results,
+.wizard-step-button-results:not(.is-active):not(.is-complete):not(.is-partial) {
   border-color: #172033;
   background: #172033;
   color: #ffffff;
