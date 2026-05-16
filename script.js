@@ -453,8 +453,162 @@ const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v2";
 const TOTAL_WIZARD_STEPS = 8;
+const SpeechRecognitionConstructor =
+  window.SpeechRecognition || window.webkitSpeechRecognition || null;
 let currentWizardStep = 0;
 let resetConfirmationStep = 1;
+let activeVoiceSession = null;
+const stepMissingSummaryMap = new Map();
+
+function supportsVoiceInput() {
+  return Boolean(SpeechRecognitionConstructor);
+}
+
+function getVoiceInputFields(root = document) {
+  return Array.from(root.querySelectorAll('input[type="text"][name], textarea[name]')).filter(
+    (field) => !field.closest("[hidden]")
+  );
+}
+
+function appendTranscriptToField(field, transcript) {
+  const cleanedTranscript = getPlainValue(transcript || "");
+  if (!cleanedTranscript) {
+    return;
+  }
+
+  const currentValue = field.value || "";
+  const needsSeparator =
+    currentValue && !/[\s\n]$/.test(currentValue) && !currentValue.endsWith("-");
+  const separator = field.tagName === "TEXTAREA" ? (needsSeparator ? "\n" : "") : needsSeparator ? " " : "";
+
+  field.value = `${currentValue}${separator}${cleanedTranscript}`;
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+  field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function updateVoiceButtonState(button, isRecording) {
+  if (!button) {
+    return;
+  }
+
+  button.classList.toggle("is-recording", isRecording);
+  button.setAttribute("aria-pressed", isRecording ? "true" : "false");
+  button.textContent = isRecording ? "Stop inspreken" : "Inspreken";
+}
+
+function stopActiveVoiceSession() {
+  if (!activeVoiceSession) {
+    return;
+  }
+
+  const { recognition, button } = activeVoiceSession;
+  activeVoiceSession = null;
+  updateVoiceButtonState(button, false);
+  try {
+    recognition.stop();
+  } catch (error) {
+    // Ignore stop errors when the recognizer is already inactive.
+  }
+}
+
+function startVoiceInput(field, button) {
+  if (!supportsVoiceInput()) {
+    return;
+  }
+
+  if (activeVoiceSession?.field === field) {
+    stopActiveVoiceSession();
+    return;
+  }
+
+  stopActiveVoiceSession();
+
+  const recognition = new SpeechRecognitionConstructor();
+  recognition.lang = "nl-NL";
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  recognition.continuous = false;
+
+  let finalTranscript = "";
+
+  recognition.addEventListener("result", (event) => {
+    let interimTranscript = "";
+
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const result = event.results[index];
+      const text = result[0]?.transcript || "";
+      if (result.isFinal) {
+        finalTranscript += `${text} `;
+      } else {
+        interimTranscript += text;
+      }
+    }
+
+    button.dataset.interimTranscript = interimTranscript;
+  });
+
+  recognition.addEventListener("end", () => {
+    const session = activeVoiceSession;
+    if (session?.recognition !== recognition) {
+      return;
+    }
+
+    activeVoiceSession = null;
+    updateVoiceButtonState(button, false);
+    delete button.dataset.interimTranscript;
+    appendTranscriptToField(field, finalTranscript);
+  });
+
+  recognition.addEventListener("error", () => {
+    const session = activeVoiceSession;
+    if (session?.recognition !== recognition) {
+      return;
+    }
+
+    activeVoiceSession = null;
+    updateVoiceButtonState(button, false);
+    delete button.dataset.interimTranscript;
+  });
+
+  activeVoiceSession = { field, button, recognition };
+  updateVoiceButtonState(button, true);
+  recognition.start();
+}
+
+function addVoiceInputControl(field) {
+  if (!field?.name || field.dataset.voiceEnabled === "true") {
+    return;
+  }
+
+  field.dataset.voiceEnabled = "true";
+
+  const actionRow = document.createElement("div");
+  actionRow.className = "voice-input-actions";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "voice-input-button";
+  button.textContent = "Inspreken";
+  button.setAttribute("aria-pressed", "false");
+  button.setAttribute("aria-label", `Spreek tekst in voor ${field.name}`);
+
+  if (!supportsVoiceInput()) {
+    button.disabled = true;
+    button.textContent = "Inspreken niet beschikbaar";
+    button.title = "Deze browser ondersteunt inspreken niet.";
+  } else {
+    button.addEventListener("click", () => startVoiceInput(field, button));
+  }
+
+  actionRow.append(button);
+  field.insertAdjacentElement("afterend", actionRow);
+}
+
+function syncVoiceInputControls(root = survey || document) {
+  for (const field of getVoiceInputFields(root)) {
+    addVoiceInputControl(field);
+  }
+}
 
 function getExecutionParticipantFieldName(index, field) {
   return `executionParticipant-${index}-${field}`;
@@ -557,6 +711,7 @@ function ensureExecutionParticipantTrailingRow() {
 
   if (lastRowData.name || lastRowData.role) {
     executionParticipantRows.append(createExecutionParticipantRow(rows.length));
+    syncVoiceInputControls(executionParticipantRows);
   }
 }
 
@@ -571,6 +726,7 @@ function resetExecutionParticipantRows(rows = [{ name: "", role: "" }]) {
   syncExecutionDescription();
   refreshExecutionParticipantSelects();
   refreshRiskParticipantPickers();
+  syncVoiceInputControls(executionParticipantRows);
 }
 
 function slugify(text) {
@@ -2385,37 +2541,35 @@ function renderRiskInventory(container) {
     const content = document.createElement("div");
     content.className = "risk-group-content";
 
-    if (group.id !== "biologische-agentia") {
-      const groupApplicability = document.createElement("div");
-      groupApplicability.className = "risk-question-block risk-group-applicability";
-      groupApplicability.dataset.groupId = group.id;
+    const groupApplicability = document.createElement("div");
+    groupApplicability.className = "risk-question-block risk-group-applicability";
+    groupApplicability.dataset.groupId = group.id;
 
-      const groupApplicabilityQuestion = document.createElement("p");
-      groupApplicabilityQuestion.className = "risk-question";
-      groupApplicabilityQuestion.textContent = `Is ${formatThemeQuestionLabel(group.title)} als hoofdthema van toepassing op de organisatie binnen de reikwijdte van de RI&E?`;
+    const groupApplicabilityQuestion = document.createElement("p");
+    groupApplicabilityQuestion.className = "risk-question";
+    groupApplicabilityQuestion.textContent = `Is ${formatThemeQuestionLabel(group.title)} als hoofdthema van toepassing op de organisatie binnen de reikwijdte van de RI&E?`;
 
-      const groupApplicabilityOptions = createBinaryOptions(
-        `risk-group-${group.id}-applicable`,
-        [
-          { value: "yes", label: "Van toepassing" },
-          { value: "no", label: "Niet van toepassing" },
-        ],
-        null
-      );
+    const groupApplicabilityOptions = createBinaryOptions(
+      `risk-group-${group.id}-applicable`,
+      [
+        { value: "yes", label: "Van toepassing" },
+        { value: "no", label: "Niet van toepassing" },
+      ],
+      null
+    );
 
-      const groupApplicabilityNote = createEvidenceField(
-        `risk-group-${group.id}-applicable-note`,
-        "Beschrijf hier waarom dit hoofdthema niet van toepassing is binnen de organisatie of waarom dit hoofdthema buiten de scope van deze RI&E valt."
-      );
-      groupApplicabilityNote.hidden = true;
+    const groupApplicabilityNote = createEvidenceField(
+      `risk-group-${group.id}-applicable-note`,
+      "Beschrijf hier waarom dit hoofdthema niet van toepassing is binnen de organisatie of waarom dit hoofdthema buiten de scope van deze RI&E valt."
+    );
+    groupApplicabilityNote.hidden = true;
 
-      groupApplicability.append(
-        groupApplicabilityQuestion,
-        groupApplicabilityOptions,
-        groupApplicabilityNote
-      );
-      content.append(groupApplicability);
-    }
+    groupApplicability.append(
+      groupApplicabilityQuestion,
+      groupApplicabilityOptions,
+      groupApplicabilityNote
+    );
+    content.append(groupApplicability);
 
     const head = document.createElement("div");
     head.className = "risk-table-head";
@@ -3252,20 +3406,17 @@ function hasAnyDataInContainer(container) {
 
 function isRiskProfileStepComplete() {
   for (const group of riskCatalog) {
-    const hasGroupApplicability = group.id !== "biologische-agentia";
     const groupState = getRiskGroupState(group.id);
 
-    if (hasGroupApplicability) {
-      if (!groupState.applicable) {
+    if (!groupState.applicable) {
+      return false;
+    }
+
+    if (groupState.applicable === "no") {
+      if (!groupState.note) {
         return false;
       }
-
-      if (groupState.applicable === "no") {
-        if (!groupState.note) {
-          return false;
-        }
-        continue;
-      }
+      continue;
     }
 
     for (const itemLabel of group.items) {
@@ -3663,14 +3814,9 @@ function buildSummary(assessment) {
   const rieNameText = rieName.value.trim()
     ? ` De naam van de RI&E is: ${rieName.value.trim()}.`
     : "";
-  const rieDescriptionText = rieDescription?.value.trim()
-    ? ` De omschrijving van de RI&E is: ${rieDescription.value.trim()}.`
-    : "";
-  const scopeText = scopeDescription.value.trim()
-    ? ` De beschreven reikwijdte van de RI&E is: ${scopeDescription.value.trim()}.`
-    : "";
-  const executionText = executionDescription.value.trim()
-    ? ` De uitvoering van de RI&E is als volgt beschreven: ${executionDescription.value.trim()}.`
+  const executionReportValue = getExecutionReportValue();
+  const executionText = executionReportValue
+    ? ` De uitvoering van de RI&E is als volgt beschreven: ${executionReportValue}.`
     : "";
   const rieDateText = rieDate.value ? ` De datum van het rapport is ${rieDate.value}.` : "";
   const riePeriodText = riePeriod?.value.trim()
@@ -3700,11 +3846,430 @@ function buildSummary(assessment) {
       : "";
   const inventoryText = riskInventory ? ` ${riskInventory.inventorySummary}` : "";
 
-  return `${intro}${critical}${inventoryText}${rieNameText}${rieDescriptionText}${scopeText}${executionText}${rieDateText}${riePeriodText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
+  return `${intro}${critical}${inventoryText}${rieNameText}${executionText}${rieDateText}${riePeriodText}${rieDocumentsText}${brancheText}${owner}${dateText}${completeness}`;
 }
 
 function getPlainValue(value) {
   return typeof value === "string" ? value.trim() : value || "";
+}
+
+function getExecutionReportValue() {
+  const participants = getExecutionParticipantData()
+    .map((participant) => [participant.name, participant.role].filter(Boolean).join(" | "))
+    .filter(Boolean);
+
+  if (participants.length > 0) {
+    return participants.join("; ");
+  }
+
+  return getPlainValue(executionDescription?.value || "");
+}
+
+function getFieldLabelText(field) {
+  if (!field) {
+    return "";
+  }
+
+  const explicitLabel =
+    field.closest("label")?.querySelector("span")?.textContent ||
+    field.closest(".risk-evidence")?.querySelector(".risk-evidence-label")?.textContent ||
+    "";
+
+  return getPlainValue(explicitLabel);
+}
+
+function getQuestionCardTitle(card) {
+  return getPlainValue(card?.querySelector(".question-title")?.textContent || "");
+}
+
+function getRiskItemDisplayLabel(item) {
+  return getPlainValue(item?.querySelector(".risk-item-label")?.textContent || "");
+}
+
+function isElementVisible(element) {
+  return Boolean(element) && !element.hidden && element.offsetParent !== null;
+}
+
+function ensureStepMissingSummaryContainers() {
+  for (const panel of wizardPanels) {
+    const step = Number(panel.dataset.stepPanel || "0");
+    if (!step || step === 8 || stepMissingSummaryMap.has(step)) {
+      continue;
+    }
+
+    const panelHead = panel.querySelector(".panel-head");
+    if (!panelHead) {
+      continue;
+    }
+
+    const summary = document.createElement("div");
+    summary.className = "step-missing-summary";
+    summary.hidden = true;
+    summary.innerHTML = `
+      <strong class="step-missing-summary-title">Nog in te vullen</strong>
+      <span class="step-missing-summary-text"></span>
+    `;
+
+    panelHead.insertAdjacentElement("afterend", summary);
+    stepMissingSummaryMap.set(step, summary);
+  }
+}
+
+function clearMissingFieldMarkers() {
+  for (const element of survey.querySelectorAll(".is-missing-field")) {
+    element.classList.remove("is-missing-field");
+  }
+}
+
+function markFieldMissing(field) {
+  if (!field) {
+    return;
+  }
+
+  const target =
+    field.closest(".risk-question-block") ||
+    field.closest(".risk-evidence") ||
+    field.closest(".field") ||
+    field.closest(".question-card");
+
+  target?.classList.add("is-missing-field");
+}
+
+function collectMissingProfileFields() {
+  const fields = Array.from(
+    profileSectionContent?.querySelectorAll("input[name], textarea[name], select[name]") || []
+  ).filter((field) => field.type !== "hidden");
+
+  const missing = [];
+  for (const field of fields) {
+    if (getPlainValue(field.value) !== "") {
+      continue;
+    }
+
+    missing.push(getFieldLabelText(field));
+    markFieldMissing(field);
+  }
+
+  return missing.filter(Boolean);
+}
+
+function collectMissingScopeFields() {
+  const missing = [];
+  const fields = [
+    rieName,
+    rieDescription,
+    rieDate,
+    riePeriod,
+    scopeDescription,
+    rieDocuments,
+  ].filter(Boolean);
+
+  for (const field of fields) {
+    if (getPlainValue(field.value) !== "") {
+      continue;
+    }
+
+    missing.push(getFieldLabelText(field));
+    markFieldMissing(field);
+  }
+
+  const participants = Array.from(
+    executionParticipantRows?.querySelectorAll(".execution-participant-row") || []
+  ).filter((row) => {
+    const nameField = row.querySelector('input[name*="-name"]');
+    const roleField = row.querySelector('input[name*="-role"]');
+    return getPlainValue(nameField?.value || "") || getPlainValue(roleField?.value || "");
+  });
+
+  if (participants.length === 0) {
+    const builder = document.querySelector("#executionTeamBuilder");
+    builder?.classList.add("is-missing-field");
+    missing.push("minimaal één uitvoerder");
+  } else {
+    participants.forEach((row, index) => {
+      const nameField = row.querySelector('input[name*="-name"]');
+      const roleField = row.querySelector('input[name*="-role"]');
+      if (getPlainValue(nameField?.value || "") === "") {
+        missing.push(`uitvoerder ${index + 1}: naam`);
+        markFieldMissing(nameField);
+      }
+      if (getPlainValue(roleField?.value || "") === "") {
+        missing.push(`uitvoerder ${index + 1}: functie`);
+        markFieldMissing(roleField);
+      }
+    });
+  }
+
+  return missing;
+}
+
+function collectMissingRiskProfileFields() {
+  const missing = [];
+
+  for (const groupCard of document.querySelectorAll("#questionGroupsRisk .risk-group")) {
+    if (!isElementVisible(groupCard)) {
+      continue;
+    }
+
+    const groupId = groupCard.dataset.groupId || "";
+    const groupState = getRiskGroupState(groupId);
+    if (!groupState.applicable) {
+      missing.push(`${getPlainValue(groupCard.querySelector(".risk-group-title")?.textContent || "")}: van toepassing`);
+      const block = groupCard.querySelector(".risk-group-applicability");
+      block?.classList.add("is-missing-field");
+    } else if (groupState.applicable === "no" && !groupState.note) {
+      missing.push(`${getPlainValue(groupCard.querySelector(".risk-group-title")?.textContent || "")}: toelichting`);
+      markFieldMissing(groupCard.querySelector('[name^="risk-group-"][name$="-applicable-note"]'));
+    }
+
+    for (const item of groupCard.querySelectorAll(".risk-item")) {
+      if (!isElementVisible(item)) {
+        continue;
+      }
+
+      const itemId = item.dataset.itemId;
+      const itemLabel = getRiskItemDisplayLabel(item);
+      const applicable = getAnswerValue(`risk-${itemId}-applicable`);
+      const described = getAnswerValue(`risk-${itemId}-described`);
+      const justified = getAnswerValue(`risk-${itemId}-justified`);
+
+      if (!applicable) {
+        missing.push(`${itemLabel}: van toepassing`);
+        item.querySelector('[data-field="applicable"]')?.classList.add("is-missing-field");
+        continue;
+      }
+
+      if (applicable === "no") {
+        const noteField = item.querySelector(`[name="risk-${itemId}-applicable-note"]`);
+        if (!getPlainValue(noteField?.value || "")) {
+          missing.push(`${itemLabel}: toelichting niet van toepassing`);
+          markFieldMissing(noteField);
+        }
+        continue;
+      }
+
+      if (!described) {
+        missing.push(`${itemLabel}: beschreven in RI&E`);
+        item.querySelector('[data-field="described"]')?.classList.add("is-missing-field");
+        continue;
+      }
+
+      if (described === "yes") {
+        const describedYesNote = item.querySelector(`[name="risk-${itemId}-described-yes-note"]`);
+        const assessor = item.querySelector(`[name="risk-${itemId}-assessor"]`);
+        const method = item.querySelector(`[name="risk-${itemId}-assessment-method"]`);
+        const evaluation = item.querySelector(`[name="risk-${itemId}-evaluation-method"]`);
+
+        if (!getPlainValue(describedYesNote?.value || "")) {
+          missing.push(`${itemLabel}: vindplaats in RI&E`);
+          markFieldMissing(describedYesNote);
+        }
+        if (!getPlainValue(assessor?.value || "")) {
+          missing.push(`${itemLabel}: beoordelaar`);
+          markFieldMissing(assessor);
+        }
+        if (!getPlainValue(method?.value || "")) {
+          missing.push(`${itemLabel}: methode inventariseren`);
+          markFieldMissing(method);
+        }
+        if (!getPlainValue(evaluation?.value || "")) {
+          missing.push(`${itemLabel}: methode evalueren`);
+          markFieldMissing(evaluation);
+        }
+      }
+
+      if (described === "no") {
+        if (!justified) {
+          missing.push(`${itemLabel}: verantwoording`);
+          item.querySelector('[data-field="justified"]')?.classList.add("is-missing-field");
+        }
+        const describedNoNote = item.querySelector(`[name="risk-${itemId}-described-no-note"]`);
+        if (!getPlainValue(describedNoNote?.value || "")) {
+          missing.push(`${itemLabel}: reden niet opgenomen`);
+          markFieldMissing(describedNoNote);
+        }
+      }
+    }
+  }
+
+  return missing;
+}
+
+function collectMissingGroundCauseFields() {
+  const missing = [];
+  const noneState = getGroundCausesNoneState();
+  const generalNote = questionGroupsCauses?.querySelector('[name="ground-causes-none-note"]');
+
+  if (noneState.answer === "yes") {
+    if (!getPlainValue(generalNote?.value || "")) {
+      missing.push("algemene toelichting grondoorzaken");
+      markFieldMissing(generalNote);
+    }
+    return missing;
+  }
+
+  for (const item of document.querySelectorAll("#questionGroupsCauses .cause-item")) {
+    if (!isElementVisible(item)) {
+      continue;
+    }
+
+    const itemId = item.dataset.itemId;
+    const itemLabel = getRiskItemDisplayLabel(item);
+    const causes = getAnswerValue(`risk-${itemId}-causes`);
+    if (!causes) {
+      missing.push(`${itemLabel}: grondoorzaken geïnventariseerd`);
+      item.querySelector('[data-field="causes"]')?.classList.add("is-missing-field");
+      continue;
+    }
+
+    if (causes === "yes") {
+      const note = item.querySelector(`[name="risk-${itemId}-causes-yes-note"]`);
+      if (!getPlainValue(note?.value || "")) {
+        missing.push(`${itemLabel}: bewijs grondoorzaken`);
+        markFieldMissing(note);
+      }
+    }
+
+    if (causes === "no") {
+      const reason = getAnswerValue(`risk-${itemId}-causes-no-reason`);
+      if (!reason) {
+        missing.push(`${itemLabel}: reden waarom niet`);
+        item.querySelector('[name="risk-' + itemId + '-causes-no-reason"]')?.closest(".binary-options-stacked")?.classList.add("is-missing-field");
+      }
+      if (reason === "anders") {
+        const note = item.querySelector(`[name="risk-${itemId}-causes-no-note"]`);
+        if (!getPlainValue(note?.value || "")) {
+          missing.push(`${itemLabel}: toelichting andere reden`);
+          markFieldMissing(note);
+        }
+      }
+    }
+  }
+
+  return missing;
+}
+
+function collectMissingSupplementalFields() {
+  const missing = [];
+
+  for (const item of document.querySelectorAll("#questionGroupsSupplemental .supplemental-item")) {
+    if (!isElementVisible(item)) {
+      continue;
+    }
+
+    const itemId = item.dataset.itemId;
+    const itemLabel = getRiskItemDisplayLabel(item);
+    const groupId = item.dataset.groupId || "";
+    const configs = getSupplementalRequirementConfigs(groupId, item.dataset.itemLabel || "");
+
+    for (const config of configs) {
+      const answer = getAnswerValue(`risk-${itemId}-${config.key}`);
+      const note = item.querySelector(`[name="risk-${itemId}-${config.key}-note"]`);
+      const noReason = getAnswerValue(`risk-${itemId}-${config.key}-no-reason`);
+      const block = note?.closest(".risk-question-block");
+
+      if (!answer) {
+        missing.push(`${itemLabel}: ${config.key}`);
+        block?.classList.add("is-missing-field");
+        continue;
+      }
+
+      if (answer === "yes" && !getPlainValue(note?.value || "")) {
+        missing.push(`${itemLabel}: onderbouwing nadere voorschriften`);
+        markFieldMissing(note);
+      }
+
+      if (answer === "no") {
+        if (!noReason) {
+          missing.push(`${itemLabel}: reden waarom niet`);
+          block?.classList.add("is-missing-field");
+        } else if (noReason === "anders" && !getPlainValue(note?.value || "")) {
+          missing.push(`${itemLabel}: toelichting andere reden`);
+          markFieldMissing(note);
+        }
+      }
+    }
+  }
+
+  return missing;
+}
+
+function collectMissingQuestionSetFields(questionSet, container) {
+  const missing = [];
+
+  for (const question of questionSet) {
+    const answer = getAnswerValue(question.id);
+    const card = container?.querySelector(`.question-card[data-question-id="${CSS.escape(question.id)}"]`);
+    const noteField = survey.querySelector(`[name="question-${question.id}-note"]`);
+    const title = getQuestionCardTitle(card) || getDisplayQuestionTitle(question);
+
+    if (!answer) {
+      missing.push(title);
+      card?.classList.add("is-missing-field");
+      continue;
+    }
+
+    if (shouldShowQuestionEvidence(question, answer) && !getPlainValue(noteField?.value || "")) {
+      missing.push(`${title}: bewijs of toelichting`);
+      markFieldMissing(noteField);
+    }
+  }
+
+  return missing;
+}
+
+function getStepMissingItems(step) {
+  if (step === 1) return collectMissingProfileFields();
+  if (step === 2) return collectMissingScopeFields();
+  if (step === 3) return collectMissingRiskProfileFields();
+  if (step === 4) return collectMissingGroundCauseFields();
+  if (step === 5) return collectMissingSupplementalFields();
+  if (step === 6) {
+    return collectMissingQuestionSetFields(
+      questions.filter((question) => question.id !== "1-1-1" && question.id.startsWith("1-")),
+      questionGroupsRegular
+    );
+  }
+  if (step === 7) {
+    return collectMissingQuestionSetFields(
+      questions.filter((question) => question.id.startsWith("2-")),
+      questionGroupsPlan
+    );
+  }
+
+  return [];
+}
+
+function updateStepMissingSummaries() {
+  ensureStepMissingSummaryContainers();
+  clearMissingFieldMarkers();
+
+  for (const step of [1, 2, 3, 4, 5, 6, 7]) {
+    const summary = stepMissingSummaryMap.get(step);
+    if (!summary) {
+      continue;
+    }
+
+    const missingItems = getStepMissingItems(step);
+    const status = getWizardStepProgressStatus(step);
+    const text = summary.querySelector(".step-missing-summary-text");
+
+    if (status === "empty" || missingItems.length === 0) {
+      summary.hidden = true;
+      if (text) {
+        text.textContent = "";
+      }
+      continue;
+    }
+
+    const previewItems = missingItems.slice(0, 4);
+    const remainder = missingItems.length - previewItems.length;
+    const suffix = remainder > 0 ? ` en nog ${remainder} onderdeel${remainder > 1 ? "en" : ""}` : "";
+    if (text) {
+      text.textContent = `${previewItems.join(", ")}${suffix}.`;
+    }
+    summary.hidden = false;
+  }
 }
 
 function getPlainOptionLabel(optionsList, value) {
@@ -4113,7 +4678,7 @@ function buildRelevantReportPdfText() {
     `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
     `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
-    `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
+    `Uitvoering van de RI&E: ${getExecutionReportValue()}`,
     `Datum rapport: ${getPlainValue(rieDate.value)}`,
     `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     `Documenten die behoren tot de te toetsen RI&E: ${getPlainValue(rieDocuments.value)}`,
@@ -4175,7 +4740,7 @@ function buildReport(assessment) {
     `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
     `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
     `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
-    `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
+    `Uitvoering van de RI&E: ${getExecutionReportValue()}`,
     `Datum rapport: ${getPlainValue(rieDate.value)}`,
     `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     `Documenten die behoren tot de te toetsen RI&E: ${getPlainValue(rieDocuments.value)}`,
@@ -4231,6 +4796,10 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
   const riskGroupHeadings = new Set(riskCatalog.map((group) => group.title));
   const pageBreakHeadings = new Set([
     ...riskGroupHeadings,
+    "UITKOMSTEN EN RAPPORTEN",
+    "Uitkomst grondoorzaken",
+    "Uitkomst naleven voorschriften",
+    "Uitkomst nadere voorschriften",
     "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",
   ]);
@@ -4245,6 +4814,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     "UITKOMSTEN EN RAPPORTEN",
     "Uitkomst risicoprofiel",
     "Uitkomst grondoorzaken",
+    "Uitkomst naleven voorschriften",
     "Uitkomst nadere voorschriften",
     "Volledigheid",
     "Actualiteit",
@@ -4322,7 +4892,12 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
       if (pageBreakHeadings.has(trimmed)) {
         content.push(getWordPageBreakHtml());
       }
-      content.push(`<h2 class="word-heading">${escapeHtml(trimmed)}</h2>`);
+      const isConformitySubheading =
+        trimmed === "Volledigheid" || trimmed === "Actualiteit" || trimmed === "Betrouwbaarheid";
+      const subheadingStyle = isConformitySubheading
+        ? ' style="font-family: Verdana, Arial, sans-serif; font-size: 10pt;"'
+        : "";
+      content.push(`<h2 class="word-heading"${subheadingStyle}>${escapeHtml(trimmed)}</h2>`);
       continue;
     }
 
@@ -4436,6 +5011,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
             font-size: 12pt;
             color: #16324f;
           }
+
 
           .word-card {
             margin: 0 0 12px;
@@ -4580,7 +5156,7 @@ function getGeneralFieldsReportHtml() {
     ["Naam van de RI&E", rieName.value],
     ["Omschrijving van de RI&E", rieDescription?.value || ""],
     ["Reikwijdte van de RI&E", scopeDescription.value],
-    ["Uitvoering van de RI&E", executionDescription.value],
+    ["Uitvoering van de RI&E", getExecutionReportValue()],
     ["Datum rapport", rieDate.value],
     ["Periode van uitvoering van de RI&E", riePeriod?.value || ""],
     ["Documenten die behoren tot de te toetsen RI&E", rieDocuments.value],
@@ -5204,9 +5780,7 @@ function buildSummaryPdfText() {
     "",
     "Afbakening en documentgegevens van de RI&E",
     `Naam van de RI&E: ${getPlainValue(rieName.value)}`,
-    `Omschrijving van de RI&E: ${getPlainValue(rieDescription?.value || "")}`,
-    `Reikwijdte van de RI&E: ${getPlainValue(scopeDescription.value)}`,
-    `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
+    `Uitvoering van de RI&E: ${getExecutionReportValue()}`,
     `Datum rapport: ${getPlainValue(rieDate.value)}`,
     `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
     "Documenten die behoren tot de te toetsen RI&E:",
@@ -5224,7 +5798,7 @@ function buildSummaryPdfText() {
       ? groundCauseStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
       : ["• Nog geen relevante grondoorzaken beoordeeld."]),
     "",
-    "Uitkomst nadere voorschriften",
+    "Uitkomst naleven voorschriften",
     ...(supplementalStatusItems.length
       ? supplementalStatusItems.map((item) => `• ${item.label} - ${item.status.label}`)
       : ["• Nog geen relevante nadere voorschriften."]),
@@ -5515,6 +6089,8 @@ function updateRiskInventoryVisibility() {
     const applicabilityBlock = groupCard.querySelector(".risk-group-applicability");
     const noteField = applicabilityBlock?.querySelector(".risk-evidence");
     const itemCards = groupCard.querySelectorAll(".risk-item");
+    const hasGroupApplicability = Boolean(applicabilityBlock);
+    const showItemCards = !hasGroupApplicability || groupState.applicable === "yes";
 
     groupCard.classList.toggle("is-disabled", groupState.applicable === "no");
 
@@ -5523,7 +6099,7 @@ function updateRiskInventoryVisibility() {
     }
 
     for (const itemCard of itemCards) {
-      itemCard.hidden = groupState.applicable === "no";
+      itemCard.hidden = !showItemCards;
     }
   }
 
@@ -5786,6 +6362,7 @@ function renderAssessment() {
   updateGroundCauseVisibility();
   updateSupplementalVisibility();
   updateQuestionEvidenceVisibility();
+  updateStepMissingSummaries();
 
   const assessment = computeAssessment();
   const risk = describeRisk(assessment.readiness, assessment.criticalItems);
@@ -6631,6 +7208,7 @@ function goToNextWizardStep() {
 renderQuestions();
 resetExecutionParticipantRows();
 restoreDraftFromLocalStorage();
+syncVoiceInputControls();
 renderAssessment();
 updateWizardVisibility();
 updateToggleAllButtonLabel();

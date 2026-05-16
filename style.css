@@ -545,6 +545,47 @@ h1 {
   line-height: 1.5;
 }
 
+.voice-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.voice-input-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  border-radius: 999px;
+  background: rgba(240, 253, 250, 0.9);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.voice-input-button:hover {
+  border-color: rgba(15, 118, 110, 0.32);
+  background: rgba(204, 251, 241, 0.92);
+}
+
+.voice-input-button.is-recording {
+  border-color: rgba(185, 28, 28, 0.22);
+  background: rgba(254, 242, 242, 0.96);
+  color: #991b1b;
+}
+
+.voice-input-button:disabled {
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(248, 250, 252, 0.96);
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .question-groups {
   display: grid;
   gap: 18px;
@@ -1817,6 +1858,29 @@ body {
   margin-bottom: 12px;
 }
 
+.step-missing-summary {
+  margin: -2px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(217, 119, 6, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 247, 237, 0.96);
+  color: #9a3412;
+  line-height: 1.4;
+}
+
+.step-missing-summary-title {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.step-missing-summary-text {
+  display: block;
+  font-size: 0.9rem;
+}
+
 .panel h2,
 .results h2 {
   letter-spacing: -0.03em;
@@ -1855,6 +1919,16 @@ body {
   outline: none;
   border-color: rgba(15, 118, 110, 0.36);
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+}
+
+.field.is-missing-field,
+.risk-evidence.is-missing-field,
+.risk-question-block.is-missing-field,
+.question-card.is-missing-field,
+.execution-team-builder.is-missing-field,
+.risk-group-applicability.is-missing-field {
+  border-color: rgba(217, 119, 6, 0.36) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
 }
 
 .execution-team-builder,
