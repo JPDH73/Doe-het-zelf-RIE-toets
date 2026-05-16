@@ -3559,6 +3559,17 @@ function getWizardStepProgressStatus(step) {
   return "empty";
 }
 
+function getWizardStepStatusLabel(step) {
+  const status = getWizardStepProgressStatus(step);
+  if (status === "complete") {
+    return "volledig ingevuld";
+  }
+  if (status === "partial") {
+    return "deels ingevuld";
+  }
+  return "niet ingevuld";
+}
+
 function computeAssessment() {
   const results = questions.map(getQuestionResult);
   const totalUnits = results.reduce((sum, result) => sum + result.totalUnits, 0);
@@ -4067,6 +4078,16 @@ function buildRelevantRiskInventoryReportLines() {
 }
 
 function buildRelevantReportPdfText() {
+  const stepStatusLines = [
+    `Bedrijfsprofiel: ${getWizardStepStatusLabel(1)}`,
+    `Afbakening: ${getWizardStepStatusLabel(2)}`,
+    `Risicoprofiel: ${getWizardStepStatusLabel(3)}`,
+    `Grondoorzaken: ${getWizardStepStatusLabel(4)}`,
+    `Nadere voorschriften: ${getWizardStepStatusLabel(5)}`,
+    `Conformiteit: ${getWizardStepStatusLabel(6)}`,
+    `Plan van aanpak: ${getWizardStepStatusLabel(7)}`,
+  ];
+
   const assessment = computeAssessment();
   const lines = [
     "RI&E toetsklaar-rapport",
@@ -4095,8 +4116,10 @@ function buildRelevantReportPdfText() {
     `Uitvoering van de RI&E: ${getPlainValue(executionDescription.value)}`,
     `Datum rapport: ${getPlainValue(rieDate.value)}`,
     `Periode van uitvoering van de RI&E: ${getPlainValue(riePeriod?.value || "")}`,
-    "Documenten die behoren tot de te toetsen RI&E:",
-    getPlainValue(rieDocuments.value),
+    `Documenten die behoren tot de te toetsen RI&E: ${getPlainValue(rieDocuments.value)}`,
+    "",
+    "Status per stap",
+    ...stepStatusLines,
     "",
   ];
 
@@ -4174,6 +4197,7 @@ function buildReportPreviewHtml(reportText) {
     "Samenvatting",
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
+    "Status per stap",
     "Uitwerking vraag 1.1.1",
     "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",
@@ -4188,6 +4212,10 @@ function buildReportPreviewHtml(reportText) {
 
       if (headingLines.has(line.trim())) {
         return `<p class="report-output-heading">${escapeHtml(line.trim())}</p>`;
+      }
+
+      if (line.trim().startsWith("Gegenereerd op ")) {
+        return `<p><strong>${escapeHtml(line.trim())}</strong></p>`;
       }
 
       const escapedLine = escapeHtml(line)
@@ -4210,6 +4238,7 @@ function buildWordDocumentFromText(documentTitle, reportText, extraHeadingLines 
     documentTitle,
     "Bedrijfsprofiel",
     "Afbakening en documentgegevens van de RI&E",
+    "Status per stap",
     "Uitkomst risicoprofiel, grondoorzaken en nadere voorschriften",
     "Uitkomst conformiteit",
     "Uitkomsten plan van aanpak",

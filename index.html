@@ -8,7 +8,7 @@
       content="Desktopgerichte RI&E toetsklaar-tool om bedrijfsprofiel, scope, RI&E, plan van aanpak en samenvattende rapportage gestructureerd voor te bereiden op de toetsing."
     />
     <title>RI&E toetsklaar</title>
-    <link rel="stylesheet" href="./style.css?v=2026-05-14-1" />
+    <link rel="stylesheet" href="./style.css?v=2026-05-16-1" />
   </head>
   <body>
     <main class="page page-wizard">
@@ -19,64 +19,43 @@
               <h1>Maak uw RI&amp;E toetsklaar</h1>
               <div class="intro">
                 <p>
-                  Met deze website controleert u zelf alvast of uw RI&amp;E en plan van
-                  aanpak compleet, actueel en goed onderbouwd zijn. De website helpt u
-                  om de verplichte onderdelen, aanvullende aandachtspunten en
-                  geïnventariseerde risico’s gestructureerd na te lopen.
+                  Met deze website loopt u gestructureerd na of uw RI&amp;E en plan van
+                  aanpak alle verplichte onderdelen bevatten en goed onderbouwd zijn.
+                  U ziet direct wat ontbreekt of aandacht vraagt.
                 </p>
                 <p>
-                  Daarmee bereidt u uw organisatie voor op de systeemtoets en
-                  krijgt u direct zicht op onderdelen die nog ontbreken of extra
-                  aandacht vragen. Ook ontstaat waardevolle input voor de
-                  scope-toets, waarin de deskundige dieper kijkt naar de
-                  inhoudelijke risico’s, de betrouwbaarheid van bevindingen en de
-                  aansluiting bij actuele inzichten.
+                  Dit bereidt u voor op de systeemtoets en levert waardevolle input
+                  voor de scope-toets, waarin de deskundige de inhoudelijke risico's
+                  en bevindingen beoordeelt.
                 </p>
-                <p>
-                  Het resultaat: een beter voorbereid RI&amp;E-dossier, minder
-                  onnodig herstelwerk en een efficiëntere formele toetsing.
-                </p>
-                <p>
-                  De website biedt een praktische doe-het-zelfvoorbereiding en
-                  vervangt niet de formele toetsing door een bevoegde
-                  arbokerndeskundige.
-                </p>
+                <p><strong>Resultaat: een beter dossier dat de toetsing sneller en beter maakt.</strong></p>
+                <p><em>Deze voorbereiding vervangt niet de formele toetsing door een arbodeskundige.</em></p>
+                <p class="hero-subsection-intro"><strong>Met deze website kunt u:</strong></p>
+                <ul class="hero-list">
+                  <li>uw bedrijfsprofiel vastleggen;</li>
+                  <li>de RI&amp;E afbakenen: reikwijdte bepalen, uitvoerders benoemen en documentgegevens vastleggen;</li>
+                  <li>uw RI&amp;E op systeem beoordelen, waaronder het risicoprofiel, de grondoorzaken en de nadere voorschriften;</li>
+                  <li>het plan van aanpak beoordelen;</li>
+                  <li>in de uitkomsten direct zien welke onderdelen compleet zijn en waar nog aandacht of aanvulling nodig is;</li>
+                  <li>een samenvatting en rapportage genereren voor uzelf en de arbokerndeskundige.</li>
+                </ul>
+                <p id="draftStatus" class="draft-status hero-card-status"></p>
               </div>
             </div>
-
-            <aside class="hero-card">
-              <h2 class="hero-card-title">Wat doet u met deze website?</h2>
-              <p class="hero-card-intro">Met deze website kunt u:</p>
-              <ul class="hero-list">
-                <li>in stap 1 uw bedrijfsprofiel vastleggen;</li>
-                <li>in stap 2 de RI&amp;E afbakenen door de reikwijdte te bepalen, de betrokken personen te benoemen en de documentgegevens vast te leggen;</li>
-                <li>in stap 3 tot en met 6 uw RI&amp;E op systeem beoordelen, waaronder het risicoprofiel, de grondoorzaken en de nadere voorschriften;</li>
-                <li>in stap 7 het plan van aanpak beoordelen;</li>
-                <li>in de uitkomsten direct zien welke onderdelen compleet zijn en waar nog aandacht of aanvulling nodig is;</li>
-                <li>een duidelijke samenvatting en rapportage genereren voor uzelf en de arbokerndeskundige.</li>
-              </ul>
-              <p id="draftStatus" class="draft-status hero-card-status"></p>
-            </aside>
           </section>
 
           <section class="panel wizard-progress-panel">
-            <div class="panel-head compact wizard-progress-head">
+              <div class="panel-head compact wizard-progress-head">
               <div>
-                <p class="section-kicker">Navigatie</p>
                 <h2>Doorloop de stappen</h2>
-                <p class="section-note">Werk stap voor stap door de voorbereiding en ga daarna naar de samenvatting en rapporten.</p>
+                <p class="section-note">Doorloop de voorbereiding stap voor stap en ga daarna naar samenvatting en rapporten.</p>
               </div>
-                <div class="wizard-status-stack">
-                  <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 8</strong>
-                  <div class="button-row wizard-progress-reset">
-                    <button id="resetApp" class="secondary-button secondary-button-danger" type="button">
-                      Reset
-                    </button>
-                  </div>
-                </div>
+              <div class="wizard-status-stack">
+                <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 8</strong>
               </div>
+            </div>
               <div class="wizard-step-buttons">
-              <button class="secondary-button wizard-step-button" id="wizardStepButton1" type="button" data-step-target="1">
+              <button class="secondary-button wizard-step-button wizard-step-button-wide" id="wizardStepButton1" type="button" data-step-target="1">
                 <span class="wizard-step-button-title">1. Bedrijfsprofiel</span>
                 <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
@@ -104,10 +83,6 @@
                 <span class="wizard-step-button-title">7. Plan van aanpak</span>
                 <span class="wizard-step-button-status">niet ingevuld</span>
               </button>
-              <button class="secondary-button wizard-step-button wizard-step-button-results" id="wizardStepButton8" type="button" data-step-target="8">
-                <span class="wizard-step-button-title">8. Uitkomsten en rapporten</span>
-                <span class="wizard-step-button-status">niet ingevuld</span>
-              </button>
             </div>
             <div class="button-row wizard-progress-actions">
               <button id="wizardPrev" class="secondary-button" type="button">
@@ -115,6 +90,15 @@
               </button>
               <button id="wizardNext" class="secondary-button" type="button">
                 Volgende stap
+              </button>
+            </div>
+            <div class="button-row wizard-progress-results">
+              <button class="secondary-button wizard-step-button wizard-step-button-results wizard-step-button-wide" id="wizardStepButton8" type="button" data-step-target="8">
+                <span class="wizard-step-button-title">8. Uitkomsten en rapporten</span>
+                <span class="wizard-step-button-status">niet ingevuld</span>
+              </button>
+              <button id="resetApp" class="secondary-button secondary-button-danger wizard-reset-button" type="button">
+                Reset
               </button>
             </div>
           </section>
