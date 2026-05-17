@@ -914,6 +914,10 @@ function updateWizardVisibility() {
   updateWizardNavigation();
   updateResultsContentToggleButtonLabel();
   syncVoiceInputControls();
+
+  if (currentWizardStep === 8) {
+    renderAssessment();
+  }
 }
 
 function setWizardStep(step) {
