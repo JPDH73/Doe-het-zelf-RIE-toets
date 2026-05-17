@@ -459,6 +459,8 @@ let currentWizardStep = 0;
 let resetConfirmationStep = 1;
 let activeVoiceSession = null;
 const stepMissingSummaryMap = new Map();
+let assessmentRenderTimer = null;
+let draftSaveTimer = null;
 
 function supportsVoiceInput() {
   return Boolean(SpeechRecognitionConstructor);
@@ -484,6 +486,45 @@ function appendTranscriptToField(field, transcript) {
   field.value = `${currentValue}${separator}${cleanedTranscript}`;
   field.dispatchEvent(new Event("input", { bubbles: true }));
   field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function getVoiceFieldSeparator(field, currentValue) {
+  const hasValue = Boolean(currentValue);
+  const needsSeparator = hasValue && !/[\s\n]$/.test(currentValue) && !currentValue.endsWith("-");
+
+  if (field.tagName === "TEXTAREA") {
+    return needsSeparator ? "\n" : "";
+  }
+
+  return needsSeparator ? " " : "";
+}
+
+function setVoiceFieldPreview(field, baseValue, transcript) {
+  const cleanedTranscript = getPlainValue(transcript || "");
+  if (!cleanedTranscript) {
+    field.value = baseValue;
+    return;
+  }
+
+  const separator = getVoiceFieldSeparator(field, baseValue);
+  field.value = `${baseValue}${separator}${cleanedTranscript}`;
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function getVoiceErrorMessage(errorCode) {
+  if (errorCode === "not-allowed" || errorCode === "service-not-allowed") {
+    return "Microfoontoegang is geblokkeerd. Sta microfoongebruik toe om in te spreken.";
+  }
+
+  if (errorCode === "no-speech") {
+    return "Er is geen spraak herkend. Probeer opnieuw in te spreken.";
+  }
+
+  if (errorCode === "audio-capture") {
+    return "Er is geen werkende microfoon gevonden voor inspreken.";
+  }
+
+  return "Inspreken is niet gelukt. Probeer het opnieuw.";
 }
 
 function updateVoiceButtonState(button, isRecording) {
@@ -527,12 +568,14 @@ function startVoiceInput(field, button) {
   recognition.lang = "nl-NL";
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
-  recognition.continuous = false;
+  recognition.continuous = true;
 
+  const initialValue = field.value || "";
   let finalTranscript = "";
+  let interimTranscript = "";
 
   recognition.addEventListener("result", (event) => {
-    let interimTranscript = "";
+    interimTranscript = "";
 
     for (let index = event.resultIndex; index < event.results.length; index += 1) {
       const result = event.results[index];
@@ -544,7 +587,8 @@ function startVoiceInput(field, button) {
       }
     }
 
-    button.dataset.interimTranscript = interimTranscript;
+    const previewTranscript = `${finalTranscript} ${interimTranscript}`.trim();
+    setVoiceFieldPreview(field, initialValue, previewTranscript);
   });
 
   recognition.addEventListener("end", () => {
@@ -555,11 +599,18 @@ function startVoiceInput(field, button) {
 
     activeVoiceSession = null;
     updateVoiceButtonState(button, false);
-    delete button.dataset.interimTranscript;
-    appendTranscriptToField(field, finalTranscript);
+    const transcript = getPlainValue(finalTranscript || interimTranscript);
+    if (transcript) {
+      setVoiceFieldPreview(field, initialValue, transcript);
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+      updateDraftStatus("Spraak is toegevoegd aan het veld.");
+    } else {
+      field.value = initialValue;
+      updateDraftStatus("Er is geen spraak herkend. Probeer opnieuw in te spreken.");
+    }
   });
 
-  recognition.addEventListener("error", () => {
+  recognition.addEventListener("error", (event) => {
     const session = activeVoiceSession;
     if (session?.recognition !== recognition) {
       return;
@@ -567,11 +618,13 @@ function startVoiceInput(field, button) {
 
     activeVoiceSession = null;
     updateVoiceButtonState(button, false);
-    delete button.dataset.interimTranscript;
+    field.value = initialValue;
+    updateDraftStatus(getVoiceErrorMessage(event.error));
   });
 
   activeVoiceSession = { field, button, recognition };
   updateVoiceButtonState(button, true);
+  updateDraftStatus("Inspreken gestart. Spreek nu uw tekst in.");
   recognition.start();
 }
 
@@ -860,6 +913,7 @@ function updateWizardVisibility() {
   updateWizardStepButtons();
   updateWizardNavigation();
   updateResultsContentToggleButtonLabel();
+  syncVoiceInputControls();
 }
 
 function setWizardStep(step) {
@@ -911,6 +965,36 @@ function saveDraftToLocalStorage() {
     updateDraftStatus("");
   } catch (error) {
     updateDraftStatus("Lokaal opslaan is in deze browser niet beschikbaar.");
+  }
+}
+
+function scheduleAssessmentRender(delay = 120) {
+  window.clearTimeout(assessmentRenderTimer);
+  assessmentRenderTimer = window.setTimeout(() => {
+    assessmentRenderTimer = null;
+    renderAssessment();
+  }, delay);
+}
+
+function scheduleDraftSave(delay = 350) {
+  window.clearTimeout(draftSaveTimer);
+  draftSaveTimer = window.setTimeout(() => {
+    draftSaveTimer = null;
+    saveDraftToLocalStorage();
+  }, delay);
+}
+
+function flushScheduledUpdates() {
+  if (assessmentRenderTimer !== null) {
+    window.clearTimeout(assessmentRenderTimer);
+    assessmentRenderTimer = null;
+    renderAssessment();
+  }
+
+  if (draftSaveTimer !== null) {
+    window.clearTimeout(draftSaveTimer);
+    draftSaveTimer = null;
+    saveDraftToLocalStorage();
   }
 }
 
@@ -6363,6 +6447,7 @@ function renderAssessment() {
   updateSupplementalVisibility();
   updateQuestionEvidenceVisibility();
   updateStepMissingSummaries();
+  syncVoiceInputControls();
 
   const assessment = computeAssessment();
   const risk = describeRisk(assessment.readiness, assessment.criticalItems);
@@ -6396,23 +6481,26 @@ function renderAssessment() {
     statusBadge.className = `badge ${badgeClass}`;
   }
 
-  if (summaryText) {
-    summaryText.textContent = buildSummary(assessment);
-  }
-
-  if (reportOutput) {
-    const reportText = buildRelevantReportPdfText();
-    reportOutput.dataset.rawText = reportText;
-    reportOutput.innerHTML = buildReportPreviewHtml(reportText);
-  }
-
   if (scoreRing) {
     updateScoreRing(assessment.readiness);
   }
 
-  renderQuestionStatusMatrix();
-  renderPlanStatusMatrix();
-  renderApplicabilityLists(assessment);
+  const shouldUpdateResults = currentWizardStep === 8;
+  if (shouldUpdateResults) {
+    if (summaryText) {
+      summaryText.textContent = buildSummary(assessment);
+    }
+
+    if (reportOutput) {
+      const reportText = buildRelevantReportPdfText();
+      reportOutput.dataset.rawText = reportText;
+      reportOutput.innerHTML = buildReportPreviewHtml(reportText);
+    }
+
+    renderQuestionStatusMatrix();
+    renderPlanStatusMatrix();
+    renderApplicabilityLists(assessment);
+  }
 
   if (!priorityList) {
     return;
@@ -7192,6 +7280,7 @@ function goToPreviousWizardStep() {
     return;
   }
 
+  flushScheduledUpdates();
   setWizardStep(currentWizardStep - 1);
   saveDraftToLocalStorage();
 }
@@ -7201,6 +7290,7 @@ function goToNextWizardStep() {
     return;
   }
 
+  flushScheduledUpdates();
   setWizardStep(currentWizardStep === 0 ? 1 : currentWizardStep + 1);
   saveDraftToLocalStorage();
 }
@@ -7223,8 +7313,8 @@ survey.addEventListener("change", () => {
   saveDraftToLocalStorage();
 });
 survey.addEventListener("input", () => {
-  renderAssessment();
-  saveDraftToLocalStorage();
+  scheduleAssessmentRender();
+  scheduleDraftSave();
 });
 executionParticipantRows?.addEventListener("input", () => {
   ensureExecutionParticipantTrailingRow();
@@ -7250,6 +7340,7 @@ wizardNext?.addEventListener("click", goToNextWizardStep);
 for (const button of wizardStepButtons) {
   button.addEventListener("click", () => {
     const targetStep = Number(button.dataset.stepTarget || "1");
+    flushScheduledUpdates();
     setWizardStep(currentWizardStep === targetStep ? 0 : targetStep);
     saveDraftToLocalStorage();
   });
