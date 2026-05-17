@@ -7120,6 +7120,12 @@ function updateToggleAllButtonLabel() {
 }
 
 function updateQuestionSectionToggleLabels() {
+  const riskInventoryCard = getRiskInventoryQuestionCard();
+  const riskInventoryButtonRow = toggleRiskInventoryQuestion?.closest(".section-toggle-actions");
+  if (riskInventoryButtonRow) {
+    riskInventoryButtonRow.hidden = !riskInventoryCard?.open;
+  }
+
   updateSectionToggleButtonLabel(
     toggleRiskInventoryQuestion,
     getRiskInventoryExpandableSections(),

@@ -87,7 +87,7 @@ textarea {
 .hero-card,
 .panel {
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 8px;
   background: var(--paper);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
@@ -469,7 +469,7 @@ h1 {
   width: 100%;
   padding: 14px 15px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.88);
   color: var(--ink);
 }
@@ -479,7 +479,7 @@ h1 {
   min-height: 160px;
   padding: 14px 15px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.88);
   color: var(--ink);
   line-height: 1.55;
@@ -491,7 +491,7 @@ h1 {
   gap: 14px;
   padding: 16px 18px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -517,7 +517,7 @@ h1 {
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(31, 29, 26, 0.08);
-  border-radius: 16px;
+  border-radius: 4px;
   background: rgba(255, 250, 244, 0.76);
 }
 
@@ -595,7 +595,7 @@ h1 {
   margin-top: 18px;
   padding: 18px 20px 20px;
   border: 1px solid rgba(31, 29, 26, 0.1);
-  border-radius: 22px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
@@ -630,7 +630,7 @@ h1 {
 .question-card {
   display: block;
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 6px;
   background: var(--card);
   overflow: hidden;
 }
@@ -688,7 +688,7 @@ h1 {
 .question-help-toggle {
   margin-top: 12px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -723,7 +723,7 @@ h1 {
 .risk-intro {
   padding: 16px 18px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.7);
 }
 
@@ -738,7 +738,7 @@ h1 {
   gap: 12px;
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.58);
   overflow: hidden;
 }
@@ -796,7 +796,7 @@ h1 {
   margin: 0;
   padding: 12px 14px;
   border: 1px dashed rgba(31, 29, 26, 0.18);
-  border-radius: 14px;
+  border-radius: 4px;
   background: rgba(244, 238, 229, 0.72);
   color: var(--muted);
   font-size: 0.93rem;
@@ -814,7 +814,7 @@ h1 {
   align-items: start;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 4px;
   background: white;
   box-shadow: 0 10px 30px rgba(55, 43, 30, 0.05);
 }
@@ -842,7 +842,7 @@ h1 {
   margin-top: 0;
   padding: 14px 16px;
   border: 1px solid rgba(31, 29, 26, 0.09);
-  border-radius: 16px;
+  border-radius: 4px;
   background: rgba(251, 247, 239, 0.9);
 }
 
@@ -887,7 +887,7 @@ h1 {
   min-height: 46px;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 4px;
   background: #fffaf4;
   cursor: pointer;
 }
@@ -937,7 +937,7 @@ h1 {
   width: 100%;
   padding: 12px 13px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 4px;
   background: rgba(255, 250, 244, 0.82);
   color: var(--ink);
   line-height: 1.55;
@@ -949,7 +949,7 @@ h1 {
   min-height: 48px;
   padding: 12px 13px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 4px;
   background: rgba(255, 250, 244, 0.82);
   color: var(--ink);
 }
@@ -984,7 +984,7 @@ h1 {
   padding: 12px 14px;
   min-width: 132px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   background: white;
   cursor: pointer;
 }
@@ -1063,7 +1063,7 @@ h1 {
 .metric {
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 6px;
   background: var(--card);
 }
 
@@ -1087,7 +1087,7 @@ h1 {
 .result-list-block-card {
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.78);
 }
 
@@ -1130,7 +1130,7 @@ h1 {
   align-items: start;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.82);
 }
 
@@ -1165,7 +1165,7 @@ h1 {
   align-items: start;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.78);
 }
 
@@ -1324,7 +1324,7 @@ h1 {
 
 .priority-item {
   padding: 14px;
-  border-radius: 18px;
+  border-radius: 6px;
   border: 1px solid var(--line);
   background: var(--card);
 }
@@ -1343,7 +1343,7 @@ h1 {
 .secondary-button {
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 4px;
   background: white;
   cursor: pointer;
 }
@@ -1421,7 +1421,7 @@ h1 {
   width: min(100%, 440px);
   padding: 24px;
   border: 1px solid rgba(31, 29, 26, 0.14);
-  border-radius: 24px;
+  border-radius: 6px;
   background: rgba(255, 251, 245, 0.98);
   box-shadow: 0 28px 80px rgba(31, 29, 26, 0.24);
 }
@@ -1529,7 +1529,7 @@ h1 {
   .hero-card,
   .panel {
     padding: 18px;
-    border-radius: 22px;
+    border-radius: 6px;
   }
 
   .grid.two,
@@ -1547,29 +1547,29 @@ h1 {
 /* 2026 redesign overrides */
 
 :root {
-  --bg: #f5f7fa;
+  --bg: #f4f6f8;
   --paper: #ffffff;
   --card: #ffffff;
   --ink: #0f172a;
-  --muted: #526071;
-  --line: rgba(15, 23, 42, 0.09);
+  --muted: #5b6778;
+  --line: rgba(15, 23, 42, 0.08);
   --accent: #0f766e;
   --accent-soft: rgba(15, 118, 110, 0.14);
   --warning: #b45309;
   --warning-soft: rgba(245, 158, 11, 0.16);
   --danger: #b91c1c;
   --danger-soft: rgba(220, 38, 38, 0.14);
-  --shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  --shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 body {
   color: var(--ink);
-  background: linear-gradient(180deg, #f8fafc 0%, #f3f6f9 100%);
+  background: #f4f6f8;
 }
 
 .page {
-  width: min(1680px, calc(100% - clamp(24px, 3vw, 52px)));
-  margin: 20px auto 44px;
+  width: min(1560px, calc(100% - clamp(24px, 3vw, 52px)));
+  margin: 18px auto 36px;
 }
 
 .page-wizard .workspace {
@@ -1581,7 +1581,7 @@ body {
 .content-column {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.92fr);
-  gap: 18px 22px;
+  gap: 16px 20px;
   align-items: stretch;
 }
 
@@ -1593,16 +1593,16 @@ body {
 .hero-card,
 .panel {
   border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--paper);
   box-shadow: var(--shadow);
 }
 
 .hero-copy {
-  padding: 22px 24px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-height: 100%;
   background: #ffffff;
   color: var(--ink);
@@ -1620,47 +1620,29 @@ body {
 }
 
 .hero-copy h1 {
-  margin-bottom: 12px;
-  font-size: clamp(2rem, 3.2vw, 3.2rem);
-  line-height: 1;
-  letter-spacing: -0.045em;
+  margin-bottom: 8px;
+  font-size: clamp(1.7rem, 2.2vw, 2.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   white-space: normal;
 }
 
 .intro {
   color: var(--muted);
-  font-size: 1.04rem;
-  line-height: 1.48;
-}
-
-.hero-card {
-  padding: 16px 16px 14px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 252, 0.94));
-  border-color: rgba(148, 163, 184, 0.18);
-}
-
-.hero-card-title {
-  font-size: clamp(1.5rem, 2vw, 2.1rem);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
-}
-
-.hero-card-intro {
-  color: var(--ink);
-  font-weight: 700;
+  font-size: 0.99rem;
+  line-height: 1.55;
 }
 
 .hero-list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .hero-subsection-intro {
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid rgba(31, 29, 26, 0.1);
 }
 
@@ -1673,7 +1655,7 @@ body {
 }
 
 .wizard-progress-panel {
-  padding: 16px 18px;
+  padding: 14px 16px;
   background: #ffffff;
   grid-column: 2;
   grid-row: 1;
@@ -1703,7 +1685,7 @@ body {
 
 .wizard-step-buttons {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .wizard-step-button-wide {
@@ -1713,10 +1695,10 @@ body {
 .wizard-step-button {
   align-items: flex-start;
   justify-content: space-between;
-  gap: 6px;
-  min-height: 76px;
-  padding: 13px 16px;
-  border-radius: 14px;
+  gap: 5px;
+  min-height: 68px;
+  padding: 11px 13px;
+  border-radius: 4px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: #ffffff;
   color: var(--ink);
@@ -1729,25 +1711,25 @@ body {
 }
 
 .wizard-step-button-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  line-height: 1.28;
+  line-height: 1.22;
   text-align: left;
 }
 
 .wizard-step-button-status {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
-  padding: 3px 8px;
+  min-height: 20px;
+  padding: 2px 7px;
   border-radius: 999px;
   background: rgba(148, 163, 184, 0.14);
   color: #475569;
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   opacity: 1;
 }
 
@@ -1812,7 +1794,7 @@ body {
 }
 
 .panel {
-  padding: 28px;
+  padding: 22px;
   background: #ffffff;
 }
 
@@ -1846,14 +1828,14 @@ body {
 }
 
 .panel-head {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .step-missing-summary {
   margin: -2px 0 12px;
-  padding: 10px 12px;
+  padding: 9px 11px;
   border: 1px solid rgba(217, 119, 6, 0.18);
-  border-radius: 14px;
+  border-radius: 4px;
   background: rgba(255, 247, 237, 0.96);
   color: #9a3412;
   line-height: 1.4;
@@ -1890,15 +1872,15 @@ body {
 .risk-select,
 .report-output {
   border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .field input,
 .field select,
 .field textarea {
-  padding: 14px 15px;
+  padding: 12px 13px;
 }
 
 .field input:focus,
@@ -1937,24 +1919,24 @@ body {
 
 .question-card {
   border-color: rgba(148, 163, 184, 0.16);
-  border-radius: 18px;
+  border-radius: 6px;
   background: #ffffff;
   box-shadow: none;
 }
 
 .question-card-toggle {
-  padding: 18px 20px 14px;
+  padding: 16px 18px 12px;
   background: #ffffff;
 }
 
 .question-title {
-  font-size: 1.14rem;
-  line-height: 1.35;
+  font-size: 1.02rem;
+  line-height: 1.3;
 }
 
 .question-body {
-  gap: 10px;
-  padding: 14px 20px 18px;
+  gap: 9px;
+  padding: 12px 18px 16px;
 }
 
 .question-help {
@@ -1963,30 +1945,30 @@ body {
 }
 
 .question-help-toggle {
-  margin-top: 6px;
+  margin-top: 4px;
   border-color: rgba(148, 163, 184, 0.16);
-  border-radius: 12px;
+  border-radius: 4px;
   background: #f8fafc;
 }
 
 .question-help-toggle summary {
-  padding: 12px 14px;
+  padding: 10px 12px;
   color: var(--accent);
   font-weight: 700;
 }
 
 .question-help-toggle p {
-  padding: 0 14px 14px;
+  padding: 0 12px 12px;
 }
 
 .risk-group {
   border-color: rgba(148, 163, 184, 0.16);
-  border-radius: 18px;
+  border-radius: 6px;
   background: #f8fafc;
 }
 
 .risk-group-toggle {
-  padding: 14px 18px;
+  padding: 12px 16px;
   background: #f8fafc;
 }
 
@@ -1999,12 +1981,12 @@ body {
 }
 
 .risk-group-content {
-  padding: 12px;
+  padding: 10px;
 }
 
 .risk-item {
   border-color: rgba(148, 163, 184, 0.16);
-  border-radius: 14px;
+  border-radius: 4px;
   background: #ffffff;
   box-shadow: none;
 }
@@ -2020,18 +2002,18 @@ body {
 
 .risk-question-block {
   gap: 8px;
-  padding: 10px 12px;
+  padding: 9px 11px;
   border-color: rgba(148, 163, 184, 0.14);
-  border-radius: 12px;
+  border-radius: 4px;
   background: #f8fafc;
 }
 
 .binary-pill,
 .option {
   border-color: rgba(148, 163, 184, 0.16);
-  border-radius: 12px;
+  border-radius: 4px;
   background: #ffffff;
-  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+  transition: border-color 140ms ease, background-color 140ms ease;
 }
 
 .binary-pill:hover,
@@ -2054,7 +2036,7 @@ body {
 
 .results .summary h3,
 .report-summary-title {
-  font-size: 1.18rem;
+  font-size: 1.08rem;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -2066,16 +2048,16 @@ body {
 
 .status-chip {
   min-width: 84px;
-  padding: 6px 10px;
-  font-size: 0.76rem;
+  padding: 5px 9px;
+  font-size: 0.72rem;
   letter-spacing: 0.02em;
 }
 
 .secondary-button {
-  min-height: 44px;
-  padding: 10px 16px;
+  min-height: 40px;
+  padding: 9px 14px;
   border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
+  border-radius: 4px;
   background: #ffffff;
   color: #0f172a;
   font-weight: 700;
@@ -2103,11 +2085,11 @@ body {
 }
 
 .report-output {
-  min-height: 300px;
+  min-height: 260px;
 }
 
 .report-output-rich {
-  padding: 18px 20px;
+  padding: 16px 18px;
 }
 
 .report-output-rich p {
@@ -2169,7 +2151,7 @@ body {
   .hero-card,
   .panel {
     padding: 18px;
-    border-radius: 20px;
+    border-radius: 6px;
   }
 
   .hero-copy h1 {
@@ -2215,7 +2197,7 @@ body {
   flex: 0 0 auto;
   padding: 16px 18px;
   border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 22px;
+  border-radius: 6px;
   background: rgba(244, 247, 238, 0.95);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(10px);
