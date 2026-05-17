@@ -1075,7 +1075,7 @@ function restoreDraftFromLocalStorage() {
     }
 
     updateWizardVisibility();
-    updateDraftStatus("Opgeslagen concept is teruggezet op deze computer.");
+    updateDraftStatus("");
   } catch (error) {
     updateDraftStatus("Het opgeslagen concept kon niet worden teruggezet.");
   }
