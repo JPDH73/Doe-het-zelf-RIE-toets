@@ -8,7 +8,7 @@
       content="Desktopgerichte RI&E toetsklaar-tool om bedrijfsprofiel, scope, RI&E, plan van aanpak en samenvattende rapportage gestructureerd voor te bereiden op de toetsing."
     />
     <title>RI&E toetsklaar</title>
-    <link rel="stylesheet" href="./style.css?v=2026-05-17-1" />
+    <link rel="stylesheet" href="./style.css?v=2026-05-20-1" />
   </head>
   <body>
     <main class="page page-wizard">
@@ -48,7 +48,7 @@
               <div class="panel-head compact wizard-progress-head">
               <div>
                 <h2>Doorloop de stappen</h2>
-                <p class="section-note">Doorloop de voorbereiding stap voor stap en ga daarna naar samenvatting en rapporten.</p>
+                <p class="section-note">Open het onderdeel door er op te klikken en vul alle stappen in. Ga daarna naar uitkomsten en rapporten.</p>
               </div>
               <div class="wizard-status-stack">
                 <strong id="wizardStepStatus" class="wizard-step-status">Stap 1 van 8</strong>
@@ -208,6 +208,11 @@
                   <input id="assessmentDate" name="assessmentDate" type="date" />
                 </label>
               </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="2">
+                  Door naar stap 2
+                </button>
+              </div>
             </section>
 
             <section class="panel" data-step-panel="2">
@@ -329,6 +334,11 @@
                   ></textarea>
                 </label>
               </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="3">
+                  Door naar stap 3
+                </button>
+              </div>
             </section>
 
             <section class="panel" data-step-panel="3">
@@ -347,6 +357,11 @@
                   </button>
                 </div>
                 <div id="questionGroupsRisk" class="question-groups"></div>
+              </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="4">
+                  Door naar stap 4
+                </button>
               </div>
             </section>
 
@@ -367,6 +382,11 @@
                 </div>
                 <div id="questionGroupsCauses" class="question-groups"></div>
               </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="5">
+                  Door naar stap 5
+                </button>
+              </div>
             </section>
 
             <section class="panel" data-step-panel="5" hidden>
@@ -385,6 +405,11 @@
                   </button>
                 </div>
                 <div id="questionGroupsSupplemental" class="question-groups"></div>
+              </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="6">
+                  Door naar stap 6
+                </button>
               </div>
             </section>
 
@@ -405,6 +430,11 @@
                 </div>
                 <div id="questionGroupsRegular" class="question-groups"></div>
               </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="7">
+                  Door naar stap 7
+                </button>
+              </div>
             </section>
 
             <section class="panel" data-step-panel="7" hidden>
@@ -424,6 +454,11 @@
                 </div>
                 <div id="questionGroupsPlan" class="question-groups"></div>
               </div>
+              <div class="button-row step-next-action">
+                <button class="secondary-button" type="button" data-next-step="8">
+                  Door naar samenvatting en rapporten
+                </button>
+              </div>
             </section>
           </form>
         </div>
@@ -431,23 +466,27 @@
           <section class="panel sticky">
             <div class="panel-head compact">
               <div>
-                <p class="section-kicker">Live resultaat</p>
-                <h2>Uitkomsten en rapporten</h2>
-                <div class="button-row summary-export-action">
-                  <button id="generateSummaryWord" class="secondary-button" type="button">
-                    Samenvatting WORD downloaden
-                  </button>
+                <p class="section-kicker">Afronding</p>
+                <div class="results-head-row">
+                  <h2>Uitkomsten en rapporten</h2>
+                  <div class="button-row summary-export-action">
+                    <button id="generateSummaryWord" class="secondary-button" type="button">
+                      Korte samenvatting downloaden (WORD)
+                    </button>
+                    <button id="generateWord" class="secondary-button" type="button">
+                      Volledig rapport downloaden (WORD)
+                    </button>
+                  </div>
                 </div>
+                <p class="section-note results-intro">
+                  Bekijk de uitkomsten hieronder.<br />
+                  Download de korte samenvatting en het volledige rapport en stuur beide rapporten op naar de arbokerndeskundige.
+                </p>
               </div>
             </div>
 
             <div id="resultsContent">
-              <div class="score-grid">
-                <article class="metric">
-                  <span class="metric-label">Invulgraad</span>
-                  <strong id="progressValue">0%</strong>
-                </article>
-              </div>
+              <h3 class="report-summary-title">Samenvatting</h3>
 
               <section class="summary">
                 <div class="summary-head">
@@ -534,11 +573,6 @@
                         Kopieer
                       </button>
                     </div>
-                    <div class="button-row report-action-row">
-                      <button id="generateWord" class="secondary-button" type="button">
-                        Rapport WORD downloaden
-                      </button>
-                    </div>
                   </div>
                 </div>
                 <div id="reportOutput" class="report-output report-output-rich" hidden></div>
@@ -586,6 +620,6 @@
       </details>
     </template>
 
-    <script src="./script.js?v=2026-05-14-1"></script>
+    <script src="./script.js?v=2026-05-20-1"></script>
   </body>
 </html>

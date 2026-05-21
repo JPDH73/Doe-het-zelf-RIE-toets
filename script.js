@@ -449,6 +449,7 @@ const wizardStepStatus = document.querySelector("#wizardStepStatus");
 const wizardPrev = document.querySelector("#wizardPrev");
 const wizardNext = document.querySelector("#wizardNext");
 const wizardStepButtons = Array.from(document.querySelectorAll("[data-step-target]"));
+const nextStepButtons = Array.from(document.querySelectorAll("[data-next-step]"));
 const wizardPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 
 const DRAFT_STORAGE_KEY = "rie-pretoets-local-draft-v2";
@@ -458,6 +459,8 @@ const SpeechRecognitionConstructor =
 let currentWizardStep = 0;
 let resetConfirmationStep = 1;
 let activeVoiceSession = null;
+let microphonePermissionState = "unknown";
+let microphonePermissionStream = null;
 const stepMissingSummaryMap = new Map();
 let assessmentRenderTimer = null;
 let draftSaveTimer = null;
@@ -513,6 +516,10 @@ function setVoiceFieldPreview(field, baseValue, transcript) {
 
 function getVoiceErrorMessage(errorCode) {
   if (errorCode === "not-allowed" || errorCode === "service-not-allowed") {
+    if (window.location.protocol === "file:") {
+      return "Microfoontoegang is geblokkeerd of wordt niet onthouden bij deze lokale pagina. Gebruik bij voorkeur de online versie of een lokale server voor stabieler inspreken.";
+    }
+
     return "Microfoontoegang is geblokkeerd. Sta microfoongebruik toe om in te spreken.";
   }
 
@@ -537,6 +544,48 @@ function updateVoiceButtonState(button, isRecording) {
   button.textContent = isRecording ? "Stop inspreken" : "Inspreken";
 }
 
+async function primeMicrophonePermissionState() {
+  if (!navigator.permissions?.query) {
+    return;
+  }
+
+  try {
+    const status = await navigator.permissions.query({ name: "microphone" });
+    microphonePermissionState = status.state;
+    status.onchange = () => {
+      microphonePermissionState = status.state;
+    };
+  } catch (error) {
+    // Ignore unsupported permission query environments.
+  }
+}
+
+async function ensureMicrophoneAccess() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return true;
+  }
+
+  if (microphonePermissionStream?.active) {
+    microphonePermissionState = "granted";
+    return true;
+  }
+
+  if (microphonePermissionState === "denied") {
+    updateDraftStatus(getVoiceErrorMessage("not-allowed"));
+    return false;
+  }
+
+  try {
+    microphonePermissionStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    microphonePermissionState = "granted";
+    return true;
+  } catch (error) {
+    microphonePermissionState = "denied";
+    updateDraftStatus(getVoiceErrorMessage("not-allowed"));
+    return false;
+  }
+}
+
 function stopActiveVoiceSession() {
   if (!activeVoiceSession) {
     return;
@@ -552,7 +601,7 @@ function stopActiveVoiceSession() {
   }
 }
 
-function startVoiceInput(field, button) {
+async function startVoiceInput(field, button) {
   if (!supportsVoiceInput()) {
     return;
   }
@@ -563,6 +612,12 @@ function startVoiceInput(field, button) {
   }
 
   stopActiveVoiceSession();
+
+  const microphoneReady = await ensureMicrophoneAccess();
+  if (!microphoneReady) {
+    updateVoiceButtonState(button, false);
+    return;
+  }
 
   const recognition = new SpeechRecognitionConstructor();
   recognition.lang = "nl-NL";
@@ -650,7 +705,9 @@ function addVoiceInputControl(field) {
     button.textContent = "Inspreken niet beschikbaar";
     button.title = "Deze browser ondersteunt inspreken niet.";
   } else {
-    button.addEventListener("click", () => startVoiceInput(field, button));
+    button.addEventListener("click", () => {
+      void startVoiceInput(field, button);
+    });
   }
 
   actionRow.append(button);
@@ -825,6 +882,10 @@ function setPanelContentOpenForStep(step) {
 
   if (step === 3 && step3SectionContent) {
     step3SectionContent.hidden = false;
+    const riskInventoryCard = getRiskInventoryQuestionCard();
+    if (riskInventoryCard) {
+      riskInventoryCard.open = true;
+    }
   }
 
   if (step === 4 && causesStepSectionContent) {
@@ -861,7 +922,7 @@ function setPanelContentOpenForStep(step) {
     }
 
     if (reportOutput) {
-      reportOutput.hidden = false;
+      reportOutput.hidden = true;
     }
   }
 }
@@ -1164,7 +1225,7 @@ function clearAllAnswers() {
   updateWizardVisibility();
   updatePanelSectionToggleLabels();
   updateReportToggleButtonLabel();
-  updateDraftStatus("Concept is gewist op deze computer.");
+  updateDraftStatus("");
 }
 
 function openResetModal() {
@@ -7305,9 +7366,17 @@ function goToNextWizardStep() {
   saveDraftToLocalStorage();
 }
 
+function goToSpecificWizardStep(step) {
+  const targetStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(1, Number(step) || 1));
+  flushScheduledUpdates();
+  setWizardStep(targetStep);
+  saveDraftToLocalStorage();
+}
+
 renderQuestions();
 resetExecutionParticipantRows();
 restoreDraftFromLocalStorage();
+void primeMicrophonePermissionState();
 syncVoiceInputControls();
 renderAssessment();
 updateWizardVisibility();
@@ -7347,6 +7416,11 @@ toggleRegularQuestions?.addEventListener("click", toggleRegularQuestionSection);
 togglePlanQuestions?.addEventListener("click", togglePlanQuestionSection);
 wizardPrev?.addEventListener("click", goToPreviousWizardStep);
 wizardNext?.addEventListener("click", goToNextWizardStep);
+for (const button of nextStepButtons) {
+  button.addEventListener("click", () => {
+    goToSpecificWizardStep(button.dataset.nextStep);
+  });
+}
 for (const button of wizardStepButtons) {
   button.addEventListener("click", () => {
     const targetStep = Number(button.dataset.stepTarget || "1");

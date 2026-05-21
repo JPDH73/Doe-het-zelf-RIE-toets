@@ -1264,6 +1264,11 @@ h1 {
   align-items: center;
 }
 
+.step-next-action {
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
 .report-action-stack {
   display: grid;
   gap: 10px;
@@ -1308,6 +1313,41 @@ h1 {
   margin-left: auto;
   justify-content: flex-end;
   width: 100%;
+}
+
+.results-head-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.results-head-row h2 {
+  margin: 0;
+}
+
+.results-head-row .summary-export-action {
+  margin-top: 0;
+  width: auto;
+  flex-wrap: wrap;
+}
+
+.results-intro {
+  margin-top: 12px;
+}
+
+#generateSummaryWord,
+#generateWord {
+  border-color: rgba(15, 118, 110, 0.28);
+  background: rgba(240, 253, 250, 0.98);
+  color: #115e59;
+}
+
+#generateSummaryWord:hover,
+#generateWord:hover {
+  border-color: rgba(15, 118, 110, 0.38);
+  background: rgba(204, 251, 241, 0.98);
+  color: #134e4a;
 }
 
 .results .panel-head.compact > div {
@@ -2129,6 +2169,7 @@ body {
 @media (max-width: 980px) {
   .hero,
   .wizard-progress-head,
+  .results-head-row,
   .report-summary-head,
   .summary-head {
     grid-template-columns: 1fr;
